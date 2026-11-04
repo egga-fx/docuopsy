@@ -31,7 +31,7 @@
 |  [KIE AI Streaming Gateway]  <--->  [reqwest SSE to claude-haiku-5-5]         |
 |                                                                               |
 |  [Unified Tracing Engine]    <--->  [Rolling file appender + stdout + sanit.] |
-+-------------------------------------------------------------------------------+
++-----------------------------------------------+-------------------------------+
 ```
 
 ---
@@ -39,11 +39,12 @@
 ## 2. Active Architectural Invariants (Non-Negotiable)
 
 1. **Priority Rule:** Speed > Security > Features.
-2. **Crash-Resilience Rule:** A buffer marked `is_dirty = true` must have an atomic draft snapshot persisted to `%APPDATA%\Docuopsy\drafts\` within 500ms debounce.
-3. **Log Sanitization Rule:** No raw document text or plaintext API keys may ever appear in logs.
-4. **Sandboxing Rule:** Paths must be canonicalized and checked for path traversal (`..`) before any filesystem read or write.
-5. **Preview Safety Rule:** All rendered HTML in markdown preview must be sanitized via `DOMPurify`.
-6. **Open Source Rule:** 100% of dependencies must use permissive licenses (MIT, Apache-2.0, BSD, ISC).
+2. **AI Model Boundary:** Hanya menggunakan provider **KIE AI** dengan model **`claude-haiku-5-5`**. Sama sekali TIDAK menggunakan OpenAI Codex, Grok (xAI), ataupun model lain di luar KIE AI.
+3. **Crash-Resilience Rule:** A buffer marked `is_dirty = true` must have an atomic draft snapshot persisted to `%APPDATA%\Docuopsy\drafts\` within 500ms debounce.
+4. **Log Sanitization Rule:** No raw document text or plaintext API keys may ever appear in logs.
+5. **Sandboxing Rule:** Paths must be canonicalized and checked for path traversal (`..`) before any filesystem read or write.
+6. **Preview Safety Rule:** All rendered HTML in markdown preview must be sanitized via `DOMPurify`.
+7. **Open Source Rule:** 100% of dependencies must use permissive licenses (MIT, Apache-2.0, BSD, ISC).
 
 ---
 
@@ -53,6 +54,7 @@
 |---|---|---|---|
 | **Specifications & PRD** | `docs/superpowers/specs/`, `DESIGN.md` | Completed & Approved | Architect |
 | **Agent Protocols & Memory**| `AGENTS.md`, `GEMINI.md`, `docs/memory/`| Active | Architect |
+| **Implementation Plan** | `docs/superpowers/plans/` | Completed & Ready | Architect |
 | **Project Scaffolding** | `src-tauri/`, `src/` | Pending (Task 1) | Rust / Frontend Agents |
 | **Tracing & Log Bridge** | `src-tauri/src/logging.rs`, `src/api/logger.ts` | Pending (Task 2) | Rust Core Agent |
 | **Path Security & FS** | `src-tauri/src/services/fs.rs` | Pending (Task 3) | Rust Core Agent |
