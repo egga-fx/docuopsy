@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #0B0F14;
+  --bg-shell: #111722;
+  --bg-surface: #18202F;
+  --border-subtle: #243044;
+  --text-primary: #ECF2F8;
+  --text-muted: #94A6BE;
+  --accent-verdigris: #0E9F8A;
+  --accent-violet: #7C5CFC;
+  --status-dirty: #D97706;
+}
+
+[data-theme="light"] {
+  --bg-canvas: #FAF7F0;
+  --bg-shell: #F0ECE1;
+  --bg-surface: #E5DFD0;
+  --border-subtle: #CFC7B4;
+  --text-primary: #12161F;
+  --text-muted: #4A5568;
+  --accent-verdigris: #0B7A6A;
+  --accent-violet: #5E3FD6;
+  --status-dirty: #B45309;
+}
+
+/* Custom browser surfaces according to Impeccable Design System */
+::selection {
+  background-color: rgba(14, 159, 138, 0.35);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-shell);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Telemetry tabular numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+

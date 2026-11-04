@@ -56,19 +56,20 @@
 | **Product & Design System** | `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json` | Completed & Verified (`impeccable doctor`) | Architect / Design Director |
 | **Specifications & PRD** | `docs/superpowers/specs/`, `DESIGN.md` | Completed & Approved | Architect |
 | **Agent Protocols & Memory**| `AGENTS.md`, `GEMINI.md`, `docs/memory/`| Active | Architect |
-| **Implementation Plan** | `docs/superpowers/plans/` | Completed & Ready | Architect |
-| **Project Scaffolding** | `src-tauri/`, `src/` | Pending (Task 1) | Rust / Frontend Agents |
-| **Tracing & Log Bridge** | `src-tauri/src/logging.rs`, `src/api/logger.ts` | Pending (Task 2) | Rust Core Agent |
-| **Path Security & FS** | `src-tauri/src/services/fs.rs` | Pending (Task 3) | Rust Core Agent |
-| **Session Persistence** | `src-tauri/src/services/persistence.rs` | Pending (Task 4) | Rust Core Agent |
-| **KIE AI Streaming Gateway**| `src-tauri/src/services/ai.rs` | Pending (Task 5) | Rust Core Agent |
-| **Tab State Store** | `src/store/tabStore.ts` | Pending (Task 6) | Frontend UI Agent |
-| **Layout Switcher** | `src/components/LayoutManager.tsx` | Pending (Task 7) | Frontend UI Agent |
-| **CodeMirror 6 Editor** | `src/components/EditorPane.tsx` | Pending (Task 8) | Frontend UI Agent |
-| **Markdown Preview** | `src/components/MarkdownPreview.tsx` | Pending (Task 9) | Frontend UI Agent |
-| **PDF.js Viewer** | `src/components/PdfViewer.tsx` | Pending (Task 10) | Frontend UI Agent |
-| **In-Editor AI UI** | `src/components/AIPalette.tsx` | Pending (Task 11) | Frontend UI Agent |
-| **E2E & Quality Gate** | `tests/` | Pending (Task 12) | QA / Reviewer Agent |
+| **Implementation Plan** | `docs/superpowers/plans/` | Completed & Fully Implemented | Architect |
+| **Project Scaffolding** | `src-tauri/`, `src/` | Completed & Verified | Rust / Frontend Agents |
+| **Tracing & Log Bridge** | `src-tauri/src/logging.rs`, `src/api/logger.ts` | Completed & Tested | Rust Core Agent |
+| **Path Security & FS** | `src-tauri/src/services/fs.rs` | Completed & Tested | Rust Core Agent |
+| **Session Persistence** | `src-tauri/src/services/persistence.rs` | Completed & Tested | Rust Core Agent |
+| **KIE AI Streaming Gateway**| `src-tauri/src/services/ai.rs` | Completed & Tested | Rust Core Agent |
+| **Tab State Store** | `src/store/tabStore.ts` | Completed & Tested | Frontend UI Agent |
+| **Layout Switcher** | `src/components/LayoutManager.tsx` | Completed & Tested | Frontend UI Agent |
+| **CodeMirror 6 Editor** | `src/components/EditorPane.tsx` | Completed & Tested | Frontend UI Agent |
+| **Markdown Preview** | `src/components/MarkdownPreview.tsx` | Completed & Tested | Frontend UI Agent |
+| **PDF.js Viewer** | `src/components/PdfViewer.tsx` | Completed & Tested | Frontend UI Agent |
+| **In-Editor AI UI** | `src/components/AIPalette.tsx` | Completed & Tested | Frontend UI Agent |
+| **Root Assembly** | `src/App.tsx`, `src-tauri/src/lib.rs` | Completed & Tested | Frontend / Rust Core |
+| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (All Quality Gates) | QA / Reviewer Agent |
 
 ---
 
@@ -81,7 +82,8 @@ export interface AppSession {
   activeTabId: string;
   layoutMode: 'Split' | 'FullEditor' | 'FullPreview';
   splitRatio: number;
-  tabs: TabState[];
+  theme?: string;
+  tabs: Omit<TabState, 'content'>[];
 }
 
 export interface TabState {
@@ -93,6 +95,7 @@ export interface TabState {
   cursorCol: number;
   scrollTop: number;
   draftPath: string | null;
+  content: string;
 }
 
 // AI Streaming Event Payload
