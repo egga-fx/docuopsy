@@ -24,19 +24,22 @@ $$\mathbf{Speed\ (Performance)} \longrightarrow \mathbf{Security} \longrightarro
 
 ## 🌟 Key Features
 
-* **🔬 Forensic-Grade Session Persistence:** Never lose unsaved work again. Docuopsy remembers every open tab, cursor position, scroll offset, and unsaved scratch draft across restarts and system crashes.
-* **📑 Top Tab Workspace:** Fast tab switching, dirty buffer badges (`•`), file type icons, and intuitive shortcuts (`Ctrl+N`, `Ctrl+W`, `Ctrl+Tab`).
+* **🔬 Forensic-Grade Session Persistence:** Never lose unsaved work again. Docuopsy remembers every open tab, cursor position, scroll offset, active theme, and unsaved scratch draft across restarts and system crashes.
+* **🌗 Day-One Dual-Theme Studio (*The Archival Forensics Studio*):**
+  * **Dark Forensics:** Low-glare obsidian slate (`#0B0F14`) with Forensic Verdigris (`#0E9F8A`) accents for extended nocturnal writing and code inspection.
+  * **High-Contrast Light:** Glare-free archival vellum (`#FAF7F0`) with deep Forensic Ink (`#12161F`, >15:1 AAA contrast) and `Literata` editorial typography (65–72ch measure) for academic PDF reading and daytime manuscript drafting.
+* **📑 Top Tab Workspace:** Fast 36px tab strip, dirty buffer amber badges (`•`), SVG file type icons, tabular telemetry, and keyboard-first shortcuts (`Ctrl+N`, `Ctrl+W`, `Ctrl+Tab`).
 * **📐 Dynamic 3-Mode Layout:**
-  * **Split Mode:** Side-by-side editing and real-time Markdown preview.
-  * **Full Editor Mode:** Distraction-free, full-width text editing for `.txt` and source code.
-  * **Full Preview Mode:** Dedicated reader mode and high-fidelity `.pdf` document viewing.
+  * **Split Mode:** Side-by-side editing and real-time Markdown preview with a precision 4px draggable divider.
+  * **Full Editor Mode:** Distraction-free, full-width text editing for `.txt`, Markdown, and source code.
+  * **Full Preview Mode:** Dedicated scholarly reader mode and high-fidelity `.pdf` document viewing.
 * **📂 Multi-Format Support:**
   * Plain text & source files (`.txt`, `.json`, `.log`, `.csv`, `.rs`, `.js`, etc.)
-  * Rich Markdown (`.md`) with GFM tables, code syntax highlighting, and math.
+  * Rich Markdown (`.md`) with GFM tables, code syntax highlighting, and `DOMPurify` XSS sanitization.
   * PDF documents (`.pdf`) via embedded, high-performance canvas rendering.
 * **🤖 In-Editor Generative AI Assistant:**
   * Powered by **KIE AI** utilizing the ultra-fast **Claude Haiku 5.5** model.
-  * Triggered directly inside the editor (`Ctrl+K`): continue writing, summarize, fix grammar, and execute custom prompts with non-blocking streaming tokens.
+  * Triggered directly inside the editor (`Ctrl+K`) with Neural Violet (`#7C5CFC`) focus telemetry: continue writing, summarize, fix grammar, and execute custom prompts with non-blocking streaming tokens.
 
 ---
 
@@ -89,9 +92,11 @@ pnpm tauri build
 | `Ctrl + \` | Toggle Split Mode |
 | `Ctrl + Shift + E` | Switch to Full Editor Mode |
 | `Ctrl + Shift + P` | Switch to Full Preview Mode |
+| `Ctrl + Shift + L` | Toggle Theme (`Dark Forensics` / `High-Contrast Light`) |
 | `Ctrl + K` | Open In-Editor AI Assistant |
 
 ---
 
 ## 📄 License
 This project is licensed under the [MIT License](LICENSE).
+

@@ -9,14 +9,14 @@
 
 ## 1. Executive Summary & Philosophy
 
-**Docuopsy** (berakar dari *Document* + *Autopsy*) adalah aplikasi desktop modern yang berfokus pada **melihat, membaca, dan menyunting dokumen teks multi-format** secara cepat, aman, dan tangguh.
+**Docuopsy** (berakar dari *Document* + *Autopsy*) adalah aplikasi desktop modern yang berfokus pada **melihat, membaca, dan menyunting dokumen teks multi-format serta PDF akademik** secara cepat, aman, dan tangguh. Dirancang untuk **penulis umum, akademisi, peneliti, dan developer**, Docuopsy memadukan kenyamanan ruang baca arsip (*The Archival Forensics Studio*) dengan ketangguhan mesin persistensi tingkat forensik.
 
 ### Hierarki Prioritas Non-Negotiable:
 $$\mathbf{Kecepatan\ (Speed\ /\ Performance)} \longrightarrow \mathbf{Keamanan\ (Security)} \longrightarrow \mathbf{Fitur\ (Features)}$$
 
 1. **Kecepatan:** Waktu startup instan (<1.5 detik), virtualized rendering untuk dokumen besar, alokasi memori minimal, dan I/O non-blocking berbasis Rust async.
 2. **Keamanan:** Arsitektur lokal-first, proteksi path traversal, sanitasi rendering HTML Markdown (anti-XSS), proteksi kredensial, dan sensor data sensitif pada log.
-3. **Fitur:** Dukungan multi-format, sistem tab atas, 3-mode layout, forensic session persistence, dan integrasi AI generatif.
+3. **Fitur:** Dukungan multi-format, sistem tab atas, 3-mode layout, sistem tema ganda sejak hari pertama (*Dark Forensics* & *High-Contrast Light*), forensic session persistence, dan integrasi AI generatif.
 
 ---
 
@@ -130,9 +130,21 @@ Semua library dan dependensi wajib berlisensi bebas dan permisif (MIT, Apache-2.
   - Unit test serde: deserialisasi session JSON valid maupun korup.
   - Integration test KIE AI: menggunakan mock HTTP server (`wiremock`) untuk menguji skenario putus koneksi, rate limit, dan streaming timeout.
 - **Frontend Vitest Tests:**
-  - Pengujian reducer tab: penambahan tab baru, penutupan, perpindahan fokus, dan dirty state flag.
+  - Pengujian reducer tab: penambahan tab baru, penutupan, perpindahan fokus, dirty state flag, dan persistensi tema (`dark` / `light`).
   - Pengujian sanitasi Markdown: verifikasi bahwa tag `<script>` atau atribut `onload=` disaring bersih oleh DOMPurify.
   - Mock IPC Tauri: simulasi pemanggilan command `save_document` dan `restore_session`.
+
+### 5.7. Impeccable Design System, Dual-Theme & Accessibility Standards
+- **Creative North Star:** *"The Archival Forensics Studio"* — menyatukan keterbacaan naskah akademik dengan presisi instrumen laboratorium.
+- **Day-One Dual-Theme Architecture:**
+  - **Dark Forensics (Default Dark):** Latar `Obsidian Canvas` (`#0B0F14`) dan `Slate Shell` (`#111722`) dengan teks `Parchment Light` (`#ECF2F8`, rasio kontras ≥ 14.5:1) untuk sesi penulisan malam bebas silau.
+  - **High-Contrast Light (Archival Vellum):** Latar `Archival Vellum Canvas` (`#FAF7F0`) dan `Vellum Shell` (`#F0ECE1`) dengan teks `Forensic Ink` (`#12161F`, rasio kontras ≥ 15.2:1) untuk membaca PDF akademik dan menyunting dokumen di siang hari.
+  - **Semantic Accents:** `Forensic Verdigris` (`#0E9F8A`) untuk indikator aktif/fokus, `KIE Neural Violet` (`#7C5CFC`) khusus fitur AI `Ctrl+K`, dan `Dirty Buffer Amber` (`#D97706`) untuk indikator draf belum disimpan.
+- **Tipografi & Keterbacaan:**
+  - **UI & Display:** `Atkinson Hyperlegible Next` untuk kejelasan karakter maksimal pada navigasi dan judul.
+  - **Manuscript & Markdown Prose:** `Literata` / `Source Serif 4` dengan lebar kolom baca ideal `65ch–72ch` dan `line-height: 1.7`.
+  - **Code & Telemetry:** `JetBrains Mono` dengan `font-variant-numeric: tabular-nums` pada nomor baris, koordinat kursor (`Ln X, Col Y`), dan indikator halaman PDF.
+- **Standar Aksesibilitas:** Kepatuhan penuh **WCAG 2.1 AA** (dan **AAA** untuk teks baca utama), navigasi berbasis keyboard penuh, `:focus-visible` eksplisit, atribut ARIA lengkap, serta dukungan `prefers-reduced-motion`.
 
 ---
 
@@ -140,13 +152,22 @@ Semua library dan dependensi wajib berlisensi bebas dan permisif (MIT, Apache-2.
 
 ```
 docuopsy/
+├── PRODUCT.md                 # Spesifikasi produk & komitmen pengguna (Impeccable Init)
+├── DESIGN.md                  # Sistem desain visual (Impeccable Tokens) & arsitektur teknis
 ├── GEMINI.md                  # Context & panduan kerja AI Gemini
 ├── AGENTS.md                  # Panduan kolaborasi multi-agent & TDD
-├── DESIGN.md                  # Spesifikasi teknis arsitektur lengkap
 ├── README.md                  # Dokumentasi publik & quick start
 ├── INFRA.md                   # Spesifikasi env, build, test & observability
-├── docs/                      # Dokumentasi teknis & specs
+├── .impeccable/               # Konfigurasi & sidecar komponen Impeccable Design System
+│   ├── config.json
+│   └── design.json
+├── docs/                      # Dokumentasi teknis, memory & specs
+│   ├── memory/
+│   │   ├── brain-map.md
+│   │   └── progress-log.md
 │   └── superpowers/
+│       ├── plans/
+│       │   └── 2026-11-04-docuopsy-core.md
 │       └── specs/
 │           └── 2026-11-04-docuopsy-prd.md
 ├── src-tauri/                 # Backend Core Rust (Tauri v2)

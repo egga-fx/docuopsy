@@ -8,13 +8,17 @@
 
 **Tech Stack:** Rust 2021, Tauri v2, Tokio, Serde, Tracing, Reqwest, React 18, TypeScript, Vite, Tailwind CSS, CodeMirror 6, PDF.js (`pdfjs-dist`), DOMPurify, Vitest, Tempfile, Wiremock.
 
-**Spec:** [`docs/superpowers/specs/2026-11-04-docuopsy-prd.md`](file:///d:/@dev/docuopsy/docs/superpowers/specs/2026-11-04-docuopsy-prd.md) and [`DESIGN.md`](file:///d:/@dev/docuopsy/DESIGN.md)
+**Spec:** [`PRODUCT.md`](file:///d:/@dev/docuopsy/PRODUCT.md), [`docs/superpowers/specs/2026-11-04-docuopsy-prd.md`](file:///d:/@dev/docuopsy/docs/superpowers/specs/2026-11-04-docuopsy-prd.md), and [`DESIGN.md`](file:///d:/@dev/docuopsy/DESIGN.md)
 
 ---
 
 ## Global Constraints
 
 - **Priority Hierarchy:** Speed (Performance) > Security > Features.
+- **Impeccable Design System ("The Archival Forensics Studio"):**
+  - **Day-One Dual-Theme Support:** Must support `dark` (*Dark Forensics* `#0B0F14` obsidian ground) and `light` (*High-Contrast Light* `#FAF7F0` archival vellum ground) via CSS custom properties on `<html data-theme="...">` without CSS filter inversion hacks.
+  - **Typography & Telemetry:** `Atkinson Hyperlegible Next` (UI/headings), `Literata` (65ch–72ch Markdown preview body, `line-height: 1.7`), and `JetBrains Mono` (`font-variant-numeric: tabular-nums` on all line numbers, cursor coordinates, and page counters).
+  - **Accessibility & Craft Floor:** WCAG 2.1 AA minimum (AAA ≥ 14:1 on primary reading prose), explicit `:focus-visible` rings (`#0E9F8A`), ARIA semantics (`tablist`, `tab`, `toolbar`, `status`), themed browser surfaces (`::selection`, carets, scrollbars), zero pure achromatic grays (`#808080`), and zero kicker/eyebrow labels above headings.
 - **Licensing Constraint:** 100% of dependencies must use permissive open-source licenses (MIT, Apache-2.0, BSD, ISC). Zero GPL/AGPL or proprietary packages.
 - **Persistence Constraint:** Unsaved buffers must be atomically snapshotted to `%APPDATA%\Docuopsy\drafts\` via temporary file swap; no partial or corrupted drafts on sudden crash.
 - **Security Constraint:** File operations must canonicalize paths and reject directory traversal attempts (`..` escaping root).

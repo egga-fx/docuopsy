@@ -13,13 +13,15 @@
 
 ---
 
-## 📌 Phase 0: System Architecture & Specifications (DONE ✅)
+## 📌 Phase 0: System Architecture, Specifications & Impeccable Design System (DONE ✅)
 - [x] **0.1.** Inisialisasi Git repository di workspace root (`d:\@dev\docuopsy`).
 - [x] **0.2.** Penyusunan PRD & Spesifikasi Fungsional (`docs/superpowers/specs/2026-11-04-docuopsy-prd.md`).
 - [x] **0.3.** Pembuatan berkas konteks AI & Operasional Multi-Agent:
+  - [x] `PRODUCT.md` (Impeccable Init: konteks produk, profil penulis/akademisi/developer, komitmen dual-theme & WCAG AA/AAA)
   - [x] `GEMINI.md` (Konteks model AI, aturan IPC, dan konvensi kode)
   - [x] `AGENTS.md` (Protokol multi-agent, TDD, quality gates, dan memory rules)
-  - [x] `DESIGN.md` (Arsitektur teknis, diagram aliran data, manifest 100% open source)
+  - [x] `DESIGN.md` (Standar Impeccable Design System + YAML token frontmatter + 8 bagian kanonik + arsitektur teknis)
+  - [x] `.impeccable/design.json` & `.impeccable/config.json` (Sidecar schemaVersion 2 komponen HTML/CSS mandiri & tonal ramps)
   - [x] `README.md` (Dokumentasi publik, fitur, dan keybindings)
   - [x] `INFRA.md` (Toolchain, environment variables, build & CI pipeline)
 - [x] **0.4.** Arsitektur Testing & Logging:

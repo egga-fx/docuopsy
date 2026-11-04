@@ -45,6 +45,7 @@
 5. **Sandboxing Rule:** Paths must be canonicalized and checked for path traversal (`..`) before any filesystem read or write.
 6. **Preview Safety Rule:** All rendered HTML in markdown preview must be sanitized via `DOMPurify`.
 7. **Open Source Rule:** 100% of dependencies must use permissive licenses (MIT, Apache-2.0, BSD, ISC).
+8. **Impeccable Design & Dual-Theme Rule:** Must enforce *The Archival Forensics Studio* design system (`PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`) with day-one semantic parity between **Dark Forensics** (`#0B0F14`) and **High-Contrast Light** (`#FAF7F0`), `tabular-nums` on all numeric telemetry, 65ch–72ch scholarly reading measure, and WCAG 2.1 AA/AAA contrast.
 
 ---
 
@@ -52,6 +53,7 @@
 
 | Module | Location | Status | Owner Role |
 |---|---|---|---|
+| **Product & Design System** | `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json` | Completed & Verified (`impeccable doctor`) | Architect / Design Director |
 | **Specifications & PRD** | `docs/superpowers/specs/`, `DESIGN.md` | Completed & Approved | Architect |
 | **Agent Protocols & Memory**| `AGENTS.md`, `GEMINI.md`, `docs/memory/`| Active | Architect |
 | **Implementation Plan** | `docs/superpowers/plans/` | Completed & Ready | Architect |

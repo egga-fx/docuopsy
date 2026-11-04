@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-04T13:54:00+07:00",
+  "title": "Design System: Docuopsy",
+  "extensions": {
+    "colorMeta": {
+      "verdigris-primary": {
+        "role": "primary",
+        "displayName": "Forensic Verdigris",
+        "canonical": "#0E9F8A",
+        "tonalRamp": ["#042F29", "#074C42", "#09695B", "#0B7A6A", "#0E9F8A", "#2CC4AE", "#73DFCF", "#C6F5EE"]
+      },
+      "verdigris-deep": {
+        "role": "primary",
+        "displayName": "Deep Verdigris",
+        "canonical": "#0B7A6A",
+        "tonalRamp": ["#03241F", "#053B33", "#08574B", "#0B7A6A", "#0E9F8A", "#38C2AE", "#82E3D4", "#D2F7F1"]
+      },
+      "kie-violet": {
+        "role": "secondary",
+        "displayName": "KIE Neural Violet",
+        "canonical": "#7C5CFC",
+        "tonalRamp": ["#1C1147", "#2F1D78", "#462CA8", "#5E3FD6", "#7C5CFC", "#9E85FD", "#C3B4FE", "#E8E2FF"]
+      },
+      "amber-dirty": {
+        "role": "tertiary",
+        "displayName": "Dirty Buffer Amber",
+        "canonical": "#D97706",
+        "tonalRamp": ["#3B1D02", "#633204", "#8F4905", "#B45309", "#D97706", "#F59E0B", "#FBBF24", "#FDE68A"]
+      },
+      "crimson-alert": {
+        "role": "tertiary",
+        "displayName": "Security Alert Crimson",
+        "canonical": "#DC2626",
+        "tonalRamp": ["#3F0A0A", "#691111", "#991B1B", "#B91C1C", "#DC2626", "#EF4444", "#F87171", "#FECACA"]
+      },
+      "emerald-verified": {
+        "role": "tertiary",
+        "displayName": "Sanitized Emerald",
+        "canonical": "#059669",
+        "tonalRamp": ["#022C20", "#044E38", "#047857", "#059669", "#10B981", "#34D399", "#6EE7B7", "#D1FAE5"]
+      },
+      "obsidian-canvas": {
+        "role": "neutral",
+        "displayName": "Obsidian Canvas",
+        "canonical": "#0B0F14",
+        "tonalRamp": ["#0B0F14", "#111722", "#18202F", "#243044", "#3B4D6B", "#647899", "#94A6BE", "#ECF2F8"]
+      },
+      "slate-shell": {
+        "role": "neutral",
+        "displayName": "Slate Shell",
+        "canonical": "#111722",
+        "tonalRamp": ["#0B0F14", "#111722", "#18202F", "#243044", "#3A4B68", "#627696", "#94A6BE", "#E4ECF5"]
+      },
+      "slate-surface": {
+        "role": "neutral",
+        "displayName": "Slate Surface",
+        "canonical": "#18202F",
+        "tonalRamp": ["#0D121A", "#141B27", "#18202F", "#243044", "#3D4F6D", "#667A9A", "#98A9C2", "#E8EFF7"]
+      },
+      "slate-border": {
+        "role": "neutral",
+        "displayName": "Slate Hairline",
+        "canonical": "#243044",
+        "tonalRamp": ["#111722", "#18202F", "#243044", "#354660", "#4E6282", "#7387A6", "#A3B3CA", "#EBF1F8"]
+      },
+      "parchment-light": {
+        "role": "neutral",
+        "displayName": "Parchment Light",
+        "canonical": "#ECF2F8",
+        "tonalRamp": ["#16202C", "#2A3A4E", "#485C76", "#6D839F", "#94A6BE", "#BDD0E4", "#DAE6F2", "#ECF2F8"]
+      },
+      "slate-muted": {
+        "role": "neutral",
+        "displayName": "Slate Muted",
+        "canonical": "#94A6BE",
+        "tonalRamp": ["#151D28", "#263447", "#3E516B", "#5B708E", "#788DAA", "#94A6BE", "#BBD0E4", "#EBF2F9"]
+      },
+      "vellum-canvas": {
+        "role": "neutral",
+        "displayName": "Archival Vellum Canvas",
+        "canonical": "#FAF7F0",
+        "tonalRamp": ["#211E17", "#3F3A2E", "#665E4D", "#8F8570", "#B8B09C", "#DCD5C5", "#F0ECE1", "#FAF7F0"]
+      },
+      "vellum-shell": {
+        "role": "neutral",
+        "displayName": "Vellum Shell",
+        "canonical": "#F0ECE1",
+        "tonalRamp": ["#232019", "#423D30", "#69614E", "#938973", "#BDB49E", "#DFD9C8", "#F0ECE1", "#FAF7F0"]
+      },
+      "vellum-surface": {
+        "role": "neutral",
+        "displayName": "Vellum Surface",
+        "canonical": "#E5DFD0",
+        "tonalRamp": ["#242018", "#453E30", "#6D634E", "#968B73", "#BFB59E", "#E5DFD0", "#F0ECE1", "#FAF7F0"]
+      },
+      "vellum-border": {
+        "role": "neutral",
+        "displayName": "Vellum Hairline",
+        "canonical": "#CFC7B4",
+        "tonalRamp": ["#262219", "#484031", "#716650", "#9B8F75", "#CFC7B4", "#E5DFD0", "#F2EFE6", "#FAF7F0"]
+      },
+      "forensic-ink": {
+        "role": "neutral",
+        "displayName": "Forensic Ink",
+        "canonical": "#12161F",
+        "tonalRamp": ["#12161F", "#1E2533", "#313B4F", "#4A5568", "#6B788E", "#94A0B4", "#C3CBD8", "#EEF1F6"]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "#4A5568",
+        "tonalRamp": ["#12161F", "#222938", "#353E52", "#4A5568", "#69758B", "#8F9BB0", "#BFC7D6", "#ECEFF5"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Top-level document title (h1) in Markdown Preview and empty-workspace welcome header."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Major section headers (h2) in rendered Markdown with 24px top spacing and 8px bottom spacing."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Sub-sections (h3), dialog titles, and the Ctrl+K AI Command Palette prompt input."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Long-form rendered Markdown prose, blockquotes, and academic notes (65ch-72ch max measure)."
+      },
+      "label": {
+        "displayName": "Label / Mono",
+        "purpose": "Top Tab Bar titles, status bar cursor coordinates (Ln 42, Col 12), zoom percentages, and keyboard shortcut badges."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-command",
+        "value": "0 12px 32px -4px rgba(5, 8, 14, 0.55), 0 4px 12px -2px rgba(5, 8, 14, 0.35)",
+        "purpose": "Applied exclusively to the Ctrl+K In-Editor AI Command Palette and modal file recovery alerts."
+      },
+      {
+        "name": "pdf-page-sheet",
+        "value": "0 4px 16px rgba(11, 15, 20, 0.18)",
+        "purpose": "Applied around rendered PDF canvas pages inside PdfViewer to separate page boundaries from the viewer well."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-instrument",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Fast exponential ease-out (120ms-160ms) for tab switches, command palette entry, and button state transitions."
+      }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "768px" },
+      { "name": "standard", "value": "1280px" },
+      { "name": "ultrawide", "value": "1920px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "High-contrast Verdigris confirmation button for file actions and AI prompt submission.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\"/><polyline points=\"17 21 17 13 7 13 7 21\"/><polyline points=\"7 3 7 8 15 8\"/></svg><span>Save Document</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 8px 16px; background-color: #0E9F8A; color: #0B0F14; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; border: 1px solid #0E9F8A; border-radius: 6px; cursor: pointer; transition: background-color 120ms cubic-bezier(0.22, 1, 0.36, 1), color 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-primary:hover { background-color: #0B7A6A; color: #ECF2F8; border-color: #0E9F8A; } .ds-btn-primary:focus-visible { outline: 2px solid #0E9F8A; outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Ghost Toolbar Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Compact toolbar control for layout mode switching (Split / Editor / Preview) and theme toggling.",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"21\"/></svg><span>Split</span><kbd class=\"ds-kbd\">Ctrl+\\</kbd></button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 6px 10px; background-color: #18202F; color: #ECF2F8; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; font-weight: 500; border: 1px solid #243044; border-radius: 3px; cursor: pointer; transition: background-color 120ms cubic-bezier(0.22, 1, 0.36, 1), border-color 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-ghost:hover { background-color: #243044; border-color: #0E9F8A; } .ds-btn-ghost:focus-visible { outline: 2px solid #0E9F8A; outline-offset: 1px; } .ds-kbd { font-size: 10px; color: #94A6BE; padding: 1px 4px; background: #111722; border: 1px solid #243044; border-radius: 3px; }"
+    },
+    {
+      "name": "Top Document Tab Strip",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "36px instrument tab bar showing active tab with 2px Verdigris top bar and dirty buffer amber dot.",
+      "html": "<div class=\"ds-tab-strip\" role=\"tablist\"><div class=\"ds-tab ds-tab-active\" role=\"tab\" aria-selected=\"true\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#0E9F8A\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/></svg><span>manuscript-notes.md</span><span class=\"ds-dirty-dot\" aria-label=\"dirty-indicator\" title=\"Unsaved changes (Draft cached)\"></span><button class=\"ds-tab-close\" aria-label=\"Close tab\">&times;</button></div><div class=\"ds-tab ds-tab-inactive\" role=\"tab\" aria-selected=\"false\"><span>reference-paper.pdf</span></div></div>",
+      "css": ".ds-tab-strip { display: inline-flex; align-items: stretch; height: 36px; background-color: #111722; border-bottom: 1px solid #243044; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; } .ds-tab { display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; border-right: 1px solid #243044; cursor: pointer; user-select: none; transition: background-color 120ms cubic-bezier(0.22, 1, 0.36, 1), color 120ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-tab-active { background-color: #0B0F14; color: #ECF2F8; border-top: 2px solid #0E9F8A; } .ds-tab-inactive { background-color: #111722; color: #94A6BE; border-top: 2px solid transparent; } .ds-tab-inactive:hover { background-color: #18202F; color: #ECF2F8; } .ds-dirty-dot { width: 7px; height: 7px; border-radius: 9999px; background-color: #D97706; display: inline-block; } .ds-tab-close { background: transparent; border: none; color: #94A6BE; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 3px; cursor: pointer; } .ds-tab-close:hover { background-color: #243044; color: #ECF2F8; }"
+    },
+    {
+      "name": "In-Editor AI Command Input (Ctrl+K)",
+      "kind": "input",
+      "refersTo": "input-command",
+      "description": "Floating KIE AI (Claude Haiku 5.5) prompt bar with neural violet focus ring and streaming badge.",
+      "html": "<div class=\"ds-ai-palette\"><div class=\"ds-ai-input-row\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#7C5CFC\" stroke-width=\"2\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg><input class=\"ds-ai-input\" type=\"text\" value=\"Summarize key findings into a GFM table...\" aria-label=\"KIE AI Prompt\" /><span class=\"ds-ai-badge\">claude-haiku-5-5</span></div></div>",
+      "css": ".ds-ai-palette { background-color: #111722; border: 1px solid #243044; border-radius: 8px; padding: 8px; box-shadow: 0 12px 32px -4px rgba(5, 8, 14, 0.55); max-width: 520px; } .ds-ai-input-row { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; background-color: #18202F; border: 1px solid #7C5CFC; border-radius: 6px; box-shadow: 0 0 0 2px rgba(124, 92, 252, 0.22); } .ds-ai-input { flex: 1; background: transparent; border: none; color: #ECF2F8; font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; font-size: 14px; outline: none; } .ds-ai-badge { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; color: #C3B4FE; background-color: #2F1D78; padding: 2px 8px; border-radius: 3px; }"
+    },
+    {
+      "name": "Forensic Telemetry Status Chip",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "Tabular-numeral status bar pill reporting atomic draft persistence and cursor coordinates.",
+      "html": "<div class=\"ds-status-cluster\"><span class=\"ds-chip ds-chip-saved\"><span class=\"ds-dot-ok\"></span>Atomic Draft Synced</span><span class=\"ds-chip\">Ln 142, Col 18</span></div>",
+      "css": ".ds-status-cluster { display: inline-flex; align-items: center; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 2px 8px; background-color: #18202F; color: #94A6BE; border: 1px solid #243044; border-radius: 3px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; font-variant-numeric: tabular-nums; } .ds-chip-saved { color: #ECF2F8; border-color: #074C42; } .ds-dot-ok { width: 6px; height: 6px; border-radius: 9999px; background-color: #059669; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Archival Forensics Studio",
+    "overview": "Docuopsy unifies two worlds that rarely coexist with equal craft: the calm, tactile legibility of a scholar's archival reading room and the uncompromising precision of a forensic laboratory instrument. Built for general writers, academics, researchers, and developers who spend hours reading dense PDFs and drafting Markdown manuscripts, the interface rejects bloated toolbars and decorative chrome. Application surfaces act as a quiet, calibrated frame (slate-shell at night, vellum-shell by day) that recedes immediately so the manuscript column, code buffer, or PDF canvas commands full attention.\n\nDensity is deliberate and bimodal. The structural perimeter—the 36px top tab bar, the 4px interactive split-pane divider, and the 26px telemetry status bar—operates with compact, tabular precision so zero vertical viewport is wasted. Inside the workspace panes, the rhythm expands generously: Markdown previews and academic reading columns breathe at a 65–72ch measure with warm editorial serif typography (Literata), while the CodeMirror 6 editor maintains crisp line-number alignment and instant virtualized scrolling.\n\nThe system rejects generic gray-on-gray SaaS templates, neon cyberpunk gimmicks, decorative glassmorphism over reading surfaces, and single-theme bias. Both Dark Forensics (nocturnal obsidian slate) and High-Contrast Light (daylight archival vellum) are engineered as first-class semantic poles from day one.",
+    "keyCharacteristics": [
+      "Dual-Pole Day-One Themes: Dark Forensics (#0B0F14 obsidian ground) for low-glare nocturnal drafting and High-Contrast Light (#FAF7F0 archival vellum ground) for daylight academic reading and PDF study.",
+      "Bimodal Density: Compact, tabular-numeral instrument perimeter (36px Tab Bar, 26px Status Bar) framing a generous, distraction-free manuscript interior.",
+      "Forensic State Honesty: Unsaved buffer mutations (•), atomic draft persistence status, path sandbox verification, and KIE AI token streaming are surfaced through unambiguous semantic beacons rather than modal interruptions.",
+      "Custom Browser Surfaces: Carets, text selection highlights, scrollbars, focus rings, and tabular status counters are explicitly themed from the system palette—never left to raw OS/WebView defaults."
+    ],
+    "rules": [
+      {
+        "name": "The Dual-Pole Calibration Rule",
+        "body": "Both Dark Forensics and High-Contrast Light themes are primary citizens. Never implement light mode by inverting dark mode CSS filters; every surface maps to its dedicated semantic token (--bg-canvas, --bg-shell, --bg-surface, --border-subtle, --text-primary, --text-muted).",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Dead-Gray Rule",
+        "body": "Secondary text, line numbers, and borders must always carry the temperature of their ground (cool slate blue in Dark Forensics; warm stone-ink in High-Contrast Light). Pure achromatic grays (#808080, #CCCCCC) are forbidden.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic Beacon Rule",
+        "body": "High-chroma colors (#0E9F8A, #7C5CFC, #D97706, #DC2626) appear only when signaling active state, focus, AI generation, or dirty-buffer status—occupying less than 8% of the viewport so the document remains calm.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Telemetry Rule",
+        "body": "Every numeric counter in the UI—line numbers, cursor coordinates, byte sizes, PDF page counters, and debounce timers—must enforce font-variant-numeric: tabular-nums so digits never jitter horizontally during rapid typing or scrolling.",
+        "section": "typography"
+      },
+      {
+        "name": "The Scholar's Measure Rule",
+        "body": "In Full Preview and Split Preview modes, rendered Markdown prose is constrained to 65ch–72ch centered within its pane with generous margin breathing room, never stretching edge-to-edge across ultrawide monitors.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-At-Rest Workspace Rule",
+        "body": "Workspace panes, tabs, and status bars never cast drop shadows onto the document buffer. Depth in the primary shell is achieved solely through tonal surface steps and 1px borders.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do enforce font-variant-numeric: tabular-nums on every line number, cursor coordinate (Ln 42, Col 12), PDF page counter, and byte-size indicator.",
+      "Do maintain full semantic parity between Dark Forensics (#0B0F14 canvas) and High-Contrast Light (#FAF7F0 canvas) using CSS custom properties on :root / [data-theme=\"light\"].",
+      "Do constrain rendered Markdown body text to 65ch–72ch with 1.7 line-height so long academic manuscripts remain effortless to read.",
+      "Do style browser-native surfaces—text selection (::selection), editor caret, scrollbars, and :focus-visible outlines—using the Forensic Verdigris (#0E9F8A) and Slate/Vellum tokens.",
+      "Do sanitize every rendered Markdown HTML string through DOMPurify.sanitize() before mounting it in the preview DOM."
+    ],
+    "donts": [
+      "Don't use pure achromatic grays (#808080, #999999) on dark or vellum surfaces; always tint secondary text and borders from the surface hue.",
+      "Don't place eyebrow/kicker labels above Markdown headings or dialog titles; let the heading hierarchy carry its own weight.",
+      "Don't use gradient text, decorative glassmorphism over reading columns, or zero-blur neobrutalist offset shadows (box-shadow: 4px 4px 0).",
+      "Don't use Unicode characters or emojis as UI icons; use crisp 1.75px-stroke inline SVG / Lucide icons with explicit aria-label attributes.",
+      "Don't block the UI thread during file saves, draft snapshots, or KIE AI streaming—all I/O and SSE parsing must execute asynchronously in the Rust Tokio backend."
+    ]
+  }
+}
+
