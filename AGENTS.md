@@ -22,12 +22,15 @@ $$\text{Speed (Performance)} > \text{Security} > \text{Features}$$
    - **Refactor:** Clean up, optimize for performance, ensure zero regressions.
 3. **Commit Granularity:** Small, logical atomic commits with conventional commit messages (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`).
 
-### C. Testing & Observability Best Practices for AI-Assisted Development
-- **Explicit Type Contracts:** All Tauri commands and events must have dual-sided matching schemas (Rust structs with `Serialize`/`Deserialize` and TypeScript interfaces).
-- **Test Sandbox Isolation:** Backend tests MUST use temporary isolated directories (`tempfile::tempdir()`). Never allow tests to write to production AppData directories.
-- **Structured Tracing Over Println:** Never leave bare `println!` or `console.log` in production code. Use `tracing::info!`, `tracing::warn!`, or `tracing::error!` with structured field attributes.
-- **Log Privacy Rules:** Never log raw document content or API keys. Always redact sensitive variables.
-- **Verification Over Assumption:** An agent must run tests and linters (`cargo test`, `cargo clippy`, `pnpm test`, `pnpm tsc`) and observe passing output before declaring any task complete.
+### C. Agent Brain Mapping & Memory Protocol
+To ensure continuity across agents, context boundaries, and session resets:
+- **Central Memory Directory:** `docs/memory/`
+  - `docs/memory/brain-map.md`: System mental model, module dependency graph, invariant list, and active architectural state.
+  - `docs/memory/progress-log.md`: Detailed changelog of tasks executed, test verifications, and architectural decisions.
+- **Mandatory Agent Check-In & Check-Out:**
+  1. **Before Starting:** Every agent MUST read `docs/memory/brain-map.md` to synchronize with current system state.
+  2. **After Completion:** Every agent MUST record test evidence in `docs/memory/progress-log.md` and refresh `docs/memory/brain-map.md`.
+  3. **User Dashboard:** Update `TODOS.md` checkboxes in real-time.
 
 ---
 
