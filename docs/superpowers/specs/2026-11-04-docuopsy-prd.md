@@ -15,7 +15,7 @@
 $$\mathbf{Kecepatan\ (Speed\ /\ Performance)} \longrightarrow \mathbf{Keamanan\ (Security)} \longrightarrow \mathbf{Fitur\ (Features)}$$
 
 1. **Kecepatan:** Waktu startup instan (<1.5 detik), virtualized rendering untuk dokumen besar, alokasi memori minimal, dan I/O non-blocking berbasis Rust async.
-2. **Keamanan:** Arsitektur lokal-first, proteksi path traversal, sanitasi rendering HTML Markdown (anti-XSS), dan proteksi kredensial.
+2. **Keamanan:** Arsitektur lokal-first, proteksi path traversal, sanitasi rendering HTML Markdown (anti-XSS), proteksi kredensial, dan sensor data sensitif pada log.
 3. **Fitur:** Dukungan multi-format, sistem tab atas, 3-mode layout, forensic session persistence, dan integrasi AI generatif.
 
 ---
@@ -33,7 +33,7 @@ $$\mathbf{Kecepatan\ (Speed\ /\ Performance)} \longrightarrow \mathbf{Keamanan\ 
 ### B. AI-Assisted Development Best Practices
 1. **Strict Type Contracts:** Setiap Tauri IPC command memiliki skema Rust (`Serialize`/`Deserialize`) dan skema TypeScript yang identik dan tersinkronisasi.
 2. **Modular File Boundaries:** Memisahkan komponen menjadi unit-unit terfokus (< 300 baris) untuk meminimalkan halusinasi AI dan mempermudah pengujian.
-3. **Automated Verification:** Agen AI wajib menjalankan verifikasi nyata (`cargo test`, `pnpm tsc`) dan menyertakan bukti output sebelum menyatakan tugas selesai.
+3. **Automated Verification:** Agen AI wajib menjalankan verifikasi nyata (`cargo test`, `pnpm test`, `pnpm tsc`) dan menyertakan bukti output sebelum menyatakan tugas selesai.
 
 ---
 
@@ -58,6 +58,11 @@ $$\mathbf{Kecepatan\ (Speed\ /\ Performance)} \longrightarrow \mathbf{Keamanan\ 
    - Model: **`claude-haiku-5-5`** (ekstra cepat, efisien, dan cerdas).
    - API Key: `e003b0c015d233ea848997456242e97b` (disimpan aman di env/config lokal).
    - Fitur: *Continue Writing*, *Summarize*, *Rewrite / Fix Grammar*, *Custom Prompt* dengan streaming response langsung ke buffer editor.
+6. **Unified Observability & Forensic Logging:**
+   - Pencatatan log sistem otomatis berbasis rotasi file lokal.
+   - Penyaringan data sensitif (redaction) pada log.
+7. **Comprehensive Test Suite:**
+   - Test harness untuk backend Rust dan frontend TypeScript.
 
 ### Non-Goals
 - **Direct PDF Editing:** Dokumen PDF hanya untuk dilihat (view/read-only).
@@ -74,11 +79,13 @@ Semua library dan dependensi wajib berlisensi bebas dan permisif (MIT, Apache-2.
 | **Backend Shell** | Tauri v2 (`tauri`, `tauri-build`) | Apache-2.0 / MIT | Biner sangat kecil (~10MB), RAM hemat, akses OS native via Rust. |
 | **System Language** | Rust (2021 Edition) | Apache-2.0 / MIT | Kecepatan maksimal, zero garbage collection, memory-safe. |
 | **Async Runtime & HTTP** | `tokio`, `reqwest`, `eventsource-stream` | MIT | Operasi I/O non-blocking dan streaming SSE cepat ke KIE AI. |
+| **Logging & Tracing** | `tracing`, `tracing-subscriber`, `tracing-appender` | MIT | Logging terstruktur tanpa overhead berlebih dengan rolling file. |
 | **Editor Core** | CodeMirror 6 | MIT | Ringan, arsitektur modular, virtualized DOM scrolling untuk file raksasa. |
 | **Frontend Shell** | React 18 + Vite + TypeScript | MIT / Apache-2.0 | Static typing ketat, ekosistem UI cepat dan matang. |
 | **Styling** | Tailwind CSS + Lucide Icons | MIT / ISC | Zero runtime overhead styling, konsisten dan modern. |
 | **Markdown Preview** | `markdown-it` + `dompurify` | MIT / Apache-2.0 | GFM lengkap dengan sanitasi HTML anti-XSS. |
 | **PDF Viewer** | `pdfjs-dist` (Mozilla) | Apache-2.0 | Standar industri rendering PDF open source tanpa C++ wrapper rumit. |
+| **Test Suite** | Rust `cargo test`, `wiremock`, `tempfile` + `vitest` | MIT / Apache-2.0 | Pengujian deterministik di Rust backend dan UI frontend. |
 
 ---
 
@@ -109,6 +116,24 @@ Semua library dan dependensi wajib berlisensi bebas dan permisif (MIT, Apache-2.
 - Menampilkan floating prompt bar untuk *Continue*, *Summarize*, *Grammar check*, atau *Custom prompt*.
 - Streaming teks mengalir langsung ke posisi kursor editor dengan undo history utuh.
 
+### 5.5. Unified Logging & Observability System
+- **Backend Tracing (`tracing` + `tracing-appender`):**
+  - Live stdout untuk sesi debugging.
+  - Berkas log rolling harian di `%LOCALAPPDATA%\Docuopsy\logs\docuopsy-daily.log`.
+  - Otomatis menghapus log yang lebih tua dari 7 hari.
+- **Frontend Log Forwarding:** Error atau exception di layer Webview dikirimkan ke Rust melalui command `log_event` sehingga log frontend dan backend tercatat dalam satu linimasa kronologis.
+- **Data Redaction & Sanitization:** Konten dokumen dilarang dicatat dalam log (hanya mencatat metadata ukuran byte dan nama file). API key otomatis disensor (`e003...97b`).
+
+### 5.6. Development & Automated Testing System
+- **Rust Backend Tests:**
+  - Unit test fungsi keamanan: deteksi directory traversal (`..`), normalisasi path, atomic tempfile swap.
+  - Unit test serde: deserialisasi session JSON valid maupun korup.
+  - Integration test KIE AI: menggunakan mock HTTP server (`wiremock`) untuk menguji skenario putus koneksi, rate limit, dan streaming timeout.
+- **Frontend Vitest Tests:**
+  - Pengujian reducer tab: penambahan tab baru, penutupan, perpindahan fokus, dan dirty state flag.
+  - Pengujian sanitasi Markdown: verifikasi bahwa tag `<script>` atau atribut `onload=` disaring bersih oleh DOMPurify.
+  - Mock IPC Tauri: simulasi pemanggilan command `save_document` dan `restore_session`.
+
 ---
 
 ## 6. Struktur Repositori & File Proyek
@@ -119,7 +144,7 @@ docuopsy/
 ├── AGENTS.md                  # Panduan kolaborasi multi-agent & TDD
 ├── DESIGN.md                  # Spesifikasi teknis arsitektur lengkap
 ├── README.md                  # Dokumentasi publik & quick start
-├── INFRA.md                   # Spesifikasi env, build, & tooling
+├── INFRA.md                   # Spesifikasi env, build, test & observability
 ├── docs/                      # Dokumentasi teknis & specs
 │   └── superpowers/
 │       └── specs/
@@ -129,13 +154,17 @@ docuopsy/
 │   ├── tauri.conf.json
 │   └── src/
 │       ├── main.rs
-│       ├── commands/          # Tauri IPC Commands (fs, state, ai)
-│       └── services/          # KIE AI client, persistence engine
+│       ├── logging.rs         # Tracing engine & log rotation
+│       ├── commands/          # Tauri IPC Commands (fs, state, ai, log)
+│       ├── services/          # KIE AI client, persistence engine
+│       └── tests/             # Rust unit & integration tests
 └── src/                       # Frontend UI (React + TS + Tailwind)
     ├── package.json
     ├── vite.config.ts
-    └── src/
-        ├── components/        # TabBar, EditorPane, PreviewPane, AIPalette
-        ├── store/             # Reactive session & tab state
-        └── api/               # Typed Tauri IPC wrappers
+    ├── vitest.config.ts       # Vitest test runner configuration
+    ├── src/
+    │   ├── components/        # TabBar, EditorPane, PreviewPane, AIPalette
+    │   ├── store/             # Reactive session & tab state
+    │   ├── api/               # Typed Tauri IPC wrappers & logger bridge
+    │   └── __tests__/         # Frontend component & logic tests
 ```

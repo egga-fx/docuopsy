@@ -11,7 +11,7 @@ When resolving architectural or implementation trade-offs, agents MUST enforce t
 $$\text{Speed (Performance)} > \text{Security} > \text{Features}$$
 
 - **Speed:** Code must be low-latency. Zero gratuitous allocations, virtualized rendering for large buffers, async I/O.
-- **Security:** Strict sandboxing, path canonicalization against directory traversal, sanitization of rendered Markdown (preventing XSS in webview), secure storage of API keys.
+- **Security:** Strict sandboxing, path canonicalization against directory traversal, sanitization of rendered Markdown (preventing XSS in webview), secure storage of API keys, and log redaction.
 - **Features:** Only add features that conform to the performance and security baselines.
 
 ### B. Engineering Methodology: Spec-Driven & Test-Driven Development (TDD)
@@ -22,10 +22,11 @@ $$\text{Speed (Performance)} > \text{Security} > \text{Features}$$
    - **Refactor:** Clean up, optimize for performance, ensure zero regressions.
 3. **Commit Granularity:** Small, logical atomic commits with conventional commit messages (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`).
 
-### C. Best Practices for AI-Assisted Development
+### C. Testing & Observability Best Practices for AI-Assisted Development
 - **Explicit Type Contracts:** All Tauri commands and events must have dual-sided matching schemas (Rust structs with `Serialize`/`Deserialize` and TypeScript interfaces).
-- **Narrow Context Windows:** Keep files modular (< 300 lines where feasible). Small, focused modules yield higher accuracy and fewer hallucinations.
-- **No Invisible State:** Never rely on undocumented global variables or side effects. State must be inspectable and serializable.
+- **Test Sandbox Isolation:** Backend tests MUST use temporary isolated directories (`tempfile::tempdir()`). Never allow tests to write to production AppData directories.
+- **Structured Tracing Over Println:** Never leave bare `println!` or `console.log` in production code. Use `tracing::info!`, `tracing::warn!`, or `tracing::error!` with structured field attributes.
+- **Log Privacy Rules:** Never log raw document content or API keys. Always redact sensitive variables.
 - **Verification Over Assumption:** An agent must run tests and linters (`cargo test`, `cargo clippy`, `pnpm test`, `pnpm tsc`) and observe passing output before declaring any task complete.
 
 ---
@@ -35,9 +36,9 @@ $$\text{Speed (Performance)} > \text{Security} > \text{Features}$$
 | Role | Domain | Key Responsibilities |
 |---|---|---|
 | **Architect Agent** | System Design | Enforces `DESIGN.md`, validates dependency licenses, monitors memory & performance benchmarks. |
-| **Rust Core Agent** | `src-tauri/` | Implements Tauri commands, state persistence, atomic disk operations, file watcher, and KIE AI client. |
-| **Frontend UI Agent**| `src/` | Implements CodeMirror 6 editor, tab manager, layout switchers, PDF.js integration, and Tailwind styling. |
-| **QA / Reviewer Agent** | `tests/` & CI | Reviews code for security holes (path traversal, XSS in preview), memory leaks, and writes integration tests. |
+| **Rust Core Agent** | `src-tauri/` | Implements Tauri commands, state persistence, atomic disk operations, file watcher, `tracing` logging, and KIE AI client. |
+| **Frontend UI Agent**| `src/` | Implements CodeMirror 6 editor, tab manager, layout switchers, PDF.js integration, frontend logger bridge, and Tailwind styling. |
+| **QA / Reviewer Agent** | `tests/` & CI | Reviews code for security holes (path traversal, XSS in preview), memory leaks, writes integration tests, and verifies test coverage. |
 
 ---
 
@@ -64,6 +65,15 @@ export async function saveDocument(path: string, content: string): Promise<Docum
 }
 ```
 
+### Logging Bridge Command Pattern
+```rust
+// In Rust (src-tauri/src/commands/logging.rs)
+#[tauri::command]
+pub fn log_event(level: String, message: String, context: Option<String>) {
+    // Routes frontend logs into the Rust unified tracing system
+}
+```
+
 ### Event Streaming Pattern (for AI Generations)
 - Event name: `ai:stream:chunk`
 - Event payload: `{ streamId: string, delta: string, isDone: boolean, error?: string }`
@@ -72,14 +82,14 @@ export async function saveDocument(path: string, content: string): Promise<Docum
 
 ## 4. Security & Secret Handling
 - **API Keys:** The KIE AI key (`e003b0c015d233ea848997456242e97b`) and any other credentials must be sourced from runtime configuration or environment files (`.env`), NEVER hardcoded in production source files.
-- **Markdown Rendering:** Preview pane MUST use a sanitizer (e.g. DOMPurify or safe HTML generation in Markdown parser) to prevent script injection via opened documents.
+- **Markdown Rendering:** Preview pane MUST use a sanitizer (`DOMPurify`) to prevent script injection via opened documents.
 - **File System Boundary:** File operations must verify that target paths exist within permitted system bounds and do not escape via symlink tricks or malicious relative paths.
 
 ---
 
 ## 5. Pre-Completion Quality Gate
 Before handoff, any agent must run and verify:
-1. `cargo clippy -- -D warnings` (Clean Rust code with zero warnings)
-2. `cargo test` (All Rust backend unit & integration tests pass)
-3. `pnpm tsc --noEmit` (TypeScript type checker passes with zero errors)
-4. `pnpm lint` (Code style standards adhered to)
+1. `cargo test --manifest-path src-tauri/Cargo.toml` (All Rust backend unit & integration tests pass)
+2. `pnpm test` (All frontend Vitest unit & component tests pass)
+3. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` (Clean Rust code with zero warnings)
+4. `pnpm tsc --noEmit` (TypeScript type checker passes with zero errors)
