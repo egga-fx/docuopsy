@@ -151,3 +151,22 @@ This log records every major milestone, completed task, test verification, and a
 3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 21.7s.**
 4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **15 tests passed, 0 failures in 0.12s.**
 5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
+
+---
+
+## [2026-11-05] - Phase 10: Editor & Preview Buffer Sync Fix
+
+### 1. Work Completed
+1. **Eliminated Stale Closure Trap in CodeMirror Update Listener:**
+   - Identified that `activeTab` inside `EditorPane.tsx` was capturing the initial empty tab state in its `useEffect` closure.
+   - When the user deleted characters down to an empty string `""`, the guard `if (newDoc !== activeTab.content)` was checking `"" !== ""` which evaluated to false, preventing `updateContent` from firing to the store.
+   - Replaced with mutable refs (`activeTabIdRef` and `internalDocRef`), ensuring `updateContent` reliably dispatches all document updates, including when the editor is completely empty.
+2. **Real-time Zero-Ghosting Markdown Preview:**
+   - In `MarkdownPreview.tsx`, added early exit `if (!rawContent || !rawContent.trim()) return ''`, guaranteeing the preview completely clears when the editor has no text.
+
+### 2. Quality Gate Verification (100% PASS)
+1. `bun run test` $\to$ **12 test files passed, 26 tests passed, 0 failures.**
+2. `bun run tsc --noEmit` $\to$ **0 type errors.**
+3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 26.9s.**
+4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **15 tests passed, 0 failures.**
+5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**

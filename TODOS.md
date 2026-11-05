@@ -197,3 +197,19 @@
   - `bun run build` $\to$ **PASS** (16.1s)
   - `cargo test` $\to$ **15/15 PASS** (0.12s)
   - `cargo clippy` $\to$ **0 WARNINGS**
+
+---
+
+## 🔄 Phase 10: Editor & Preview Buffer Sync Fix (DONE ✅)
+- [x] **10.1.** Stale Closure Elimination in CodeMirror Update Listener:
+  - Mengatasi bug perbandingan nilai stale closure `newDoc !== activeTab.content` di `EditorPane.tsx`.
+  - Menggunakan mutable refs (`activeTabIdRef` dan `internalDocRef`) untuk melacak perubahan isi dokumen secara atomik.
+  - Memastikan event `updateContent` selalu dipanggil ke Tab Store ketika seluruh isi buffer dihapus (menjadi string kosong `""`).
+- [x] **10.2.** Real-time Zero-Ghosting Markdown Preview:
+  - Memperbarui `MarkdownPreview.tsx` untuk mengembalikan string kosong segera ketika konten editor kosong (`!rawContent.trim()`), menghilangkan sisa karakter terakhir (`'a'`).
+- [x] **10.3.** Pre-Completion Quality Gate (100% PASS):
+  - `bun run test` $\to$ **26/26 PASS** across 12 test files
+  - `bun run tsc --noEmit` $\to$ **0 ERRORS**
+  - `bun run build` $\to$ **PASS** (26.9s)
+  - `cargo test` $\to$ **15/15 PASS**
+  - `cargo clippy` $\to$ **0 WARNINGS**

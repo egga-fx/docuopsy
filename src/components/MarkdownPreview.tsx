@@ -19,6 +19,9 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ markdown }) =>
   const rawContent = markdown ?? activeTab?.content ?? '';
 
   const sanitizedHtml = useMemo(() => {
+    if (!rawContent || !rawContent.trim()) {
+      return '';
+    }
     const rawHtml = mdParser.render(rawContent);
     return sanitizeHtml(rawHtml);
   }, [rawContent]);

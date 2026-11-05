@@ -21,7 +21,13 @@ export const EditorPane: React.FC<EditorPaneProps> = ({ onViewReady }) => {
   const updateContent = useTabStore((s) => s.updateContent);
   const setCursor = useTabStore((s) => s.setCursor);
 
-  // Initialize or re-create editor when tab changes
+  // Keep references to activeTabId and latest internal doc to prevent stale closures
+  const activeTabIdRef = useRef(activeTab?.id);
+  activeTabIdRef.current = activeTab?.id;
+
+  const internalDocRef = useRef(activeTab?.content || '');
+
+  // Initialize or re-create editor when tab or theme changes
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -32,12 +38,17 @@ export const EditorPane: React.FC<EditorPaneProps> = ({ onViewReady }) => {
 
     const currentThemeExt = theme === 'light' ? lightVellumTheme : darkForensicsTheme;
     const langExt = getLanguageExtension(activeTab?.title || '');
+    const initialContent = activeTab?.content || '';
+    internalDocRef.current = initialContent;
 
     const updateListener = EditorView.updateListener.of((update) => {
       if (update.docChanged) {
         const newDoc = update.state.doc.toString();
-        if (activeTab && newDoc !== activeTab.content) {
-          updateContent(activeTab.id, newDoc);
+        internalDocRef.current = newDoc;
+        const currentId = activeTabIdRef.current;
+        if (currentId) {
+          // Always notify the store of doc changes, even when empty string ""
+          updateContent(currentId, newDoc);
         }
       }
 
@@ -45,14 +56,15 @@ export const EditorPane: React.FC<EditorPaneProps> = ({ onViewReady }) => {
         const head = update.state.selection.main.head;
         const line = update.state.doc.lineAt(head);
         const col = head - line.from + 1;
-        if (activeTab) {
-          setCursor(activeTab.id, line.number, col);
+        const currentId = activeTabIdRef.current;
+        if (currentId) {
+          setCursor(currentId, line.number, col);
         }
       }
     });
 
     const startState = EditorState.create({
-      doc: activeTab?.content || '',
+      doc: initialContent,
       extensions: [
         baseEditorExtensions,
         currentThemeExt,
@@ -76,10 +88,23 @@ export const EditorPane: React.FC<EditorPaneProps> = ({ onViewReady }) => {
     };
   }, [activeTab?.id, theme]); // rebuild when active tab or theme changes
 
+  // Synchronize external changes into CodeMirror buffer (e.g. file open, AI generation)
+  useEffect(() => {
+    if (editorViewRef.current && activeTab) {
+      const currentDoc = editorViewRef.current.state.doc.toString();
+      // If store content changed from outside and does not match CodeMirror's doc
+      if (activeTab.content !== currentDoc && activeTab.content !== internalDocRef.current) {
+        internalDocRef.current = activeTab.content;
+        editorViewRef.current.dispatch({
+          changes: { from: 0, to: currentDoc.length, insert: activeTab.content },
+        });
+      }
+    }
+  }, [activeTab?.content]);
+
   return (
-    <div className="h-full w-full flex flex-col min-h-0 bg-obsidian">
+    <div className={`h-full w-full flex flex-col min-h-0 ${theme === 'light' ? 'bg-vellum-canvas' : 'bg-obsidian'}`}>
       <div ref={containerRef} className="flex-1 min-h-0 overflow-auto" />
     </div>
   );
 };
-
