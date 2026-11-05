@@ -27,6 +27,22 @@ export interface AIStreamChunk {
   streamId: string;
   delta: string;
   isDone: boolean;
+  status?: string;
   error?: string;
+}
+
+export interface AIChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  status?: string;
+}
+
+export interface RecentTask {
+  id: string;
+  prompt: string;
+  timestamp: number;
+  preview?: string;
 }
 

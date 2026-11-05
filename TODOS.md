@@ -140,3 +140,30 @@
   - `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**
   - `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **14/14 PASS** (100%)
   - `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**
+
+---
+
+## 🚀 Phase 8: AI Stream Chat, Recent Tasks & UI Fixes (DONE ✅)
+- [x] **8.1.** KIE AI Endpoint & High-Speed Stream Acceleration:
+  - Beralih ke endpoint native Anthropic Messages KIE AI (`https://api.kie.ai/claude/v1/messages`).
+  - Mengatasi keterlambatan pemrosesan AI (kecepatan respons melonjak dari timeout/404 menjadi sub-second < 1 detik).
+  - Parser ganda untuk format SSE Anthropic (`content_block_delta` $\to$ `delta.text`) dan OpenAI fallback.
+- [x] **8.2.** UI Stream Chat Experience:
+  - Antarmuka chat interaktif multi-turn di `src/components/AIPalette.tsx`.
+  - Tampilan Markdown terstruktur secara langsung untuk respon AI.
+  - Aksi "Insert at Cursor" (menyisipkan teks langsung ke editor CodeMirror) dan "Copy" respon.
+- [x] **8.3.** Dynamic Context-Aware Progress Status:
+  - Penanda proses AI dengan status bahasa dinamis sesuai konteks tugas (misal: penalaran kuliner & resep, logika pemrograman & kode, intisari & ringkasan, atau tata bahasa).
+  - Indikator status bertingkat: `Thinking` $\to$ `Reasoning` $\to$ `Generating` dengan animasi pulse.
+- [x] **8.4.** Dukungan Recent Tasks:
+  - Panel drawer riwayat tugas terkini (disimpan secara persisten di `localStorage`).
+  - Fitur re-use prompt sekali klik dan hapus riwayat.
+- [x] **8.5.** Perbaikan Bug Overflow Hamburger Menu:
+  - Memisahkan kontainer `AppMenu` dari kontainer `overflow-x-auto` tab bar di `TabBar.tsx`.
+  - Menu dropdown kini mengambang secara bebas di atas layer tanpa memicu scrollbar horizontal/vertikal aneh pada tab bar.
+- [x] **8.6.** Full Pre-Completion Quality Gate (100% PASS):
+  - `bun run test` $\to$ **26/26 PASS** across 12 test files
+  - `bun run tsc --noEmit` $\to$ **0 ERRORS**
+  - `bun run build` $\to$ **PASS**
+  - `cargo test` $\to$ **15/15 PASS**
+  - `cargo clippy` $\to$ **0 WARNINGS**

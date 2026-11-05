@@ -10,6 +10,13 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_anthropic_sse_content() {
+        let line = r#"data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello Anthropic!"}}"#;
+        let delta = parse_sse_line(line).unwrap();
+        assert_eq!(delta, Some("Hello Anthropic!".to_string()));
+    }
+
+    #[test]
     fn test_parse_done_signal() {
         let line = "data: [DONE]";
         let delta = parse_sse_line(line).unwrap();
@@ -29,6 +36,7 @@ mod tests {
             stream_id: "stream-123".to_string(),
             delta: "token".to_string(),
             is_done: false,
+            status: None,
             error: None,
         };
         let json = serde_json::to_string(&chunk).unwrap();

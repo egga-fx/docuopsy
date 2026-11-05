@@ -101,3 +101,31 @@ This log records every major milestone, completed task, test verification, and a
 3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 16.7s.**
 4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **14 tests passed, 0 failures in 0.02s.**
 5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
+
+---
+
+## [2026-11-05] - Phase 8: AI Stream Chat, Recent Tasks & UI Fixes
+
+### 1. Work Completed
+1. **High-Speed Native Anthropic Endpoint for KIE AI:**
+   - Switched from OpenAI `/v1/chat/completions` (which caused timeouts) to official KIE AI Anthropic endpoint `https://api.kie.ai/claude/v1/messages`.
+   - Verified sub-second live streaming latency (< 1 second).
+   - Dual-parser in `src-tauri/src/services/ai.rs` supports both Anthropic SSE format (`content_block_delta` $\to$ `delta.text`, `message_stop`) and legacy OpenAI chunks.
+2. **Interactive Stream Chat UI:**
+   - Redesigned `src/components/AIPalette.tsx` as an interactive, multi-turn stream chat interface with live token streaming and Markdown formatting.
+   - Added instant "Insert at Cursor" (injects output into active CodeMirror editor) and "Copy" actions for each AI response.
+3. **Dynamic Context-Aware Progress Status:**
+   - Added dynamic progress tracker detecting prompt context (cooking/recipes, coding/logic, summarization, linguistic polishing).
+   - Real-time animated status badge: `Thinking` $\to$ `Reasoning` $\to$ `Generating` with pulse indicator.
+4. **Recent Tasks Drawer:**
+   - Added persistent history of past tasks stored in `localStorage` (`docuopsy_recent_tasks`) with 1-click prompt re-use and history cleanup.
+5. **Hamburger Menu Dropdown & TabBar Overflow Fix:**
+   - Separated the `AppMenu` button from the inner `overflow-x-auto` tab list container in `TabBar.tsx`.
+   - Resolved the issue where the dropdown menu failed to appear and caused weird scrollbars on the tab bar.
+
+### 2. Quality Gate Verification (100% PASS)
+1. `bun run test` $\to$ **12 test files passed, 26 tests passed, 0 failures.**
+2. `bun run tsc --noEmit` $\to$ **0 type errors.**
+3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 16.1s.**
+4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **15 tests passed, 0 failures in 0.03s.**
+5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**

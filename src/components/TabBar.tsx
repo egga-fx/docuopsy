@@ -47,12 +47,14 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
 
   return (
     <div
-      role="tablist"
-      aria-label="Document Tabs"
-      className="h-9 bg-slate-shell border-b border-slate-border flex items-stretch select-none font-mono text-xs overflow-x-auto scrollbar-none"
+      className="h-9 bg-slate-shell border-b border-slate-border flex items-stretch select-none font-mono text-xs relative z-30"
     >
       {leftAddon}
-      <div className="flex items-stretch flex-1">
+      <div
+        role="tablist"
+        aria-label="Document Tabs"
+        className="flex items-stretch flex-1 overflow-x-auto scrollbar-none"
+      >
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
           return (

@@ -71,9 +71,9 @@
 | **Markdown Preview** | `src/components/MarkdownPreview.tsx` | Completed & Tested | Frontend UI Agent |
 | **PDF.js Viewer** | `src/components/PdfViewer.tsx` | Completed & Tested | Frontend UI Agent |
 | **Code/Text Preview** | `src/components/CodePreview.tsx` | Completed & Tested | Frontend UI Agent |
-| **In-Editor AI UI** | `src/components/AIPalette.tsx` | Completed & Tested | Frontend UI Agent |
+| **AI Stream Chat & Recent Tasks** | `src/components/AIPalette.tsx` | Completed & Tested | Frontend UI Agent |
 | **Root Assembly** | `src/App.tsx`, `src-tauri/src/lib.rs` | Completed & Verified | Frontend / Rust Core |
-| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (12 Vitest + 14 Cargo) | QA / Reviewer Agent |
+| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (12 Vitest + 15 Cargo) | QA / Reviewer Agent |
 
 ---
 

@@ -83,14 +83,14 @@ export const AppMenu: React.FC<AppMenuProps> = ({
   };
 
   return (
-    <div className="relative inline-block" ref={menuRef}>
+    <div className="relative flex items-stretch z-40" ref={menuRef}>
       {/* Hamburger Menu Button */}
       <button
         type="button"
         aria-label="Application Menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`h-9 px-2.5 flex items-center justify-center transition-colors border-r border-slate-border ${
+        className={`h-full px-3 flex items-center justify-center transition-colors border-r border-slate-border cursor-pointer ${
           isOpen
             ? 'bg-slate-surface text-parchment'
             : 'text-slate-muted hover:text-parchment hover:bg-slate-surface/60'
@@ -105,7 +105,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
         <div
           role="menu"
           aria-label="Main Menu"
-          className="absolute left-0 top-full mt-1 w-72 bg-slate-shell border border-slate-border rounded-lg shadow-2xl py-1.5 z-50 font-sans text-xs select-none backdrop-blur-md animate-in fade-in duration-100"
+          className="absolute left-0 top-full mt-0.5 w-72 bg-slate-shell border border-slate-border rounded-b-lg shadow-2xl py-2 z-50 font-sans text-xs select-none backdrop-blur-md"
         >
           {/* Menu Category Switcher Bar */}
           <div className="flex border-b border-slate-border px-2 pb-1.5 mb-1 gap-1">
@@ -357,4 +357,3 @@ export const AppMenu: React.FC<AppMenuProps> = ({
     </div>
   );
 };
-

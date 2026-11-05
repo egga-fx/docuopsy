@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tauri::{AppHandle, Emitter};
 
-pub const DEFAULT_KIE_BASE_URL: &str = "https://api.kie.ai/v1";
+pub const DEFAULT_KIE_BASE_URL: &str = "https://api.kie.ai/claude/v1";
 pub const DEFAULT_KIE_MODEL: &str = "claude-haiku-5-5";
 pub const DEFAULT_DEV_API_KEY: &str = "e003b0c015d233ea848997456242e97b";
 
@@ -16,12 +16,29 @@ pub struct AIStreamChunk {
     pub delta: String,
     pub is_done: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
-struct ChatCompletionChunk {
-    choices: Vec<ChoiceChunk>,
+#[serde(untagged)]
+enum AnySsePayload {
+    AnthropicDelta {
+        delta: AnthropicTextDelta,
+    },
+    OpenAiDelta {
+        choices: Vec<ChoiceChunk>,
+    },
+    StopEvent {
+        #[serde(rename = "type")]
+        _event_type: String,
+    },
+}
+
+#[derive(Deserialize, Debug)]
+struct AnthropicTextDelta {
+    text: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -34,7 +51,7 @@ struct DeltaChunk {
     content: Option<String>,
 }
 
-/// Parses an incoming SSE line from KIE AI chat completions
+/// Parses an incoming SSE line from KIE AI chat/messages stream
 pub fn parse_sse_line(line: &str) -> Result<Option<String>, AppError> {
     let trimmed = line.trim();
     if trimmed.is_empty() || trimmed.starts_with(':') {
@@ -47,14 +64,14 @@ pub fn parse_sse_line(line: &str) -> Result<Option<String>, AppError> {
             return Ok(None);
         }
 
-        match serde_json::from_str::<ChatCompletionChunk>(payload) {
-            Ok(chunk) => {
-                if let Some(first_choice) = chunk.choices.into_iter().next() {
-                    Ok(first_choice.delta.content)
-                } else {
-                    Ok(None)
-                }
+        match serde_json::from_str::<AnySsePayload>(payload) {
+            Ok(AnySsePayload::AnthropicDelta { delta }) => {
+                Ok(delta.text)
             }
+            Ok(AnySsePayload::OpenAiDelta { choices }) => {
+                Ok(choices.into_iter().next().and_then(|c| c.delta.content))
+            }
+            Ok(AnySsePayload::StopEvent { .. }) => Ok(None),
             Err(e) => {
                 tracing::trace!("Skipping non-JSON SSE chunk: {}: {:?}", payload, e);
                 Ok(None)
@@ -102,9 +119,13 @@ impl KIEAiService {
         context: String,
         app_handle: AppHandle,
     ) -> Result<(), AppError> {
-        let endpoint = format!("{}/chat/completions", self.base_url.trim_end_matches('/'));
+        let endpoint = if self.base_url.ends_with("/messages") {
+            self.base_url.clone()
+        } else {
+            format!("{}/messages", self.base_url.trim_end_matches('/'))
+        };
 
-        let system_instruction = "You are Docuopsy AI Assistant, powered by Claude Haiku 5.5 on KIE AI. You assist users in writing, refining, and analyzing text documents. Respond concisely, accurately, and follow instructions directly.";
+        let system_instruction = "You are Docuopsy AI Assistant, powered by Claude Haiku 5.5 on KIE AI. You assist users in writing, refining, analyzing, and structuring text documents. Respond concisely, accurately, and format responses cleanly in GitHub Flavored Markdown.";
 
         let user_message = if context.is_empty() {
             prompt
@@ -114,20 +135,34 @@ impl KIEAiService {
 
         let request_body = serde_json::json!({
             "model": self.model,
+            "max_tokens": 4096,
             "stream": true,
+            "system": system_instruction,
             "messages": [
-                { "role": "system", "content": system_instruction },
                 { "role": "user", "content": user_message }
             ]
         });
 
-        tracing::info!("Starting KIE AI stream id={} with model={}", stream_id, self.model);
+        tracing::info!("Starting KIE AI stream id={} with model={} at endpoint={}", stream_id, self.model, endpoint);
+
+        // Emit initial thinking/reasoning status
+        let _ = app_handle.emit(
+            "ai:stream:chunk",
+            AIStreamChunk {
+                stream_id: stream_id.clone(),
+                delta: String::new(),
+                is_done: false,
+                status: Some("thinking".to_string()),
+                error: None,
+            },
+        );
 
         let response = self
             .client
             .post(&endpoint)
             .header("Authorization", format!("Bearer {}", self.api_key))
             .header("Content-Type", "application/json")
+            .header("anthropic-version", "2023-06-01")
             .json(&request_body)
             .send()
             .await
@@ -145,6 +180,7 @@ impl KIEAiService {
                     stream_id: stream_id.clone(),
                     delta: String::new(),
                     is_done: true,
+                    status: Some("error".to_string()),
                     error: Some(err_msg.clone()),
                 },
             );
@@ -165,6 +201,7 @@ impl KIEAiService {
                                 stream_id: stream_id.clone(),
                                 delta: content_delta,
                                 is_done: false,
+                                status: Some("streaming".to_string()),
                                 error: None,
                             },
                         );
@@ -178,6 +215,7 @@ impl KIEAiService {
                             stream_id: stream_id.clone(),
                             delta: String::new(),
                             is_done: true,
+                            status: Some("error".to_string()),
                             error: Some(format!("Stream interrupted: {}", err)),
                         },
                     );
@@ -193,6 +231,7 @@ impl KIEAiService {
                 stream_id,
                 delta: String::new(),
                 is_done: true,
+                status: Some("completed".to_string()),
                 error: None,
             },
         );
