@@ -7,8 +7,7 @@ Docuopsy requires the following host toolchains for development and production c
 | Tool | Recommended Version | Purpose |
 |---|---|---|
 | **Rust / Cargo** | `1.78+` (stable) | Compiles backend native binary and Tauri core. |
-| **Node.js** | `v20.x LTS` or higher | JavaScript/TypeScript runtime. |
-| **Package Manager** | `pnpm v9+` (preferred) or `npm` | Deterministic dependency management. |
+| **Runtime & Package Manager** | [Bun](https://bun.sh/) `v1.2+` | Ultra-fast JavaScript/TypeScript runtime & package manager. |
 | **Build Tools** | Visual Studio 2022 C++ Build Tools | Required for compiling native Windows bindings (WebView2, Crate linking). |
 | **WebView2** | Evergreen Runtime | Pre-installed on Windows 10/11. |
 
@@ -54,26 +53,25 @@ cargo test --manifest-path src-tauri/Cargo.toml test_security_path_traversal
 cargo test --manifest-path src-tauri/Cargo.toml test_atomic_persistence
 ```
 
-### Running Frontend Tests (TypeScript / Vitest)
+### Running Frontend Tests (TypeScript / Vitest via Bun)
 ```bash
-# Run unit & component tests in fast watch mode
-pnpm test
+# Run unit & component tests in fast run mode
+bun run test
 
-# Run tests once with coverage report
-pnpm test:run --coverage
+# Run tests with live watch
+bun run test:watch
 ```
 
 ### Static Quality & Lint Verification
 ```bash
 # 1. Type check frontend without emitting files
-pnpm tsc --noEmit
+bun run tsc --noEmit
 
 # 2. Rust clippy linting (strictly disallowing all warnings)
 cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
 
 # 3. Security audit on dependencies
 cargo audit
-pnpm dlx license-checker --summary --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;BSD-2-Clause;ISC"
 ```
 
 ---
@@ -83,13 +81,13 @@ pnpm dlx license-checker --summary --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;BSD-
 ### Development Mode
 ```bash
 # Start frontend and Rust backend in concurrent watch mode with hot reload
-pnpm tauri dev
+bun run tauri dev
 ```
 
 ### Production Packaging
 ```bash
 # Generate standalone NSIS installer and portable executable
-pnpm tauri build
+bun run tauri build
 ```
 Artifacts output to: `src-tauri/target/release/bundle/nsis/`
 
@@ -100,8 +98,8 @@ Artifacts output to: `src-tauri/target/release/bundle/nsis/`
 When configured with GitHub Actions (`.github/workflows/ci.yml`):
 - **Matrix:** `windows-latest`
 - **Pipeline Stages:**
-  1. **Checkout & Cache:** Setup Rust cache (`Swatinem/rust-cache`) and pnpm store.
-  2. **Lint & Type Check:** `cargo clippy -- -D warnings` and `pnpm tsc --noEmit`.
+  1. **Checkout & Cache:** Setup Rust cache (`Swatinem/rust-cache`) and Bun environment.
+  2. **Lint & Type Check:** `cargo clippy -- -D warnings` and `bun run tsc --noEmit`.
   3. **Backend Test Execution:** `cargo test --verbose`.
-  4. **Frontend Test Execution:** `pnpm test:run`.
-  5. **Smoke Build:** `pnpm tauri build --debug` to verify packaging integrity.
+  4. **Frontend Test Execution:** `bun run test`.
+  5. **Smoke Build:** `bun run tauri build --debug` to verify packaging integrity.

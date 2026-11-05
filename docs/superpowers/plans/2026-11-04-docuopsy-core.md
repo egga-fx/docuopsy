@@ -71,7 +71,7 @@ describe('Frontend Smoke Test', () => {
 
 - [ ] **Step 2: Run frontend test to verify initial state**
 
-Run: `pnpm vitest run src/__tests__/smoke.test.ts`  
+Run: `bun run vitest run src/__tests__/smoke.test.ts`  
 Expected: Test runner execution confirms Vitest configuration works.
 
 - [ ] **Step 3: Create `package.json`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `index.html` and Tailwind configuration**
@@ -82,9 +82,9 @@ Configure React 18, TypeScript, Tailwind CSS, Lucide Icons, CodeMirror 6 (`@code
 
 Add Rust dependencies: `tauri = { version = "2", features = [] }`, `tokio = { version = "1", features = ["full"] }`, `serde = { version = "1", features = ["derive"] }`, `serde_json = "1"`, `tracing = "0.1"`, `tracing-subscriber = "0.3"`, `tracing-appender = "0.2"`, `reqwest = { version = "0.12", features = ["stream", "json"] }`, `eventsource-stream = "0.2"`, `tempfile = "3"`, `thiserror = "1"`.
 
-- [ ] **Step 5: Run `cargo test` in `src-tauri` and `pnpm test` in root**
+- [ ] **Step 5: Run `cargo test` in `src-tauri` and `bun run test` in root**
 
-Run: `cargo test --manifest-path src-tauri/Cargo.toml` and `pnpm test`  
+Run: `cargo test --manifest-path src-tauri/Cargo.toml` and `bun run test`  
 Expected: PASS (0 errors, both test runners active).
 
 - [ ] **Step 6: Commit**
@@ -319,7 +319,7 @@ describe('Frontend Logger Bridge', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/ipc.test.ts`  
+Run: `bun run vitest run src/__tests__/ipc.test.ts`  
 Expected: FAIL ("cannot find module `../api/logger`").
 
 - [ ] **Step 3: Implement `src/api/ipc.ts` and `src/api/logger.ts`**
@@ -328,7 +328,7 @@ Map typed functions to Tauri `invoke()`. In `logger.ts`, pipe browser `console.w
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/ipc.test.ts`  
+Run: `bun run vitest run src/__tests__/ipc.test.ts`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -368,7 +368,7 @@ describe('Tab Store', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/tabStore.test.ts`  
+Run: `bun run vitest run src/__tests__/tabStore.test.ts`  
 Expected: FAIL ("cannot find module `../store/tabStore`").
 
 - [ ] **Step 3: Implement `src/store/tabStore.ts` using Zustand or lightweight reducer**
@@ -377,7 +377,7 @@ Support immutable state updates, automatic dirty flag calculation, active tab tr
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/tabStore.test.ts`  
+Run: `bun run vitest run src/__tests__/tabStore.test.ts`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -420,7 +420,7 @@ test('renders open tabs and closes a tab when close button is clicked', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/TabBar.test.tsx`  
+Run: `bun run vitest run src/__tests__/TabBar.test.tsx`  
 Expected: FAIL ("cannot find module `../components/TabBar`").
 
 - [ ] **Step 3: Implement `src/components/TabBar.tsx`**
@@ -429,7 +429,7 @@ Style with Tailwind CSS. Attach keyboard shortcuts `Ctrl+W` to close tab, `Ctrl+
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/TabBar.test.tsx`  
+Run: `bun run vitest run src/__tests__/TabBar.test.tsx`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -468,7 +468,7 @@ test('renders only editor in FullEditor mode', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/LayoutManager.test.tsx`  
+Run: `bun run vitest run src/__tests__/LayoutManager.test.tsx`  
 Expected: FAIL ("cannot find module `../components/LayoutManager`").
 
 - [ ] **Step 3: Implement `src/components/LayoutManager.tsx`**
@@ -477,7 +477,7 @@ Support Split Mode (flex row with draggable separator), Full Editor Mode (100% w
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/LayoutManager.test.tsx`  
+Run: `bun run vitest run src/__tests__/LayoutManager.test.tsx`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -514,7 +514,7 @@ test('mounts CodeMirror editor container', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/EditorPane.test.tsx`  
+Run: `bun run vitest run src/__tests__/EditorPane.test.tsx`  
 Expected: FAIL ("cannot find module `../components/EditorPane`").
 
 - [ ] **Step 3: Implement `src/editor/extensions.ts` and `src/components/EditorPane.tsx`**
@@ -523,7 +523,7 @@ Bundle line numbers, history (undo/redo), syntax highlighting, and an `EditorVie
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/EditorPane.test.tsx`  
+Run: `bun run vitest run src/__tests__/EditorPane.test.tsx`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -564,7 +564,7 @@ test('neutralizes malicious script tags and onerror attributes', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/MarkdownPreview.test.tsx`  
+Run: `bun run vitest run src/__tests__/MarkdownPreview.test.tsx`  
 Expected: FAIL ("cannot find module `../components/MarkdownPreview`").
 
 - [ ] **Step 3: Implement `src/utils/sanitizer.ts` using `DOMPurify` and `src/components/MarkdownPreview.tsx` using `markdown-it`**
@@ -573,7 +573,7 @@ Configure `markdown-it` with HTML enabled, tables enabled, and wrap output throu
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/MarkdownPreview.test.tsx`  
+Run: `bun run vitest run src/__tests__/MarkdownPreview.test.tsx`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -609,7 +609,7 @@ test('renders PDF viewer controls', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/PdfViewer.test.tsx`  
+Run: `bun run vitest run src/__tests__/PdfViewer.test.tsx`  
 Expected: FAIL ("cannot find module `../components/PdfViewer`").
 
 - [ ] **Step 3: Implement `src/components/PdfViewer.tsx` using `pdfjs-dist`**
@@ -618,7 +618,7 @@ Setup worker configuration, render pages with lazy intersection-observer, and pr
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/PdfViewer.test.tsx`  
+Run: `bun run vitest run src/__tests__/PdfViewer.test.tsx`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -655,7 +655,7 @@ test('renders prompt options when open', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm vitest run src/__tests__/AIPalette.test.tsx`  
+Run: `bun run vitest run src/__tests__/AIPalette.test.tsx`  
 Expected: FAIL ("cannot find module `../components/AIPalette`").
 
 - [ ] **Step 3: Implement `src/components/AIPalette.tsx`**
@@ -664,7 +664,7 @@ Listen to `ai:stream:chunk` events from Tauri IPC. Stream incoming deltas into t
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm vitest run src/__tests__/AIPalette.test.tsx`  
+Run: `bun run vitest run src/__tests__/AIPalette.test.tsx`  
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -698,7 +698,7 @@ Expected: All Rust unit and integration tests pass with 0 failures.
 
 - [ ] **Step 3: Run the full Frontend Test Suite**
 
-Run: `pnpm test`  
+Run: `bun run test`  
 Expected: All Vitest unit and component tests pass with 0 failures.
 
 - [ ] **Step 4: Run Rust Clippy with zero warning allowance**
@@ -708,7 +708,7 @@ Expected: Clean output with 0 warnings.
 
 - [ ] **Step 5: Run TypeScript static type check**
 
-Run: `pnpm tsc --noEmit`  
+Run: `bun run tsc --noEmit`  
 Expected: Clean output with 0 type errors.
 
 - [ ] **Step 6: Update `TODOS.md`, `docs/memory/brain-map.md`, and `docs/memory/progress-log.md`**

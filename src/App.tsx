@@ -88,7 +88,7 @@ export default function App(): React.JSX.Element {
       />
 
       {/* Forensic Telemetry Status Bar */}
-      <footer className="h-6.5 bg-slate-shell border-t border-slate-border px-3.5 flex items-center justify-between font-mono text-[11px] text-slate-muted tabular-nums select-none z-20">
+      <footer className="h-6 bg-slate-shell border-t border-slate-border px-3.5 flex items-center justify-between font-mono text-[11px] text-slate-muted tabular-nums select-none z-20">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-parchment">
             <span className={`w-1.5 h-1.5 rounded-full ${activeTab?.isDirty ? 'bg-amber-dirty' : 'bg-emerald-verified'}`} />

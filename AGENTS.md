@@ -93,6 +93,6 @@ pub fn log_event(level: String, message: String, context: Option<String>) {
 ## 5. Pre-Completion Quality Gate
 Before handoff, any agent must run and verify:
 1. `cargo test --manifest-path src-tauri/Cargo.toml` (All Rust backend unit & integration tests pass)
-2. `pnpm test` (All frontend Vitest unit & component tests pass)
+2. `bun run test` (All frontend Vitest unit & component tests pass)
 3. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` (Clean Rust code with zero warnings)
-4. `pnpm tsc --noEmit` (TypeScript type checker passes with zero errors)
+4. `bun run tsc --noEmit` (TypeScript type checker passes with zero errors)

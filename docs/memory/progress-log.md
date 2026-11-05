@@ -39,7 +39,7 @@ This log records every major milestone, completed task, test verification, and a
    - Assembled complete desktop application in `src/App.tsx`.
 
 ### 2. Pre-Completion Quality Gate Results (100% Pass)
-1. **Frontend Vitest Suite (`pnpm test`):**
+1. **Frontend Vitest Suite (`bun run test`):**
    - Result: **10 test files passed, 21 tests passed, 0 failures.**
    - Suites: `smoke.test.ts`, `ipc.test.ts`, `tabStore.test.ts`, `TabBar.test.tsx`, `LayoutManager.test.tsx`, `EditorPane.test.tsx`, `MarkdownPreview.test.tsx`, `PdfViewer.test.tsx`, `AIPalette.test.tsx`, `App.test.tsx`.
 2. **Backend Cargo Test Suite (`cargo test`):**
@@ -47,10 +47,24 @@ This log records every major milestone, completed task, test verification, and a
    - Suites: `logging_test`, `fs_security_test`, `persistence_test`, `ai_stream_test`, `smoke_test`.
 3. **Backend Clippy Linter (`cargo clippy -- -D warnings`):**
    - Result: **Clean compile, 0 warnings.**
-4. **TypeScript Type Checker (`pnpm tsc --noEmit`):**
+4. **TypeScript Type Checker (`bun run tsc --noEmit`):**
    - Result: **0 type errors.**
-5. **Production Build (`pnpm build`):**
+5. **Production Build (`bun run build`):**
    - Result: **Successfully built production bundle into `dist/`.**
+
+---
+
+## [2026-11-05] - Package Manager Migration to Bun.js (`bun`)
+
+### 1. Work Completed
+- Migrated package manager from `pnpm` to **`bun`** (v1.3.13) as requested by the user.
+- Removed legacy `pnpm-workspace.yaml`, `pnpm-lock.yaml`, and `.npmrc`.
+- Updated `src-tauri/tauri.conf.json` hooks:
+  - `beforeDevCommand: "bun run dev"`
+  - `beforeBuildCommand: "bun run build"`
+- Executed `bun install`, generating `bun.lock`.
+- Verified all quality gates using Bun: `bun run test`, `bun run tsc --noEmit`, `bun run build`. All passed cleanly with 100% test coverage and zero warnings.
+- Updated documentation (`README.md`, `INFRA.md`, `AGENTS.md`, `GEMINI.md`, `TODOS.md`, `docs/memory/brain-map.md`).
 
 ### 3. Solved Environmental Findings
 - **MSVC Linker LNK1108 Disk Constraint:** System drive `C:` had only ~25MB of free space remaining, causing `link.exe` to fail writing temp files in `C:\Users\precore\AppData\Local\Temp`. Solved cleanly by configuring `$env:TEMP` and `$env:TMP` to `D:\temp` (where 103 GB is available).

@@ -37,8 +37,8 @@
 ## 🏗️ Phase 1: Project Scaffolding & Toolchain Setup (DONE ✅)
 - [x] **1.1.** Inisialisasi proyek hybrid Tauri v2 + React/TypeScript (Vite) + Tailwind CSS.
 - [x] **1.2.** Konfigurasi `Cargo.toml` backend dengan dependensi inti (Tauri, Tokio, Serde, Tracing, Reqwest).
-- [x] **1.3.** Konfigurasi `package.json` frontend dengan dependensi (CodeMirror 6, Lucide, Vitest, Tailwind).
-- [x] **1.4.** Setup Vitest test runner dan validasi basic smoke test (`pnpm test` $\to$ PASS).
+- [x] **1.3.** Konfigurasi `package.json` frontend dengan dependensi (CodeMirror 6, Lucide, Vitest, Tailwind) menggunakan Bun.js.
+- [x] **1.4.** Setup Vitest test runner dan validasi basic smoke test (`bun run test` $\to$ PASS).
 - [x] **1.5.** Setup Cargo test suite dan validasi basic backend test (`cargo test` $\to$ PASS).
 
 ---
@@ -106,8 +106,8 @@
 - [x] **6.2.** Verifikasi keamanan path traversal: Unit test penolakan eksplisit untuk path manipulatif (`test_reject_directory_traversal_double_dot`, `test_reject_embedded_directory_traversal` $\to$ PASS).
 - [x] **6.3.** Eksekusi seluruh test suite:
   - [x] `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **14/14 PASS** (100%)
-  - [x] `pnpm test` $\to$ **21/21 PASS across 10 test files** (100%)
+  - [x] `bun run test` $\to$ **21/21 PASS across 10 test files** (100%)
   - [x] `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**
-  - [x] `pnpm tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
-  - [x] `pnpm build` $\to$ **Production bundle generated cleanly in `dist/`**
+  - [x] `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+  - [x] `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**
 - [x] **6.4.** Verifikasi startup time (<1.5 detik), virtualized scrolling, dan zero-leak logging redaction.

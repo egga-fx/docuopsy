@@ -59,7 +59,7 @@ Docuopsy exclusively uses permissive, free open-source software (MIT / Apache-2.
 
 ### Prerequisites
 - [Rust toolchain](https://rustup.rs/) (Cargo & rustc stable)
-- [Node.js](https://nodejs.org/) (v20+) or [pnpm](https://pnpm.io/)
+- [Bun](https://bun.sh/) (v1.2+ package manager & runtime)
 - Windows C++ Build Tools (via Visual Studio Installer)
 
 ### Installation & Development
@@ -69,13 +69,13 @@ git clone https://github.com/your-username/docuopsy.git
 cd docuopsy
 
 # 2. Install frontend dependencies
-pnpm install
+bun install
 
 # 3. Run in development mode (hot-reload enabled)
-pnpm tauri dev
+bun run tauri dev
 
 # 4. Build optimized production release
-pnpm tauri build
+bun run tauri build
 ```
 
 ---

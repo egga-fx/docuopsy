@@ -1,6 +1,7 @@
 # GEMINI.md - AI Agent Context & Directives for Docuopsy
 
 ## 1. Project Overview & Identity
+
 - **Name:** Docuopsy (Document + Autopsy)
 - **Concept:** High-performance, secure, multi-format desktop document viewer & text editor.
 - **Core Stack:** Tauri v2 + Rust Core Backend + React/TypeScript (Vite) + Tailwind CSS + CodeMirror 6 + PDF.js.
@@ -10,7 +11,9 @@
 ---
 
 ## 2. Agent Brain Mapping & Persistent Memory Protocol
+
 To prevent context fragmentation and ensure seamless handoffs between agents:
+
 - **Primary Memory Directory:** `docs/memory/`
   - `docs/memory/brain-map.md`: Mental model, architecture graph, module status, and active invariants.
   - `docs/memory/progress-log.md`: Chronological changelog of completed tasks, test outputs, and decisions.
@@ -22,6 +25,7 @@ To prevent context fragmentation and ensure seamless handoffs between agents:
 ---
 
 ## 3. Core Architectural Directives
+
 - **Zero Heavy Bloat:** Every library and dependency MUST be open-source (MIT, Apache-2.0, or BSD). Reject oversized npm libraries or unneeded Rust crates.
 - **Tauri IPC Protocol:** Keep IPC messages strictly typed and thin. Rust handles disk access, persistence, file watching, and HTTP streaming to KIE AI. Frontend handles UI rendering, event dispatching, and view orchestration.
 - **Single Source of Truth:**
@@ -31,6 +35,7 @@ To prevent context fragmentation and ensure seamless handoffs between agents:
 ---
 
 ## 4. AI Service Directives (KIE AI)
+
 - **Provider:** KIE AI (`https://kie.ai`)
 - **Default Model:** `claude-haiku-5-5` (Fast, high-efficiency generation)
 - **API Protocol:** Standard streaming completions / chat completions endpoint (Server-Sent Events / SSE) over HTTP via Rust's `reqwest` async client.
@@ -44,6 +49,7 @@ To prevent context fragmentation and ensure seamless handoffs between agents:
 ## 5. Coding Conventions & Best Practices
 
 ### Rust (Backend)
+
 - Follow idiomatic Rust (2021 edition).
 - Use `thiserror` and `anyhow` for clear error propagation.
 - All I/O operations must be asynchronous (`tokio`). Never block the Tauri main thread.
@@ -52,6 +58,7 @@ To prevent context fragmentation and ensure seamless handoffs between agents:
 - Use `tracing` for structured logs; never leave bare `println!`.
 
 ### TypeScript / Frontend
+
 - Strict TypeScript enabled (`noImplicitAny`, `strictNullChecks`).
 - Editor integration uses **CodeMirror 6** for virtualized scrolling and minimal memory consumption.
 - PDF rendering uses **PDF.js** with page-level lazy rendering.
@@ -60,7 +67,8 @@ To prevent context fragmentation and ensure seamless handoffs between agents:
 ---
 
 ## 6. Agent Workflow Rules
+
 1. **Spec & Test First:** Before writing implementation code, ensure interface definitions and unit tests exist.
-2. **Verify Before Declaring Done:** Always execute compiler checks (`cargo check`, `cargo test`, `pnpm test`, `pnpm tsc`) before concluding any task.
+2. **Verify Before Declaring Done:** Always execute compiler checks (`cargo check`, `cargo test`, `bun run test`, `bun run tsc`) before concluding any task.
 3. **Evidence-Based Assertions:** Never claim "it works" without presenting real command outputs or test logs.
 4. **Preserve Integrity:** Never bypass Rust safety guidelines or disable security policies without explicit user authorization.

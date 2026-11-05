@@ -1,8 +1,7 @@
-# Node & Frontend
+# Node & Frontend (Bun)
 node_modules/
 dist/
 dist-ssr/
-.pnpm-store/
 *.local
 
 # Rust & Tauri
@@ -20,3 +19,4 @@ logs/
 # AppData & Session Cache
 *.draft
 session.json
+
