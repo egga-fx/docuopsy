@@ -47,6 +47,8 @@ function getContextualProgress(prompt: string, status?: string): { stage: string
 
   if (status === 'thinking') {
     stage = 'Thinking';
+  } else if (status === 'reasoning') {
+    stage = 'Reasoning';
   } else if (status === 'retrying') {
     return { stage: 'Retrying', message: 'Server padat, mencoba menghubungkan ulang otomatis...' };
   } else if (status === 'streaming') {
@@ -55,24 +57,26 @@ function getContextualProgress(prompt: string, status?: string): { stage: string
     return { stage: 'Done', message: 'Selesai menghasilkan respons.' };
   }
 
-  if (lower.includes('resep') || lower.includes('puding') || lower.includes('masak') || lower.includes('makanan') || lower.includes('kue')) {
-    message = stage === 'Thinking'
+  const isPreGeneration = stage === 'Thinking' || stage === 'Reasoning';
+
+  if (lower.includes('resep') || lower.includes('puding') || lower.includes('kopi') || lower.includes('americano') || lower.includes('amerikano') || lower.includes('masak') || lower.includes('makanan') || lower.includes('kue')) {
+    message = isPreGeneration
       ? 'Menelaah takaran bahan baku & teknik kuliner...'
       : 'Mengompilasi langkah pembuatan & panduan penyajian...';
   } else if (lower.includes('code') || lower.includes('kode') || lower.includes('fungsi') || lower.includes('script') || lower.includes('rust') || lower.includes('python') || lower.includes('bug')) {
-    message = stage === 'Thinking'
+    message = isPreGeneration
       ? 'Menganalisis logika algoritma & sintaks kode...'
       : 'Menyusun implementasi kode & penjelasan teknis...';
   } else if (lower.includes('summarize') || lower.includes('ringkas') || lower.includes('rangkum') || lower.includes('intisari')) {
-    message = stage === 'Thinking'
+    message = isPreGeneration
       ? 'Mengekstraksi premis pokok & argumen sentral...'
       : 'Merumuskan ikhtisar terstruktur & poin analitis...';
   } else if (lower.includes('grammar') || lower.includes('tata bahasa') || lower.includes('perbaiki') || lower.includes('polish')) {
-    message = stage === 'Thinking'
+    message = isPreGeneration
       ? 'Meninjau kohesi kalimat, diksi & ejaan...'
       : 'Menyelaraskan stilistika bahasa & kejelasan naskah...';
   } else {
-    message = stage === 'Thinking'
+    message = isPreGeneration
       ? 'Merumuskan penalaran konseptual & sintesis...'
       : 'Menghasilkan respons terstruktur...';
   }
@@ -234,7 +238,18 @@ export const AIPalette: React.FC<AIPaletteProps> = ({ isOpen, onClose, editorVie
     const streamId = `stream-${Date.now()}`;
 
     try {
-      await aiGenerateStream(streamId, finalPrompt, editorContext);
+      const fullResult = await aiGenerateStream(streamId, finalPrompt, editorContext);
+      if (fullResult) {
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.role === 'assistant' && !last.content) {
+            return [...prev.slice(0, -1), { ...last, content: fullResult }];
+          }
+          return prev;
+        });
+      }
+      setIsStreaming(false);
+      setStreamStatus('idle');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);

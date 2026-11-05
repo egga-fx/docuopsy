@@ -8,7 +8,7 @@ pub async fn ai_generate_stream(
     prompt: String,
     context: String,
     app_handle: AppHandle,
-) -> Result<(), AppError> {
+) -> Result<String, AppError> {
     let service = KIEAiService::new();
     service
         .stream_completion(stream_id, prompt, context, app_handle)

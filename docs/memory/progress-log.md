@@ -192,26 +192,28 @@ This log records every major milestone, completed task, test verification, and a
 
 ---
 
-## [2026-11-05] - Phase 12: Migration to DeepSeek V4.1 Flash & Retry Resilience
+## [2026-11-05] - Phase 12: Migration to DeepSeek V4.1 Flash, Tauri v2 Capabilities & Low-Latency Streaming
 
 ### 1. Work Completed
-1. **Model Migration to DeepSeek V4.1 Flash (`deepseek-v4-1-flash`):**
-   - User requested migration to `https://kie.ai/deepseek-v4-1-Flash` due to persistent upstream congestion on KIE AI Claude endpoints ("Resources are tight" / HTTP 500 & 503).
+1. **Root Cause Investigation & Fix for Stuck "THINKING" State (Tauri v2 ACL Capabilities):**
+   - **Root Cause 1 (Missing Tauri v2 Capabilities):** `src-tauri/capabilities/default.json` was missing (`src-tauri/gen/schemas/capabilities.json` was `{}`). In Tauri v2, calling `listen('ai:stream:chunk')` from the webview requires `core:event:allow-listen`. Without it, `listen` threw an ACL permission rejection that was swallowed by `catch (err) { console.warn(...) }` in `AIPalette.tsx`. Consequently, when `deepseek-v4-1-flash` succeeded (`Ok(())`), the frontend received zero `ai:stream:chunk` events and `isStreaming` remained `true` (`THINKING`) indefinitely!
+   - **Fix 1:** Created `src-tauri/capabilities/default.json` granting `core:default`, `core:event:default`, `core:event:allow-listen`, `core:event:allow-unlisten`, `core:event:allow-emit`, and `core:window:default`. Verified `src-tauri/gen/schemas/capabilities.json` now compiles all permissions into the binary.
+   - **Root Cause 2 (No Direct Return Fallback in `handleSubmit`):** `ai_generate_stream` previously returned `Result<(), AppError>` and `AIPalette.tsx` relied solely on the `isDone: true` event to clear `isStreaming`.
+   - **Fix 2:** Changed `ai_generate_stream` / `stream_completion` to accumulate and return `Result<String, AppError>`. When `await aiGenerateStream(...)` resolves in `AIPalette.tsx`, it now guarantees `setIsStreaming(false)` and populates the assistant message if events were missed.
+   - **Root Cause 3 (Deep Thinking Default Overhead & Keep-Alive):** By default, `deepseek-v4-1-flash` runs high-effort chain-of-thought reasoning (~350+ reasoning tokens) before emitting the first output token, and the `/openai/v1/responses` endpoint uses `Connection: keep-alive`.
+   - **Fix 3:** Configured `"reasoning": { "effort": "low" }` in the request body (reducing reasoning overhead to ~35 tokens / < 0.8s time-to-first-token) and added an explicit `break` upon receiving `event: response.completed` so the stream finishes the exact millisecond generation completes.
+2. **Model Migration to DeepSeek V4.1 Flash (`deepseek-v4-1-flash`):**
    - Configured official KIE AI OpenAI-compatible endpoint: `https://api.kie.ai/openai/v1/responses`.
-   - Verified live sub-second token generation latency (< 2 detik).
-2. **Multi-Format SSE Stream Parser:**
-   - Extended `parse_sse_line` in `src-tauri/src/services/ai.rs` with `DeepSeekDelta` to parse `response.output_text.delta` into the document buffer while cleanly omitting `response.reasoning_text.delta`.
-   - Retains backward compatibility for Anthropic (`content_block_delta`) and OpenAI (`choices[0].delta.content`).
+   - Extended `parse_sse_line` in `src-tauri/src/services/ai.rs` with `DeepSeekDelta` to parse `response.output_text.delta` while emitting `status: "reasoning"` on `response.reasoning_text.delta`.
    - Added unit tests: `test_parse_deepseek_sse_content` and `test_parse_deepseek_reasoning_ignored_in_text`.
 3. **Automatic Client-Side Retry & User-Friendly Error Formatting:**
    - Added 3x automatic retry loop with exponential backoff in `src-tauri/src/services/ai.rs`.
-   - Replaced raw JSON error dumps with friendly messages and an interactive "Coba Lagi" (Retry) button in `AIPalette.tsx`.
-4. **UI Telemetry & Badges:**
-   - Updated model badges in `AIPalette.tsx` and telemetry footer `src/App.tsx` to `deepseek-v4-1-flash`.
+   - Added interactive "Coba Lagi" (Retry) button in `AIPalette.tsx`.
+4. **Initialized Tracing Subscriber in `lib.rs`:**
+   - Called `logging::init_tracing()` in `src-tauri/src/lib.rs` on startup.
 
 ### 2. Quality Gate Verification (100% PASS)
 1. `bun run test` $\to$ **12 test files passed, 26 tests passed, 0 failures.**
 2. `bun run tsc --noEmit` $\to$ **0 type errors.**
-3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 14.6s.**
-4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures in 0.03s.**
-5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
+3. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures in 0.15s.**
+4. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**

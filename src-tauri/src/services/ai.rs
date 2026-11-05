@@ -130,7 +130,7 @@ impl KIEAiService {
         prompt: String,
         context: String,
         app_handle: AppHandle,
-    ) -> Result<(), AppError> {
+    ) -> Result<String, AppError> {
         let endpoint = if self.base_url.ends_with("/responses")
             || self.base_url.ends_with("/messages")
             || self.base_url.ends_with("/chat/completions")
@@ -156,6 +156,9 @@ impl KIEAiService {
             serde_json::json!({
                 "model": self.model,
                 "stream": true,
+                "reasoning": {
+                    "effort": "low"
+                },
                 "input": [
                     { "role": "system", "content": system_instruction },
                     { "role": "user", "content": user_message }
@@ -270,12 +273,29 @@ impl KIEAiService {
         };
 
         let mut stream = response.bytes_stream().eventsource();
+        let mut full_text = String::new();
+        let mut emitted_reasoning = false;
 
         while let Some(event_result) = stream.next().await {
             match event_result {
                 Ok(event) => {
+                    if !emitted_reasoning && event.data.contains("response.reasoning_text.delta") {
+                        emitted_reasoning = true;
+                        let _ = app_handle.emit(
+                            "ai:stream:chunk",
+                            AIStreamChunk {
+                                stream_id: stream_id.clone(),
+                                delta: String::new(),
+                                is_done: false,
+                                status: Some("reasoning".to_string()),
+                                error: None,
+                            },
+                        );
+                    }
+
                     let raw_line = format!("data: {}", event.data);
                     if let Ok(Some(content_delta)) = parse_sse_line(&raw_line) {
+                        full_text.push_str(&content_delta);
                         let _ = app_handle.emit(
                             "ai:stream:chunk",
                             AIStreamChunk {
@@ -286,6 +306,14 @@ impl KIEAiService {
                                 error: None,
                             },
                         );
+                    }
+
+                    if event.event == "response.completed"
+                        || event.event == "message_stop"
+                        || event.data.trim() == "[DONE]"
+                        || event.data.contains("\"type\":\"response.completed\"")
+                    {
+                        break;
                     }
                 }
                 Err(err) => {
@@ -317,6 +345,6 @@ impl KIEAiService {
             },
         );
 
-        Ok(())
+        Ok(full_text)
     }
 }

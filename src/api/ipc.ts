@@ -41,7 +41,7 @@ export async function aiGenerateStream(
   streamId: string,
   prompt: string,
   context: string
-): Promise<void> {
-  return await invoke<void>('ai_generate_stream', { streamId, prompt, context });
+): Promise<string> {
+  return await invoke<string>('ai_generate_stream', { streamId, prompt, context });
 }
 
