@@ -24,21 +24,29 @@ mod persistence_test;
 #[path = "tests/ai_stream_test.rs"]
 mod ai_stream_test;
 
+use commands::ai::ai_generate_stream;
+use commands::fs::{pick_file_to_open, pick_file_to_save, read_document, save_document};
+use commands::logging::log_event;
+use commands::state::{load_draft, load_session, remove_draft, save_draft, save_session};
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let _log_guard = logging::init_tracing().ok().flatten();
-
     tauri::Builder::default()
+        .setup(|_app| {
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
-            commands::fs::read_document,
-            commands::fs::save_document,
-            commands::state::save_session,
-            commands::state::load_session,
-            commands::state::save_draft,
-            commands::state::load_draft,
-            commands::state::remove_draft,
-            commands::ai::ai_generate_stream,
-            commands::logging::log_event,
+            read_document,
+            save_document,
+            pick_file_to_open,
+            pick_file_to_save,
+            save_session,
+            load_session,
+            save_draft,
+            load_draft,
+            remove_draft,
+            ai_generate_stream,
+            log_event
         ])
         .run(tauri::generate_context!())
         .expect("error while running docuopsy application");

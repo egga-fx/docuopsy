@@ -68,3 +68,36 @@ This log records every major milestone, completed task, test verification, and a
 
 ### 3. Solved Environmental Findings
 - **MSVC Linker LNK1108 Disk Constraint:** System drive `C:` had only ~25MB of free space remaining, causing `link.exe` to fail writing temp files in `C:\Users\precore\AppData\Local\Temp`. Solved cleanly by configuring `$env:TEMP` and `$env:TMP` to `D:\temp` (where 103 GB is available).
+
+---
+
+## [2026-11-05] - Phase 7: User Feedback & Feature Refinements
+
+### 1. Work Completed
+1. **Registered All Tauri IPC Commands & Resolved AI Generate Error:**
+   - In `src-tauri/src/lib.rs`, registered all backend invoke handlers: `ai_generate_stream`, `read_document`, `save_document`, `pick_file_to_open`, `pick_file_to_save`, `save_session`, `load_session`, `save_draft`, `load_draft`, `remove_draft`, and `log_event`.
+   - Resolved the error `Command ai_generate_stream not found`.
+2. **Native OS File Dialog & Document Saving/Opening System:**
+   - Integrated `rfd::AsyncFileDialog` in Rust for native Windows file explorer dialogs:
+     - `pick_file_to_open`: filters for `.md`, `.txt`, `.pdf`, `.json`, `.rs`, `.ts`, all files.
+     - `pick_file_to_save`: dialog for naming and locating saved files.
+   - Wired keyboard shortcuts and handlers in frontend: `Ctrl+S` (Save), `Ctrl+Shift+S` (Save As), `Ctrl+O` (Open File).
+3. **App Menu Toolbar (Hamburger Menu in Top Left):**
+   - Implemented `src/components/AppMenu.tsx` integrated in the TabBar header.
+   - Comprehensive menu sections: File (New, Open, Save, Save As, Close Tab), Edit (Undo, Redo, Cut, Copy, Paste), View (Split Mode, Editor Only, Preview Only, Toggle Theme, AI Assistant).
+4. **Format-Aware Preview Container:**
+   - Implemented `src/components/PreviewContainer.tsx` and `src/components/CodePreview.tsx`.
+   - New files and `.md` files default to GFM Markdown HTML preview.
+   - `.pdf` files render via PDF.js.
+   - Code and plain text files render in read-only tabular line-numbered format.
+5. **AI Assistant Brand Neutrality:**
+   - Renamed "KIE AI Assistant" to neutral "AI Assistant" across UI, tooltips, and accessibility attributes.
+6. **Clean Empty New File Default:**
+   - New tabs and initial document now start with empty string `""` content.
+
+### 2. Quality Gate Verification (100% PASS)
+1. `bun run test` $\to$ **12 test files passed, 26 tests passed, 0 failures.**
+2. `bun run tsc --noEmit` $\to$ **0 type errors.**
+3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 16.7s.**
+4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **14 tests passed, 0 failures in 0.02s.**
+5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**

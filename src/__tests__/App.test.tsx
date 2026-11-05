@@ -6,11 +6,12 @@ describe('App Root Assembly Component', () => {
   it('renders top tab bar, workspace, and telemetry status footer', () => {
     render(<App />);
 
-    // Tab bar rendered
+    // Tab bar and Application Menu rendered
     expect(screen.getByRole('tablist', { name: 'Document Tabs' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Application Menu' })).toBeInTheDocument();
 
     // Telemetry footer rendered
-    expect(screen.getByText(/KIE AI: claude-haiku-5-5/i)).toBeInTheDocument();
+    expect(screen.getByText(/AI: claude-haiku-5-5/i)).toBeInTheDocument();
     expect(screen.getByText(/UTF-8/i)).toBeInTheDocument();
   });
 });

@@ -30,6 +30,7 @@ thiserror = "1.0"
 regex = "1.10"
 dirs = "5.0"
 uuid = { version = "1.8", features = ["v4", "serde"] }
+rfd = "0.15"
 
 [dev-dependencies]
 wiremock = "0.6"

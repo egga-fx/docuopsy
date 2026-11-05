@@ -64,7 +64,7 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
       cursorCol: 1,
       scrollTop: 0,
       draftPath: null,
-      content: '# Untitled Document\n\nWelcome to Docuopsy.',
+      content: '',
     },
   ],
   activeTabId: initialTabId,

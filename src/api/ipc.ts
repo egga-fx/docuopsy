@@ -29,6 +29,14 @@ export async function removeDraft(tabId: string): Promise<void> {
   return await invoke<void>('remove_draft', { tabId });
 }
 
+export async function pickFileToOpen(): Promise<string | null> {
+  return await invoke<string | null>('pick_file_to_open');
+}
+
+export async function pickFileToSave(defaultName?: string): Promise<string | null> {
+  return await invoke<string | null>('pick_file_to_save', { defaultName });
+}
+
 export async function aiGenerateStream(
   streamId: string,
   prompt: string,

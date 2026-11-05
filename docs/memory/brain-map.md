@@ -60,17 +60,20 @@
 | **Implementation Plan** | `docs/superpowers/plans/` | Completed & Fully Implemented | Architect |
 | **Project Scaffolding** | `src-tauri/`, `src/` | Completed & Verified | Rust / Frontend Agents |
 | **Tracing & Log Bridge** | `src-tauri/src/logging.rs`, `src/api/logger.ts` | Completed & Tested | Rust Core Agent |
-| **Path Security & FS** | `src-tauri/src/services/fs.rs` | Completed & Tested | Rust Core Agent |
+| **Path Security & FS & Dialog** | `src-tauri/src/services/fs.rs`, `rfd` | Completed & Tested | Rust Core Agent |
 | **Session Persistence** | `src-tauri/src/services/persistence.rs` | Completed & Tested | Rust Core Agent |
 | **KIE AI Streaming Gateway**| `src-tauri/src/services/ai.rs` | Completed & Tested | Rust Core Agent |
 | **Tab State Store** | `src/store/tabStore.ts` | Completed & Tested | Frontend UI Agent |
+| **App Menu Toolbar** | `src/components/AppMenu.tsx` | Completed & Tested | Frontend UI Agent |
 | **Layout Switcher** | `src/components/LayoutManager.tsx` | Completed & Tested | Frontend UI Agent |
 | **CodeMirror 6 Editor** | `src/components/EditorPane.tsx` | Completed & Tested | Frontend UI Agent |
+| **Format-Aware Preview**| `src/components/PreviewContainer.tsx` | Completed & Tested | Frontend UI Agent |
 | **Markdown Preview** | `src/components/MarkdownPreview.tsx` | Completed & Tested | Frontend UI Agent |
 | **PDF.js Viewer** | `src/components/PdfViewer.tsx` | Completed & Tested | Frontend UI Agent |
+| **Code/Text Preview** | `src/components/CodePreview.tsx` | Completed & Tested | Frontend UI Agent |
 | **In-Editor AI UI** | `src/components/AIPalette.tsx` | Completed & Tested | Frontend UI Agent |
-| **Root Assembly** | `src/App.tsx`, `src-tauri/src/lib.rs` | Completed & Tested | Frontend / Rust Core |
-| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (All Quality Gates) | QA / Reviewer Agent |
+| **Root Assembly** | `src/App.tsx`, `src-tauri/src/lib.rs` | Completed & Verified | Frontend / Rust Core |
+| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (12 Vitest + 14 Cargo) | QA / Reviewer Agent |
 
 ---
 

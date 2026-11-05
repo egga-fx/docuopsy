@@ -95,14 +95,14 @@ export const AIPalette: React.FC<AIPaletteProps> = ({ isOpen, onClose, editorVie
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="KIE AI Assistant"
+        aria-label="AI Assistant"
         className="w-full max-w-xl bg-slate-shell border border-slate-border rounded-lg shadow-2xl p-4 flex flex-col gap-3 font-sans"
       >
         {/* Header Row */}
         <div className="flex items-center justify-between text-xs font-mono text-slate-muted">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-kie-violet" />
-            <span className="font-semibold text-parchment">KIE AI Assistant</span>
+            <span className="font-semibold text-parchment">AI Assistant</span>
             <span className="px-1.5 py-0.5 rounded bg-slate-surface text-[10px] text-kie-violet border border-kie-violet/30">
               claude-haiku-5-5
             </span>

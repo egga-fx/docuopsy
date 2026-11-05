@@ -111,3 +111,32 @@
   - [x] `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
   - [x] `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**
 - [x] **6.4.** Verifikasi startup time (<1.5 detik), virtualized scrolling, dan zero-leak logging redaction.
+
+---
+
+## 🛠️ Phase 7: User Feedback & Feature Refinements (DONE ✅)
+- [x] **7.1.** Backend Tauri Command Registration & IPC Fix:
+  - Daftarkan seluruh invoke handler (`ai_generate_stream`, `read_document`, `save_document`, `save_session`, `load_session`, `save_draft`, `load_draft`, `remove_draft`, `log_event`) di `src-tauri/src/lib.rs`.
+  - Atasi error `Command ai_generate_stream not found`.
+- [x] **7.2.** Native File Dialog & Save/Open System:
+  - Integrasi native file dialog via Rust (`rfd::AsyncFileDialog` untuk `pick_file_to_open` dan `pick_file_to_save`).
+  - Implementasi handler di frontend untuk Save (`Ctrl+S`), Save As (`Ctrl+Shift+S`), dan Open File (`Ctrl+O`).
+- [x] **7.3.** App Hamburger Toolbar Menu (File, Edit, View):
+  - Buat komponen `AppMenu` di sudut kiri atas sebelum tab strip.
+  - Opsi File (New File, Open, Save, Save As, Close Tab).
+  - Opsi Edit (Undo, Redo, Cut, Copy, Paste).
+  - Opsi View (Split Mode, Editor Only, Preview Only, Toggle Theme, AI Assistant).
+- [x] **7.4.** Format-Aware Preview Container:
+  - Markdown GFM untuk berkas `.md` dan berkas baru/untitled default.
+  - PDF.js untuk berkas `.pdf`.
+  - Format-aware read-only syntax viewer untuk berkas teks/kode (`.txt`, `.json`, `.rs`, `.ts`, dll.).
+- [x] **7.5.** AI Assistant General Title & Brand Neutrality:
+  - Ubah penamaan "KIE AI Assistant" menjadi "AI Assistant" pada header dan accessibility label.
+- [x] **7.6.** Empty Default Content:
+  - Set default content berkas baru dan tab inisial menjadi string kosong `""`.
+- [x] **7.7.** Quality Gate Execution:
+  - `bun run test` $\to$ **26/26 PASS across 12 test files** (100%)
+  - `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+  - `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**
+  - `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **14/14 PASS** (100%)
+  - `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**

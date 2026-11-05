@@ -13,7 +13,11 @@ function getFileIcon(title: string) {
   return <FileText className="w-3.5 h-3.5 text-verdigris" />;
 }
 
-export const TabBar: React.FC = () => {
+interface TabBarProps {
+  leftAddon?: React.ReactNode;
+}
+
+export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
   const { tabs, activeTabId, setActiveTab, closeTab, addTab } = useTabStore();
 
   useEffect(() => {
@@ -47,6 +51,7 @@ export const TabBar: React.FC = () => {
       aria-label="Document Tabs"
       className="h-9 bg-slate-shell border-b border-slate-border flex items-stretch select-none font-mono text-xs overflow-x-auto scrollbar-none"
     >
+      {leftAddon}
       <div className="flex items-stretch flex-1">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
