@@ -47,6 +47,7 @@
 7. **Open Source Rule:** 100% of dependencies must use permissive licenses (MIT, Apache-2.0, BSD, ISC).
 8. **Package Manager & Runtime Rule:** Frontend dependencies and dev scripts strictly use **`bun`** (`bun install`, `bun run dev`, `bun run build`, `bun run test`, `bun run tsc --noEmit`).
 9. **Impeccable Design & Dual-Theme Rule:** Must enforce *The Archival Forensics Studio* design system (`PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`) with day-one semantic parity between **Dark Forensics** (`#0B0F14`) and **High-Contrast Light** (`#FAF7F0`), `tabular-nums` on all numeric telemetry, 65ch–72ch scholarly reading measure, and WCAG 2.1 AA/AAA contrast.
+10. **Dynamic Window Size Rule:** On startup, the desktop window size must dynamically calculate and adjust to 70% of the active display monitor's physical resolution (`0.70x width`, `0.70x height`) and center itself cleanly.
 
 ---
 

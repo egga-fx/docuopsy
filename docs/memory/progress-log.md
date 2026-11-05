@@ -129,3 +129,25 @@ This log records every major milestone, completed task, test verification, and a
 3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 16.1s.**
 4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **15 tests passed, 0 failures in 0.03s.**
 5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
+
+---
+
+## [2026-11-05] - Phase 9: Markdown Typography & Dynamic 0.7x Screen Size
+
+### 1. Work Completed
+1. **Archival Markdown Typography System (`.prose-docuopsy`):**
+   - Implemented full typography rules in `src/index.css` for `.prose-docuopsy` to counteract Tailwind preflight normalization.
+   - Restored distinct headings: `h1` (2rem, 800 weight, subtle underline border), `h2` (1.5rem, 700 weight, underline border), `h3` (1.25rem, 600 weight), down to `h6`.
+   - Formatted paragraphs, lists (`ul`, `ol`, `li`), blockquotes with accent borders, inline code chips, preformatted syntax blocks, tables, and horizontal dividers.
+   - Dual-theme responsiveness: dark obsidian ground & light archival vellum ground.
+2. **Dynamic 0.7x Monitor Screen Size on Startup:**
+   - In `src-tauri/src/lib.rs` and `src-tauri/tauri.conf.json`, hooked into `tauri::Builder::setup()`.
+   - Queries `current_monitor()` / `primary_monitor()`, computes `target_width = 0.70 * monitor_width` and `target_height = 0.70 * monitor_height`.
+   - Resizes physical window dynamically and centers it on the active screen (`window.center()`).
+
+### 2. Quality Gate Verification (100% PASS)
+1. `bun run test` $\to$ **12 test files passed, 26 tests passed, 0 failures.**
+2. `bun run tsc --noEmit` $\to$ **0 type errors.**
+3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 21.7s.**
+4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **15 tests passed, 0 failures in 0.12s.**
+5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**

@@ -6,11 +6,22 @@
 
 ## 📊 Overall Progress Summary
 
-- **Current Active Phase:** ALL PHASES COMPLETE (Phase 0 through Phase 6) ✅
-- **Milestone:** Docuopsy Core & Desktop Studio Fully Implemented and Verified
+- **Current Active Phase:** Pre-production audit (2026-11-05); release blocked pending remediation.
+- **Milestone:** Core implementation exists; historical completion claims below are not production acceptance.
 - **Priority Hierarchy:** `Speed (Performance) > Security > Features`
 - **AI Provider:** KIE AI (`claude-haiku-5-5`) via Streaming SSE in Rust Backend
-- **Quality Gates:** 100% Pass (Vitest: 21/21 tests, Cargo: 14/14 tests, Clippy: 0 warnings, TypeScript: 0 errors)
+- **Quality Gates:** Current results and limitations are recorded in `docs/audits/2026-11-05-production-readiness.md`; passing unit tests alone does not establish release readiness.
+
+## Pre-production audit — 2026-11-05
+
+- [x] Read product/specification/design context and inspect working tree.
+- [x] Run Impeccable source detector and review findings in context.
+- [x] Re-run frontend tests (26/26), TypeScript and frontend build.
+- [x] Identify credential exposure, persistence/editor defects, PDF and theme issues.
+- [ ] Finish independent defect reproductions and backend quality gates.
+- [ ] Complete audit report and rendered verification, or record concrete limitations.
+- [ ] Remove exposed credentials from source/history and rotate the key before push.
+- [ ] Remediate production blockers and re-run release acceptance.
 
 ---
 
@@ -166,4 +177,23 @@
   - `bun run tsc --noEmit` $\to$ **0 ERRORS**
   - `bun run build` $\to$ **PASS**
   - `cargo test` $\to$ **15/15 PASS**
+  - `cargo clippy` $\to$ **0 WARNINGS**
+
+---
+
+## 📐 Phase 9: Markdown Typography & Dynamic 0.7x Screen Size (DONE ✅)
+- [x] **9.1.** Archival Markdown Typography System (`.prose-docuopsy`):
+  - Menghilangkan bug Tailwind preflight yang mereset style heading (`h1`, `h2`, `h3`, `h4`, `h5`, `h6`) menjadi unstyled text.
+  - Menerapkan skala heading kanonik: `h1` (32px, bold, border-bottom), `h2` (24px, semibold, border-bottom), `h3` (20px, medium).
+  - Styling lengkap untuk paragraf (`line-height: 1.7`), list (`ul`/`ol`), blockquote, inline code, preformatted code blocks, table, dan horizontal rule.
+  - Kompatibel dan responsif terhadap tema *Dark Forensics* (`#0B0F14`) dan *High-Contrast Light* (`#FAF7F0`).
+- [x] **9.2.** Dynamic 0.7x Monitor Screen Size Window:
+  - Mengonfigurasi `src-tauri/src/lib.rs` pada hook `.setup()` untuk mendeteksi resolusi monitor aktif pengguna via `current_monitor()` / `primary_monitor()`.
+  - Mengatur ukuran jendela aplikasi secara dinamis menjadi persis `0.70x` lebar dan `0.70x` tinggi layar (`PhysicalSize`).
+  - Menempatkan jendela otomatis tepat di tengah layar (`window.center()`).
+- [x] **9.3.** Pre-Completion Quality Gate (100% PASS):
+  - `bun run test` $\to$ **26/26 PASS** across 12 test files
+  - `bun run tsc --noEmit` $\to$ **0 ERRORS**
+  - `bun run build` $\to$ **PASS** (16.1s)
+  - `cargo test` $\to$ **15/15 PASS** (0.12s)
   - `cargo clippy` $\to$ **0 WARNINGS**

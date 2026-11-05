@@ -55,3 +55,201 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* =========================================================================
+   Archival Forensics Studio - Markdown Typography System (.prose-docuopsy)
+   ========================================================================= */
+
+.prose-docuopsy {
+  font-family: 'Literata', Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.prose-docuopsy h1,
+.prose-docuopsy h2,
+.prose-docuopsy h3,
+.prose-docuopsy h4,
+.prose-docuopsy h5,
+.prose-docuopsy h6 {
+  font-family: 'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.75em;
+  margin-bottom: 0.6em;
+  letter-spacing: -0.015em;
+}
+
+.prose-docuopsy h1:first-child,
+.prose-docuopsy h2:first-child,
+.prose-docuopsy h3:first-child {
+  margin-top: 0;
+}
+
+.prose-docuopsy h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.prose-docuopsy h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.prose-docuopsy h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.prose-docuopsy h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.prose-docuopsy h5 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.prose-docuopsy h6 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.prose-docuopsy p {
+  margin-top: 0;
+  margin-bottom: 1.15em;
+}
+
+.prose-docuopsy strong,
+.prose-docuopsy b {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.prose-docuopsy em,
+.prose-docuopsy i {
+  font-style: italic;
+}
+
+.prose-docuopsy a {
+  color: var(--accent-verdigris);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.prose-docuopsy a:hover {
+  opacity: 0.85;
+}
+
+.prose-docuopsy ul {
+  list-style-type: disc;
+  padding-left: 1.75em;
+  margin-top: 0;
+  margin-bottom: 1.15em;
+}
+
+.prose-docuopsy ol {
+  list-style-type: decimal;
+  padding-left: 1.75em;
+  margin-top: 0;
+  margin-bottom: 1.15em;
+}
+
+.prose-docuopsy li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.prose-docuopsy li > p {
+  margin-bottom: 0.5em;
+}
+
+.prose-docuopsy blockquote {
+  border-left: 3px solid var(--accent-verdigris);
+  padding-left: 1.25em;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.prose-docuopsy hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: 2em 0;
+}
+
+.prose-docuopsy code {
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 0.875em;
+  background-color: var(--bg-surface);
+  color: var(--accent-violet);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+.prose-docuopsy pre {
+  background-color: var(--bg-shell);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.prose-docuopsy pre code {
+  background: transparent;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--text-primary);
+  font-size: inherit;
+}
+
+.prose-docuopsy table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  font-size: 0.9375rem;
+}
+
+.prose-docuopsy th,
+.prose-docuopsy td {
+  border: 1px solid var(--border-subtle);
+  padding: 0.5em 0.85em;
+  text-align: left;
+}
+
+.prose-docuopsy th {
+  background-color: var(--bg-surface);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.prose-docuopsy tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="light"] .prose-docuopsy tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+

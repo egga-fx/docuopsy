@@ -1,0 +1,706 @@
+[
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\App.tsx",
+    "line": 173,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.test.tsx",
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\App.tsx",
+    "line": 200,
+    "snippet": "text-[…] class: 9px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "9px",
+    "importedBy": [
+      "App.test.tsx",
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 283,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 304,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 345,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 361,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 393,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 426,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 427,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 474,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AIPalette.tsx",
+    "line": 478,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "AIPalette.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 159,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 171,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 185,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 197,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 211,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 228,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 240,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 254,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 266,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 278,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 297,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 311,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 325,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 339,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\AppMenu.tsx",
+    "line": 351,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "AppMenu.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\CodePreview.tsx",
+    "line": 31,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "PreviewContainer.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\CodePreview.tsx",
+    "line": 35,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "PreviewContainer.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\LayoutManager.tsx",
+    "line": 83,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "LayoutManager.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\LayoutManager.tsx",
+    "line": 91,
+    "snippet": "text-[…] class: 10px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "10px",
+    "importedBy": [
+      "App.tsx",
+      "LayoutManager.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\LayoutManager.tsx",
+    "line": 98,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "LayoutManager.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\LayoutManager.tsx",
+    "line": 112,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "LayoutManager.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\components\\LayoutManager.tsx",
+    "line": 128,
+    "snippet": "text-[…] class: 11px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "11px",
+    "importedBy": [
+      "App.tsx",
+      "LayoutManager.test.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\editor\\extensions.ts",
+    "line": 34,
+    "snippet": "fontSize: 13px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "13px",
+    "importedBy": [
+      "EditorPane.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\editor\\extensions.ts",
+    "line": 76,
+    "snippet": "fontSize: 13px is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "13px",
+    "importedBy": [
+      "EditorPane.tsx"
+    ]
+  },
+  {
+    "antipattern": "side-tab",
+    "name": "Side-tab accent border",
+    "description": "Thick colored border on one side of a card — the most recognizable tell of AI-generated UIs. Use a subtler accent or remove it entirely.",
+    "severity": "warning",
+    "category": "slop",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 179,
+    "snippet": "border-left: 3px solid var(--accent-verdigris)",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-radius",
+    "name": "Radius outside DESIGN.md",
+    "description": "A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 46,
+    "snippet": "border-radius: 4px is outside the DESIGN.md rounded scale",
+    "advisory": true,
+    "ignoreValue": "4px",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 92,
+    "snippet": "font-size: 2rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "2rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 106,
+    "snippet": "font-size: 1.25rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "1.25rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 111,
+    "snippet": "font-size: 1.1rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "1.1rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 116,
+    "snippet": "font-size: 1rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "1rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 121,
+    "snippet": "font-size: 0.9rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "0.9rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-radius",
+    "name": "Radius outside DESIGN.md",
+    "description": "A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 201,
+    "snippet": "border-radius: 4px is outside the DESIGN.md rounded scale",
+    "advisory": true,
+    "ignoreValue": "4px",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 214,
+    "snippet": "font-size: 0.875rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "0.875rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\@dev\\docuopsy\\src\\index.css",
+    "line": 232,
+    "snippet": "font-size: 0.9375rem is off the DESIGN.md type ramp",
+    "advisory": true,
+    "ignoreValue": "0.9375rem",
+    "importedBy": [
+      "main.tsx"
+    ]
+  }
+]

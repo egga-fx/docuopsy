@@ -1,0 +1,132 @@
+$ vitest run --config docs/audits/probes.config.ts
+
+ RUN  v3.2.7 D:/@dev/docuopsy
+
+ ❯ docs/audits/production-probes.test.tsx (4 tests | 4 failed) 307ms
+   × persists both tabs edited within the debounce window 44ms
+     → expected "spy" to be called with arguments: [ 'a', 'draft A' ]
+
+Received: 
+
+  1st spy call:
+
+  [
+-   "a",
+-   "draft A",
++   "b",
++   "draft B",
+  ]
+
+
+Number of calls: 1
+
+   × keeps store content synchronized when undo returns to the mounted text 202ms
+     → expected 'original changed' to be 'original' // Object.is equality
+   × preserves editor undo history across a theme change 52ms
+     → expected false to be true // Object.is equality
+   × does not erase a dirty draft when the tab is closed without a discard decision 4ms
+     → expected "spy" to not be called with arguments: [ 'a' ]
+
+Received: 
+
+  1st spy call:
+
+Compared values have no visual difference.
+
+
+Number of calls: 1
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  docs/audits/production-probes.test.tsx > persists both tabs edited within the debounce window
+AssertionError: expected "spy" to be called with arguments: [ 'a', 'draft A' ]
+
+Received: 
+
+  1st spy call:
+
+  [
+-   "a",
+-   "draft A",
++   "b",
++   "draft B",
+  ]
+
+
+Number of calls: 1
+
+ ❯ docs/audits/production-probes.test.tsx:31:21
+     29|   useTabStore.getState().updateContent('b', 'draft B');
+     30|   await vi.advanceTimersByTimeAsync(500);
+     31|   expect(saveDraft).toHaveBeenCalledWith('a', 'draft A');
+       |                     ^
+     32|   expect(saveDraft).toHaveBeenCalledWith('b', 'draft B');
+     33| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  docs/audits/production-probes.test.tsx > keeps store content synchronized when undo returns to the mounted text
+AssertionError: expected 'original changed' to be 'original' // Object.is equality
+
+Expected: "original"
+Received: "original changed"
+
+ ❯ docs/audits/production-probes.test.tsx:41:58
+     39|   act(() => { undo(view); });
+     40|   expect(view.state.doc.toString()).toBe('original');
+     41|   expect(useTabStore.getState().getActiveTab()?.content).toBe('origina…
+       |                                                          ^
+     42| });
+     43| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  docs/audits/production-probes.test.tsx > preserves editor undo history across a theme change
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ docs/audits/production-probes.test.tsx:51:18
+     49|   let undone = false;
+     50|   act(() => { undone = undo(view); });
+     51|   expect(undone).toBe(true);
+       |                  ^
+     52|   expect(view.state.doc.toString()).toBe('original');
+     53| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  docs/audits/production-probes.test.tsx > does not erase a dirty draft when the tab is closed without a discard decision
+AssertionError: expected "spy" to not be called with arguments: [ 'a' ]
+
+Received: 
+
+  1st spy call:
+
+Compared values have no visual difference.
+
+
+Number of calls: 1
+
+ ❯ docs/audits/production-probes.test.tsx:58:27
+     56|   useTabStore.getState().updateContent('a', 'unsaved work');
+     57|   useTabStore.getState().closeTab('a');
+     58|   expect(removeDraft).not.toHaveBeenCalledWith('a');
+       |                           ^
+     59| });
+     60| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  10:46:02
+   Duration  6.43s (transform 342ms, setup 447ms, collect 1.98s, tests 307ms, environment 981ms, prepare 1.37s)
+
+error: script "test" exited with code 1
