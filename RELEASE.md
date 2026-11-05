@@ -118,3 +118,4 @@ src-tauri/target/release/bundle/
 ├── msi/     # Windows MSI Installer (.msi)
 └── nsis/    # Windows NSIS Setup (.exe)
 ```
+
