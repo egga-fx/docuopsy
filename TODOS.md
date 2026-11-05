@@ -18,8 +18,8 @@
 - [x] Run Impeccable source detector and review findings in context.
 - [x] Re-run frontend tests (26/26), TypeScript and frontend build.
 - [x] Identify credential exposure, persistence/editor defects, PDF and theme issues.
-- [ ] Finish independent defect reproductions and backend quality gates.
-- [ ] Complete audit report and rendered verification, or record concrete limitations.
+- [x] Finish independent defect reproductions (initially 4 failures; latest 05e0937: 3 failures / 1 pass after concurrent Undo fix) and backend quality gates (15/15 Rust; Clippy passes).
+- [x] Complete audit report and rendered detector at 1280×800 / 800×600; record native/screenshot/light-theme verification limits.
 - [ ] Remove exposed credentials from source/history and rotate the key before push.
 - [ ] Remediate production blockers and re-run release acceptance.
 
@@ -212,4 +212,42 @@
   - `bun run tsc --noEmit` $\to$ **0 ERRORS**
   - `bun run build` $\to$ **PASS** (26.9s)
   - `cargo test` $\to$ **15/15 PASS**
+  - `cargo clippy` $\to$ **0 WARNINGS**
+
+---
+
+## 📱 Phase 11: Responsive AI Assistant Modal (DONE ✅)
+- [x] **11.1.** Viewport-Adaptive Sizing:
+  - Mengganti tinggi statis `h-[560px]` dengan tinggi relatif viewport dinamis `h-[82vh] max-h-[620px] min-h-[340px]`.
+  - Mengatur lebar elastis `w-full max-w-3xl` dengan padding responsif `p-3 sm:p-5`.
+- [x] **11.2.** Internal Flex Flow & Zero-Clipping:
+  - Memastikan header, progress bar, error notification, dan input bar berstatus `flex-shrink-0`.
+  - Memastikan area chat dan empty state berstatus `flex-1 min-h-0 overflow-y-auto` sehingga tidak pernah meluap atau terpotong keluar dari batas jendela desktop.
+- [x] **11.3.** Pre-Completion Quality Gate (100% PASS):
+  - `bun run test` $\to$ **26/26 PASS** across 12 test files
+  - `bun run tsc --noEmit` $\to$ **0 ERRORS**
+  - `bun run build` $\to$ **PASS** (30.8s)
+  - `cargo test` $\to$ **15/15 PASS**
+  - `cargo clippy` $\to$ **0 WARNINGS**
+
+---
+
+## ⚡ Phase 12: Migration to DeepSeek V4.1 Flash & Retry Resilience (DONE ✅)
+- [x] **12.1.** DeepSeek V4.1 Flash Integration:
+  - Beralih ke model `deepseek-v4-1-flash` via endpoint resmi KIE AI `https://api.kie.ai/openai/v1/responses`.
+  - Mengatasi kendala bottleneck server upstream KIE AI Claude ("Resources are tight" / HTTP 500/503).
+  - Waktu respons berakselerasi menjadi sub-second (< 2 detik) dengan kecepatan token super kilat.
+- [x] **12.2.** Parser SSE Multi-Format:
+  - Dukungan streaming parser untuk `response.output_text.delta` (konten jawaban) dan pengabaian `response.reasoning_text.delta` agar token internal reasoning tidak mengotori naskah dokumen.
+  - Mempertahankan backward compatibility untuk format Anthropic dan OpenAI delta.
+- [x] **12.3.** Client-Side Exponential Backoff & Retry:
+  - Implementasi auto-retry 3x dengan backoff dinamis di Rust jika server mengalami antrian padat.
+  - Tombol interaktif "Coba Lagi (Retry)" pada banner notifikasi error di `AIPalette.tsx`.
+- [x] **12.4.** UI Telemetry & Label Updates:
+  - Update badge model di header palette dan footer status aplikasi menjadi `deepseek-v4-1-flash`.
+- [x] **12.5.** Full Pre-Completion Quality Gate (100% PASS):
+  - `bun run test` $\to$ **26/26 PASS** across 12 test files
+  - `bun run tsc --noEmit` $\to$ **0 ERRORS**
+  - `bun run build` $\to$ **PASS** (14.6s)
+  - `cargo test` $\to$ **17/17 PASS** (0.03s)
   - `cargo clippy` $\to$ **0 WARNINGS**

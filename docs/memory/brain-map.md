@@ -6,6 +6,8 @@
 
 ## 1. High-Level System State & Mental Model
 
+> **Production audit override — 2026-11-05:** NO-GO; historical Completed/Verified module labels below describe implementation milestones, not production acceptance. See `docs/audits/2026-11-05-production-readiness.md`. Regular gates pass (26 frontend / 15 Rust, TypeScript, Clippy, frontend build), but four isolated audit probes fail: cross-tab draft persistence, Undo/store synchronization, Undo history after theme change, and dirty close protection. Credentials exist in source/history; clean session file hydration, PDF local loading, file authorization bounds, theme parity, and accessibility also require remediation. No application fixes or push were performed by this audit. HEAD changed concurrently from `264ee69` to `5ad56a0`; use a frozen release snapshot for acceptance.
+
 ```
 +-------------------------------------------------------------------------------+
 |                            DOCUOPSY DESKTOP SYSTEM                            |
@@ -28,7 +30,7 @@
 |                                                                               |
 |  [Safe File System Service]  <--->  [Path Canonicalization & Sandbox]         |
 |                                                                               |
-|  [KIE AI Streaming Gateway]  <--->  [reqwest SSE to claude-haiku-5-5]         |
+|  [KIE AI Streaming Gateway]  <--->  [reqwest SSE to deepseek-v4-1-flash]     |
 |                                                                               |
 |  [Unified Tracing Engine]    <--->  [Rolling file appender + stdout + sanit.] |
 +-----------------------------------------------+-------------------------------+
@@ -39,7 +41,7 @@
 ## 2. Active Architectural Invariants (Non-Negotiable)
 
 1. **Priority Rule:** Speed > Security > Features.
-2. **AI Model Boundary:** Hanya menggunakan provider **KIE AI** dengan model **`claude-haiku-5-5`**. Sama sekali TIDAK menggunakan OpenAI Codex, Grok (xAI), ataupun model lain di luar KIE AI.
+2. **AI Model Boundary:** Menggunakan provider **KIE AI** dengan model **`deepseek-v4-1-flash`** (`https://kie.ai/deepseek-v4-1-Flash`, endpoint `/openai/v1/responses`). Sama sekali TIDAK menggunakan provider di luar KIE AI.
 3. **Crash-Resilience Rule:** A buffer marked `is_dirty = true` must have an atomic draft snapshot persisted to `%APPDATA%\Docuopsy\drafts\` within 500ms debounce.
 4. **Log Sanitization Rule:** No raw document text or plaintext API keys may ever appear in logs.
 5. **Sandboxing Rule:** Paths must be canonicalized and checked for path traversal (`..`) before any filesystem read or write.
@@ -111,3 +113,7 @@ export interface AIStreamChunk {
   error?: string;
 }
 ```
+
+### Latest audit snapshot — 05e0937
+
+The concurrent editor fix closes the stale-closure Undo/store mismatch; its audit probe now passes. Three audit probes still fail (cross-tab draft cancellation, theme-change Undo loss, dirty-close deletion). Clean-file restoration still lacks disk hydration. Current audit has 15 open findings (4 P0, 8 P1, 3 P2), plus one resolved finding. This update supersedes the earlier 4/4 failure count above; verdict remains NO-GO. See the report and latest probe evidence.

@@ -196,7 +196,7 @@ export default function App(): React.JSX.Element {
             title="Open AI Assistant (Ctrl+K)"
           >
             <Sparkles className="w-3 h-3" />
-            <span>AI: claude-haiku-5-5</span>
+            <span>AI: deepseek-v4-1-flash</span>
             <kbd className="text-[9px] bg-slate-surface px-1 rounded border border-slate-border">Ctrl+K</kbd>
           </button>
           <span className="opacity-40">|</span>

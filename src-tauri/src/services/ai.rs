@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tauri::{AppHandle, Emitter};
 
-pub const DEFAULT_KIE_BASE_URL: &str = "https://api.kie.ai/claude/v1";
-pub const DEFAULT_KIE_MODEL: &str = "claude-haiku-5-5";
+pub const DEFAULT_KIE_BASE_URL: &str = "https://api.kie.ai/openai/v1";
+pub const DEFAULT_KIE_MODEL: &str = "deepseek-v4-1-flash";
 pub const DEFAULT_DEV_API_KEY: &str = "e003b0c015d233ea848997456242e97b";
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -24,6 +24,11 @@ pub struct AIStreamChunk {
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
 enum AnySsePayload {
+    DeepSeekDelta {
+        #[serde(rename = "type")]
+        event_type: String,
+        delta: Option<String>,
+    },
     AnthropicDelta {
         delta: AnthropicTextDelta,
     },
@@ -65,6 +70,13 @@ pub fn parse_sse_line(line: &str) -> Result<Option<String>, AppError> {
         }
 
         match serde_json::from_str::<AnySsePayload>(payload) {
+            Ok(AnySsePayload::DeepSeekDelta { event_type, delta }) => {
+                if event_type == "response.output_text.delta" {
+                    Ok(delta)
+                } else {
+                    Ok(None)
+                }
+            }
             Ok(AnySsePayload::AnthropicDelta { delta }) => {
                 Ok(delta.text)
             }
@@ -119,13 +131,20 @@ impl KIEAiService {
         context: String,
         app_handle: AppHandle,
     ) -> Result<(), AppError> {
-        let endpoint = if self.base_url.ends_with("/messages") {
+        let endpoint = if self.base_url.ends_with("/responses")
+            || self.base_url.ends_with("/messages")
+            || self.base_url.ends_with("/chat/completions")
+        {
             self.base_url.clone()
-        } else {
+        } else if self.model.starts_with("deepseek") {
+            format!("{}/responses", self.base_url.trim_end_matches('/'))
+        } else if self.base_url.contains("/claude") || self.base_url.contains("/anthropic") {
             format!("{}/messages", self.base_url.trim_end_matches('/'))
+        } else {
+            format!("{}/responses", self.base_url.trim_end_matches('/'))
         };
 
-        let system_instruction = "You are Docuopsy AI Assistant, powered by Claude Haiku 5.5 on KIE AI. You assist users in writing, refining, analyzing, and structuring text documents. Respond concisely, accurately, and format responses cleanly in GitHub Flavored Markdown.";
+        let system_instruction = "You are Docuopsy AI Assistant, powered by DeepSeek V4.1 Flash on KIE AI. You assist users in writing, refining, analyzing, and structuring text documents. Respond concisely, accurately, and format responses cleanly in GitHub Flavored Markdown.";
 
         let user_message = if context.is_empty() {
             prompt
@@ -133,15 +152,26 @@ impl KIEAiService {
             format!("Context:\n```\n{}\n```\n\nTask: {}", context, prompt)
         };
 
-        let request_body = serde_json::json!({
-            "model": self.model,
-            "max_tokens": 4096,
-            "stream": true,
-            "system": system_instruction,
-            "messages": [
-                { "role": "user", "content": user_message }
-            ]
-        });
+        let request_body = if endpoint.ends_with("/responses") {
+            serde_json::json!({
+                "model": self.model,
+                "stream": true,
+                "input": [
+                    { "role": "system", "content": system_instruction },
+                    { "role": "user", "content": user_message }
+                ]
+            })
+        } else {
+            serde_json::json!({
+                "model": self.model,
+                "max_tokens": 4096,
+                "stream": true,
+                "system": system_instruction,
+                "messages": [
+                    { "role": "user", "content": user_message }
+                ]
+            })
+        };
 
         tracing::info!("Starting KIE AI stream id={} with model={} at endpoint={}", stream_id, self.model, endpoint);
 
@@ -157,36 +187,87 @@ impl KIEAiService {
             },
         );
 
-        let response = self
-            .client
-            .post(&endpoint)
-            .header("Authorization", format!("Bearer {}", self.api_key))
-            .header("Content-Type", "application/json")
-            .header("anthropic-version", "2023-06-01")
-            .json(&request_body)
-            .send()
-            .await
-            .map_err(|e| AppError::Network(format!("Failed to connect to KIE AI: {}", e)))?;
+        let max_retries = 3;
+        let mut last_error_msg = String::new();
+        let mut response_opt = None;
 
-        if !response.status().is_success() {
-            let status = response.status();
-            let err_body = response.text().await.unwrap_or_default();
-            let err_msg = format!("KIE AI returned error HTTP {}: {}", status, err_body);
-            tracing::error!("{}", err_msg);
+        for attempt in 1..=max_retries {
+            if attempt > 1 {
+                let _ = app_handle.emit(
+                    "ai:stream:chunk",
+                    AIStreamChunk {
+                        stream_id: stream_id.clone(),
+                        delta: String::new(),
+                        is_done: false,
+                        status: Some("retrying".to_string()),
+                        error: None,
+                    },
+                );
+                tokio::time::sleep(tokio::time::Duration::from_millis(1500 * attempt as u64)).await;
+            }
 
-            let _ = app_handle.emit(
-                "ai:stream:chunk",
-                AIStreamChunk {
-                    stream_id: stream_id.clone(),
-                    delta: String::new(),
-                    is_done: true,
-                    status: Some("error".to_string()),
-                    error: Some(err_msg.clone()),
-                },
-            );
+            let mut req = self
+                .client
+                .post(&endpoint)
+                .header("Authorization", format!("Bearer {}", self.api_key))
+                .header("Content-Type", "application/json");
 
-            return Err(AppError::Network(err_msg));
+            if endpoint.ends_with("/messages") {
+                req = req.header("anthropic-version", "2023-06-01");
+            }
+
+            let resp_result = req.json(&request_body).send().await;
+
+            match resp_result {
+                Ok(resp) => {
+                    let status = resp.status();
+                    if status.is_success() {
+                        response_opt = Some(resp);
+                        break;
+                    }
+
+                    let err_body = resp.text().await.unwrap_or_default();
+                    last_error_msg = format!("HTTP {}: {}", status, err_body);
+
+                    if status.is_server_error() || err_body.contains("Resources are tight") {
+                        tracing::warn!("KIE AI server congestion (attempt {}/{}): {}", attempt, max_retries, last_error_msg);
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+                Err(e) => {
+                    last_error_msg = format!("Connection error: {}", e);
+                    tracing::warn!("KIE AI connection failed (attempt {}/{}): {}", attempt, max_retries, last_error_msg);
+                }
+            }
         }
+
+        let response = match response_opt {
+            Some(r) => r,
+            None => {
+                let clean_msg = if last_error_msg.contains("Resources are tight") {
+                    "Server AI sedang mengalami antrian padat (Resources are tight). Silakan coba lagi beberapa saat.".to_string()
+                } else if last_error_msg.contains("Internal error") {
+                    "Server AI mengalami kendala internal sementara. Silakan coba lagi beberapa saat.".to_string()
+                } else {
+                    format!("Gagal terhubung ke AI: {}", last_error_msg)
+                };
+
+                let _ = app_handle.emit(
+                    "ai:stream:chunk",
+                    AIStreamChunk {
+                        stream_id: stream_id.clone(),
+                        delta: String::new(),
+                        is_done: true,
+                        status: Some("error".to_string()),
+                        error: Some(clean_msg.clone()),
+                    },
+                );
+
+                return Err(AppError::Network(clean_msg));
+            }
+        };
 
         let mut stream = response.bytes_stream().eventsource();
 

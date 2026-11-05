@@ -17,6 +17,20 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_deepseek_sse_content() {
+        let line = r#"data: {"type":"response.output_text.delta","sequence_number":17,"item_id":"msg_123","output_index":1,"content_index":0,"delta":"Hello DeepSeek!"}"#;
+        let delta = parse_sse_line(line).unwrap();
+        assert_eq!(delta, Some("Hello DeepSeek!".to_string()));
+    }
+
+    #[test]
+    fn test_parse_deepseek_reasoning_ignored_in_text() {
+        let line = r#"data: {"type":"response.reasoning_text.delta","sequence_number":3,"item_id":"rs_123","output_index":0,"content_index":0,"delta":"Thinking..."}"#;
+        let delta = parse_sse_line(line).unwrap();
+        assert_eq!(delta, None);
+    }
+
+    #[test]
     fn test_parse_done_signal() {
         let line = "data: [DONE]";
         let delta = parse_sse_line(line).unwrap();

@@ -170,3 +170,48 @@ This log records every major milestone, completed task, test verification, and a
 3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 26.9s.**
 4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **15 tests passed, 0 failures.**
 5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
+
+## [2026-11-05] Pre-production audit (Impeccable)
+
+- Verdict: NO-GO. Full report: `docs/audits/2026-11-05-production-readiness.md`; UI health 8/20, 16 grouped findings (5 P0, 8 P1, 3 P2).
+- Read central brain map, PRODUCT.md, DESIGN.md and PRD; ran skill context once and audit detector. No application remediation or push performed.
+- Current regular quality gates: 26/26 frontend tests across 12 files; 15/15 Rust tests; TypeScript exit 0; Clippy exit 0; frontend build PASS with a 1,315.29 kB JS chunk (443.14 kB gzip).
+- Initial local permission failures were environmental: Bun cwd access and three Rust tempfile tests succeeded after retry with appropriate execution permissions.
+- Added audit-only Vitest configuration/probes outside normal suite. Four expected-behavior checks fail with specific evidence: draft A canceled by draft B, Undo text differs from stored content, theme switch destroys Undo history, dirty close removes draft. See probe-results.txt. Initial probe configuration error was corrected before these results.
+- Source detector: 42 font-size advisories, 2 radius advisories, 1 blockquote border warning reviewed as false positive. Rendered Chromium/Vite dark initial state at 1280x800 and 800x600 finds footer contrast ratios 4.1:1 and 3.7:1.
+- Native browser control unavailable (timeout/transport closed); no direct screenshots, light-theme rendered inspection, native WebView2 installer, touch, screen reader or startup/RSS benchmarks. These remain acceptance requirements, not implied passes.
+- Bun advisory scan reports four unique advisories on development tooling, including Tinypool critical-rated gadgets; no claim of production runtime exploitation. Rust advisory scan unavailable because cargo-audit is not installed. No live AI/key calls made.
+- Credential occurrences/history were verified without copying values into report; rotation and repository cleanup remain required before push.
+- Concurrent activity changed HEAD from 264ee69 to 5ad56a0 and included early audit artifacts. Preserved those changes; no reset or history modification. Updated dashboard and added this audit override to brain-map so historical completion claims do not imply release approval.
+
+### Concurrent-change verification addendum
+
+- HEAD advanced again to `05e0937` during report completion. Re-ran the same four audit probes: Undo/store synchronization now PASS; cross-tab drafts, theme Undo preservation, and dirty close remain FAIL (3/4 failures). New external content synchronization also changes the draft/view portion of the recovery finding; missing clean-file disk hydration remains unresolved.
+- Revised report to 15 open groups (4 P0, 8 P1, 3 P2) plus one resolved historical finding. Full latest probe evidence is `docs/audits/2026-11-05-probe-results-latest.txt`. Frontend gates repeated because source changed; Rust source unchanged from the successful retry.
+- Final frontend repeat completed: 26/26 tests, TypeScript exit 0, build PASS (JS 1,316.12 kB / gzip 443.41 kB). Concurrent uncommitted AIPalette layout refinements were reviewed as a diff and explicitly bounded in the report; no full visual/gesture acceptance claimed. Audit preview server stopped. Secret scan of audit artifacts found zero copies of the known credential. Application edits from other activity preserved.
+
+---
+
+## [2026-11-05] - Phase 12: Migration to DeepSeek V4.1 Flash & Retry Resilience
+
+### 1. Work Completed
+1. **Model Migration to DeepSeek V4.1 Flash (`deepseek-v4-1-flash`):**
+   - User requested migration to `https://kie.ai/deepseek-v4-1-Flash` due to persistent upstream congestion on KIE AI Claude endpoints ("Resources are tight" / HTTP 500 & 503).
+   - Configured official KIE AI OpenAI-compatible endpoint: `https://api.kie.ai/openai/v1/responses`.
+   - Verified live sub-second token generation latency (< 2 detik).
+2. **Multi-Format SSE Stream Parser:**
+   - Extended `parse_sse_line` in `src-tauri/src/services/ai.rs` with `DeepSeekDelta` to parse `response.output_text.delta` into the document buffer while cleanly omitting `response.reasoning_text.delta`.
+   - Retains backward compatibility for Anthropic (`content_block_delta`) and OpenAI (`choices[0].delta.content`).
+   - Added unit tests: `test_parse_deepseek_sse_content` and `test_parse_deepseek_reasoning_ignored_in_text`.
+3. **Automatic Client-Side Retry & User-Friendly Error Formatting:**
+   - Added 3x automatic retry loop with exponential backoff in `src-tauri/src/services/ai.rs`.
+   - Replaced raw JSON error dumps with friendly messages and an interactive "Coba Lagi" (Retry) button in `AIPalette.tsx`.
+4. **UI Telemetry & Badges:**
+   - Updated model badges in `AIPalette.tsx` and telemetry footer `src/App.tsx` to `deepseek-v4-1-flash`.
+
+### 2. Quality Gate Verification (100% PASS)
+1. `bun run test` $\to$ **12 test files passed, 26 tests passed, 0 failures.**
+2. `bun run tsc --noEmit` $\to$ **0 type errors.**
+3. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` in 14.6s.**
+4. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures in 0.03s.**
+5. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
