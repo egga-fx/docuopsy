@@ -304,3 +304,6 @@
   - `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17/17 PASS** (100%)
   - `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**
   - `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**
+- [x] **14.6.** Git Remote Setup & Initial Release Push:
+  - Mengonfigurasi remote `origin` ke `https://github.com/egga-fx/docuopsy.git`.
+  - Berhasil melakukan push branch `master` dan git tag `v0.1.0` ke GitHub.

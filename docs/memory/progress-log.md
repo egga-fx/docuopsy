@@ -268,10 +268,12 @@ This log records every major milestone, completed task, test verification, and a
    - Embedded full ASCII/flow architecture diagram mapping frontend, IPC bridge, and Rust core.
    - Documented all core features: Right Sidebar AI Assistant, custom accent palette with mono styling, forensic persistence, multi-format previews, 3-mode layouts, and 0.7x screen sizing.
    - Added complete keyboard shortcuts reference table, quickstart commands, and links to `RELEASE.md` and `CHANGELOG.md`.
-4. **Git Release Guide & Credential Isolation (`RELEASE.md` & `.env.example`):**
+4. **Git Release Guide, Remote Push & Credential Isolation (`RELEASE.md` & `.env.example`):**
    - Created `RELEASE.md` providing step-by-step git tagging instructions (`git tag -a v0.1.0 -m "Release v0.1.0"`), quality gate prerequisites, and Tauri desktop packaging commands (`.msi`, `.exe`).
    - Created `.env.example` documenting `KIE_AI_API_KEY` and `KIE_AI_BASE_URL`.
    - Updated `src-tauri/src/services/ai.rs` to safely check `KIE_AI_API_KEY` without falling back to hardcoded production keys during non-debug builds.
+   - Configured git remote `origin` to `https://github.com/egga-fx/docuopsy.git`.
+   - Pushed branch `master` and tag `v0.1.0` successfully to remote repository.
 
 ### 2. Pre-Completion Quality Gate (100% PASS)
 1. `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
