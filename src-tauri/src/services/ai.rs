@@ -110,7 +110,13 @@ impl Default for KIEAiService {
 impl KIEAiService {
     pub fn new() -> Self {
         let base_url = env::var("KIE_AI_BASE_URL").unwrap_or_else(|_| DEFAULT_KIE_BASE_URL.to_string());
-        let api_key = env::var("KIE_AI_API_KEY").unwrap_or_else(|_| DEFAULT_DEV_API_KEY.to_string());
+        let api_key = env::var("KIE_AI_API_KEY").unwrap_or_else(|_| {
+            if cfg!(debug_assertions) {
+                DEFAULT_DEV_API_KEY.to_string()
+            } else {
+                String::new()
+            }
+        });
         let model = env::var("KIE_AI_DEFAULT_MODEL").unwrap_or_else(|_| DEFAULT_KIE_MODEL.to_string());
 
         Self {
@@ -131,6 +137,20 @@ impl KIEAiService {
         context: String,
         app_handle: AppHandle,
     ) -> Result<String, AppError> {
+        if self.api_key.trim().is_empty() {
+            let err_msg = "KIE AI API key is not configured. Please set the KIE_AI_API_KEY environment variable or .env file.".to_string();
+            let _ = app_handle.emit(
+                "ai:stream:chunk",
+                AIStreamChunk {
+                    stream_id: stream_id.clone(),
+                    delta: String::new(),
+                    is_done: true,
+                    status: None,
+                    error: Some(err_msg.clone()),
+                },
+            );
+            return Err(AppError::Network(err_msg));
+        }
         let endpoint = if self.base_url.ends_with("/responses")
             || self.base_url.ends_with("/messages")
             || self.base_url.ends_with("/chat/completions")

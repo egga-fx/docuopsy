@@ -281,3 +281,26 @@
   - `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17/17 PASS**
   - `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**
   - `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**
+
+---
+
+## 🏷️ Phase 14: Git Release Preparation, README Overhaul, CHANGELOG & Versioning System (DONE ✅)
+- [x] **14.1.** Unified Versioning System (`scripts/bump-version.js`):
+  - Skrip otomatis sinkronisasi SemVer (`patch`, `minor`, `major`, atau `x.y.z`) melintasi `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, dan `CHANGELOG.md`.
+  - Integrasi perintah `bun run version:bump` dan `bun run release:check` di `package.json`.
+- [x] **14.2.** Pembuatan CHANGELOG.md Kanonik:
+  - Berdasarkan standar *Keep a Changelog* dan SemVer 2.0.0.
+  - Mendokumentasikan rilis perdana `[0.1.0] - 2026-11-05` (Added, Changed, Fixed, Security) dan bagian `[Unreleased]`.
+- [x] **14.3.** Perbaikan Menyeluruh README.md:
+  - Dokumentasi arsitektur sistem (diagram layer frontend, IPC, dan backend Rust core).
+  - Penjelasan komprehensif fitur baru: Right Sidebar AI Assistant, palet aksen kustom, mode mono, persistensi memori, 3-mode layout, format pratinjau, dan resolusi jendela monitor 0.7x.
+  - Tabel lengkap shortcut keyboard, panduan instalasi, konfigurasi kredensial `.env`, build, dan link ke `RELEASE.md` & `CHANGELOG.md`.
+- [x] **14.4.** Panduan Rilis Git & Isolasi Kredensial:
+  - Dokumen `RELEASE.md` memuat checklist rilis, langkah `git commit`, `git tag -a v0.1.0`, dan cara build installer desktop Tauri (`.msi` / `.exe`).
+  - Pembuatan `.env.example` dan pengamanan key fallback di `src-tauri/src/services/ai.rs`.
+- [x] **14.5.** Quality Gate Verification (100% PASS):
+  - `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+  - `bun run test` $\to$ **29/29 PASS across 12 test files** (100%)
+  - `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17/17 PASS** (100%)
+  - `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**
+  - `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**

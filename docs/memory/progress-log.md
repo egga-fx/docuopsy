@@ -250,3 +250,32 @@ This log records every major milestone, completed task, test verification, and a
 3. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures (100%)**
 4. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS, clean compile**
 5. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` (31.38s)**
+
+---
+
+## [2026-11-05] - Phase 14: Git Release Preparation, README Overhaul, CHANGELOG & Versioning System
+
+### 1. Work Completed
+1. **Unified Versioning System & Automated Bump Script (`scripts/bump-version.js`):**
+   - Engineered an automated Node/Bun script `scripts/bump-version.js` that synchronizes SemVer across `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, and updates `CHANGELOG.md`.
+   - Supports `patch`, `minor`, `major`, or explicit versions (e.g. `1.0.0`).
+   - Wired `bun run version:bump` and `bun run release:check` scripts in `package.json`.
+2. **Canonical CHANGELOG.md:**
+   - Authored `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and SemVer 2.0.0.
+   - Comprehensive documentation of all initial features, changes, fixes, and security implementations in `[0.1.0] - 2026-11-05` and ongoing `[Unreleased]` roadmap.
+3. **Comprehensive README.md Overhaul:**
+   - Modernized with official badges (Rust 2021, Tauri v2, React 18, TypeScript, Bun, Tailwind CSS, MIT License).
+   - Embedded full ASCII/flow architecture diagram mapping frontend, IPC bridge, and Rust core.
+   - Documented all core features: Right Sidebar AI Assistant, custom accent palette with mono styling, forensic persistence, multi-format previews, 3-mode layouts, and 0.7x screen sizing.
+   - Added complete keyboard shortcuts reference table, quickstart commands, and links to `RELEASE.md` and `CHANGELOG.md`.
+4. **Git Release Guide & Credential Isolation (`RELEASE.md` & `.env.example`):**
+   - Created `RELEASE.md` providing step-by-step git tagging instructions (`git tag -a v0.1.0 -m "Release v0.1.0"`), quality gate prerequisites, and Tauri desktop packaging commands (`.msi`, `.exe`).
+   - Created `.env.example` documenting `KIE_AI_API_KEY` and `KIE_AI_BASE_URL`.
+   - Updated `src-tauri/src/services/ai.rs` to safely check `KIE_AI_API_KEY` without falling back to hardcoded production keys during non-debug builds.
+
+### 2. Pre-Completion Quality Gate (100% PASS)
+1. `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+2. `bun run test` $\to$ **12 test files passed, 29 tests passed, 0 failures (100%)**
+3. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures in 0.04s**
+4. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS, clean compile**
+5. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` (12.01s)**

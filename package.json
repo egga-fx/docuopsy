@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "version:bump": "bun scripts/bump-version.js",
+    "release:check": "bun run tsc --noEmit && bun run test"
   },
   "dependencies": {
     "@codemirror/commands": "^6.8.0",
@@ -52,4 +54,3 @@
     "vitest": "^3.0.5"
   }
 }
-
