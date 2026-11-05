@@ -33,6 +33,9 @@ mod tests {
             layout_mode: LayoutMode::FullPreview,
             split_ratio: 0.65,
             theme: Some("light".to_string()),
+            accent_color: Some("#0E9F8A".to_string()),
+            is_ai_sidebar_open: Some(true),
+            ai_sidebar_width: Some(380),
             tabs: vec![
                 TabState {
                     id: "tab-alpha".to_string(),

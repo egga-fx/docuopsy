@@ -5,7 +5,7 @@ import { AIPalette } from '../components/AIPalette';
 describe('AIPalette Component', () => {
   it('renders prompt input and preset options when open', () => {
     render(<AIPalette isOpen={true} onClose={() => {}} />);
-    expect(screen.getByRole('dialog', { name: 'AI Assistant' })).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: 'AI Assistant' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Type prompt or task/i)).toBeInTheDocument();
     expect(screen.getByText('Continue Writing')).toBeInTheDocument();
     expect(screen.getByText('Summarize')).toBeInTheDocument();

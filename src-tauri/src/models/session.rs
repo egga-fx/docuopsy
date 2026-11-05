@@ -30,6 +30,12 @@ pub struct AppSession {
     pub layout_mode: LayoutMode,
     pub split_ratio: f32,
     pub theme: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accent_color: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_ai_sidebar_open: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_sidebar_width: Option<u32>,
     pub tabs: Vec<TabState>,
 }
 
@@ -42,6 +48,9 @@ impl Default for AppSession {
             layout_mode: LayoutMode::Split,
             split_ratio: 0.50,
             theme: Some("dark".to_string()),
+            accent_color: Some("#0E9F8A".to_string()),
+            is_ai_sidebar_open: Some(false),
+            ai_sidebar_width: Some(360),
             tabs: vec![TabState {
                 id: initial_tab_id,
                 file_path: None,

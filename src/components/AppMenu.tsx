@@ -90,10 +90,10 @@ export const AppMenu: React.FC<AppMenuProps> = ({
         aria-label="Application Menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`h-full px-3 flex items-center justify-center transition-colors border-r border-slate-border cursor-pointer ${
+        className={`h-full px-3 flex items-center justify-center transition-colors border-r border-app-border cursor-pointer ${
           isOpen
-            ? 'bg-slate-surface text-parchment'
-            : 'text-slate-muted hover:text-parchment hover:bg-slate-surface/60'
+            ? 'bg-app-surface text-app-primary'
+            : 'text-app-muted hover:text-app-primary hover:bg-app-surface/60'
         }`}
         title="App Menu (File, Edit, View)"
       >
@@ -105,17 +105,17 @@ export const AppMenu: React.FC<AppMenuProps> = ({
         <div
           role="menu"
           aria-label="Main Menu"
-          className="absolute left-0 top-full mt-0.5 w-72 bg-slate-shell border border-slate-border rounded-b-lg shadow-2xl py-2 z-50 font-sans text-xs select-none backdrop-blur-md"
+          className="absolute left-0 top-full mt-0.5 w-72 bg-app-shell border border-app-border rounded-b-lg shadow-2xl py-2 z-50 font-sans text-xs select-none backdrop-blur-md"
         >
           {/* Menu Category Switcher Bar */}
-          <div className="flex border-b border-slate-border px-2 pb-1.5 mb-1 gap-1">
+          <div className="flex border-b border-app-border px-2 pb-1.5 mb-1 gap-1">
             <button
               type="button"
               onClick={() => setActiveMenu('file')}
               className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
                 activeMenu === 'file'
-                  ? 'bg-slate-surface text-parchment font-semibold'
-                  : 'text-slate-muted hover:text-parchment'
+                  ? 'bg-app-surface text-app-primary font-semibold'
+                  : 'text-app-muted hover:text-app-primary'
               }`}
             >
               File
@@ -125,8 +125,8 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               onClick={() => setActiveMenu('edit')}
               className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
                 activeMenu === 'edit'
-                  ? 'bg-slate-surface text-parchment font-semibold'
-                  : 'text-slate-muted hover:text-parchment'
+                  ? 'bg-app-surface text-app-primary font-semibold'
+                  : 'text-app-muted hover:text-app-primary'
               }`}
             >
               Edit
@@ -136,8 +136,8 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               onClick={() => setActiveMenu('view')}
               className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
                 activeMenu === 'view'
-                  ? 'bg-slate-surface text-parchment font-semibold'
-                  : 'text-slate-muted hover:text-parchment'
+                  ? 'bg-app-surface text-app-primary font-semibold'
+                  : 'text-app-muted hover:text-app-primary'
               }`}
             >
               View
@@ -150,65 +150,65 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               <button
                 type="button"
                 onClick={() => handleAction(onNewFile)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <FilePlus className="w-3.5 h-3.5 text-slate-muted" />
+                  <FilePlus className="w-3.5 h-3.5 text-app-muted" />
                   New File
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+N</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+N</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(onOpenFile)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <FolderOpen className="w-3.5 h-3.5 text-slate-muted" />
+                  <FolderOpen className="w-3.5 h-3.5 text-app-muted" />
                   Open File...
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+O</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+O</span>
               </button>
 
-              <div className="h-px bg-slate-border my-1" />
+              <div className="h-px bg-app-border my-1" />
 
               <button
                 type="button"
                 onClick={() => handleAction(onSave)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Save className="w-3.5 h-3.5 text-slate-muted" />
+                  <Save className="w-3.5 h-3.5 text-app-muted" />
                   Save
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+S</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+S</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(onSaveAs)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <FileText className="w-3.5 h-3.5 text-slate-muted" />
+                  <FileText className="w-3.5 h-3.5 text-app-muted" />
                   Save As...
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+Shift+S</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+S</span>
               </button>
 
-              <div className="h-px bg-slate-border my-1" />
+              <div className="h-px bg-app-border my-1" />
 
               <button
                 type="button"
                 onClick={() => handleAction(onCloseTab)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-rose-400 hover:text-rose-300 transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-rose-500 hover:text-rose-400 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <X className="w-3.5 h-3.5" />
                   Close Tab
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+W</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+W</span>
               </button>
             </div>
           )}
@@ -219,63 +219,63 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               <button
                 type="button"
                 onClick={() => handleAction(() => onUndo?.())}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Undo2 className="w-3.5 h-3.5 text-slate-muted" />
+                  <Undo2 className="w-3.5 h-3.5 text-app-muted" />
                   Undo
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+Z</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+Z</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(() => onRedo?.())}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Redo2 className="w-3.5 h-3.5 text-slate-muted" />
+                  <Redo2 className="w-3.5 h-3.5 text-app-muted" />
                   Redo
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+Y</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+Y</span>
               </button>
 
-              <div className="h-px bg-slate-border my-1" />
+              <div className="h-px bg-app-border my-1" />
 
               <button
                 type="button"
                 onClick={() => handleAction(() => document.execCommand('cut'))}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Scissors className="w-3.5 h-3.5 text-slate-muted" />
+                  <Scissors className="w-3.5 h-3.5 text-app-muted" />
                   Cut
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+X</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+X</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(() => document.execCommand('copy'))}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Copy className="w-3.5 h-3.5 text-slate-muted" />
+                  <Copy className="w-3.5 h-3.5 text-app-muted" />
                   Copy
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+C</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+C</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(() => document.execCommand('paste'))}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Clipboard className="w-3.5 h-3.5 text-slate-muted" />
+                  <Clipboard className="w-3.5 h-3.5 text-app-muted" />
                   Paste
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+V</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+V</span>
               </button>
             </div>
           )}
@@ -286,69 +286,69 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               <button
                 type="button"
                 onClick={() => handleAction(() => setLayoutMode('Split'))}
-                className={`flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface transition-colors ${
-                  layoutMode === 'Split' ? 'text-teal-accent font-medium' : 'text-parchment'
+                className={`flex items-center justify-between px-3 py-1.5 hover:bg-app-surface transition-colors ${
+                  layoutMode === 'Split' ? 'text-app-accent font-medium' : 'text-app-primary'
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Columns2 className="w-3.5 h-3.5 text-slate-muted" />
+                  <Columns2 className="w-3.5 h-3.5 text-app-muted" />
                   Split Mode
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+\</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+\</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(() => setLayoutMode('FullEditor'))}
-                className={`flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface transition-colors ${
-                  layoutMode === 'FullEditor' ? 'text-teal-accent font-medium' : 'text-parchment'
+                className={`flex items-center justify-between px-3 py-1.5 hover:bg-app-surface transition-colors ${
+                  layoutMode === 'FullEditor' ? 'text-app-accent font-medium' : 'text-app-primary'
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Maximize2 className="w-3.5 h-3.5 text-slate-muted" />
+                  <Maximize2 className="w-3.5 h-3.5 text-app-muted" />
                   Editor Only
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+Shift+E</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+E</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(() => setLayoutMode('FullPreview'))}
-                className={`flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface transition-colors ${
-                  layoutMode === 'FullPreview' ? 'text-teal-accent font-medium' : 'text-parchment'
+                className={`flex items-center justify-between px-3 py-1.5 hover:bg-app-surface transition-colors ${
+                  layoutMode === 'FullPreview' ? 'text-app-accent font-medium' : 'text-app-primary'
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Eye className="w-3.5 h-3.5 text-slate-muted" />
+                  <Eye className="w-3.5 h-3.5 text-app-muted" />
                   Preview Only
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+Shift+P</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+P</span>
               </button>
 
-              <div className="h-px bg-slate-border my-1" />
+              <div className="h-px bg-app-border my-1" />
 
               <button
                 type="button"
                 onClick={() => handleAction(toggleTheme)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-parchment transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <SunMoon className="w-3.5 h-3.5 text-slate-muted" />
+                  <SunMoon className="w-3.5 h-3.5 text-app-muted" />
                   Toggle Theme ({theme === 'dark' ? 'Light Vellum' : 'Dark Forensics'})
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+Shift+L</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+L</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleAction(onOpenAI)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-surface text-kie-violet hover:text-kie-violet/90 transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-accent hover:opacity-90 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5" />
                   AI Assistant
                 </span>
-                <span className="font-mono text-[10px] text-slate-muted">Ctrl+K</span>
+                <span className="font-mono text-[10px] text-app-muted">Ctrl+K</span>
               </button>
             </div>
           )}

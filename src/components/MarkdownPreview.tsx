@@ -15,7 +15,6 @@ interface MarkdownPreviewProps {
 
 export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ markdown }) => {
   const activeTab = useTabStore((s) => s.getActiveTab());
-  const theme = useTabStore((s) => s.theme);
   const rawContent = markdown ?? activeTab?.content ?? '';
 
   const sanitizedHtml = useMemo(() => {
@@ -28,9 +27,7 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ markdown }) =>
 
   return (
     <div
-      className={`h-full w-full overflow-y-auto px-8 py-8 select-text transition-colors duration-150 ${
-        theme === 'light' ? 'bg-vellum-canvas text-forensic-ink' : 'bg-obsidian text-parchment'
-      }`}
+      className="h-full w-full overflow-y-auto px-8 py-8 select-text transition-colors duration-150 bg-app-canvas text-app-primary"
     >
       {/* 65ch–72ch Scholar's Measure Column */}
       <article

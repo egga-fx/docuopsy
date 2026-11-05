@@ -251,3 +251,33 @@
   - `bun run tsc --noEmit` $\to$ **0 ERRORS**
   - `cargo test` $\to$ **17/17 PASS** (0.15s)
   - `cargo clippy` $\to$ **0 WARNINGS**
+
+---
+
+## 🎨 Phase 13: AI Right Sidebar, Customizable Accent, Full State Persistence & Light Mode Parity (DONE ✅)
+- [x] **13.1.** Right Sidebar Docked AI Assistant:
+  - Mengonversi modal dialog AI menjadi panel sidebar kanan terpasang (docked `<aside>`) di dalam `LayoutManager`.
+  - Resize handler interaktif pada border kiri (rentang 300px - 560px) dengan persistensi lebar.
+  - Memungkinkan user mengedit dokumen sambil berinteraksi dengan AI secara simultan tanpa popup menghalangi layar.
+- [x] **13.2.** Total Removal of Model Name:
+  - Menghapus string atau badge nama model (`deepseek-v4-1-flash`) di seluruh antarmuka (header palette, badge, dan status bar footer) sesuai permintaan pengguna.
+- [x] **13.3.** Header AI Button Relocation & Minimal Icon Design:
+  - Memindahkan tombol AI Assistant ke header workspace di samping tombol theme mode Light/Dark.
+  - Desain tombol header icon-only: ikon komposit `MessageSquare` + `Sparkles` dengan penanda status aktif dan highlight aksen dinamis.
+- [x] **13.4.** Mono Color Palette with 1 Customizable Accent Color:
+  - Desain palet mono elegan (neutral gray & slate tone) dengan 1 warna aksen dinamis yang dapat dikustomisasi secara leluasa.
+  - Popover Color Picker di samping theme switch dengan 6 preset (*Verdigris*, *Violet*, *Amber*, *Cyan*, *Rose*, *Monochrome*) serta input warna hex kustom.
+  - Penerapan CSS variable `--app-accent` langsung pada elemen root document.
+- [x] **13.5.** Full UI & System State Memory Persistence:
+  - Persistensi komprehensif ke local cache dan `%APPDATA%\Docuopsy\session.json`: tab terakhir yang aktif, daftar tab terbuka, layout mode, split ratio, sidebar open/width, theme (Dark/Light), dan accent color.
+  - Zero-flicker boot hydration via instant local snapshot, disertai pemulihan draf buffer dan isi file disk.
+- [x] **13.6.** 100% Light Mode Parity:
+  - Menghapus semua hardcoded class Tailwind bernuansa gelap (`bg-obsidian`, `bg-slate-shell`, `text-parchment`, dll.) pada `TabBar`, `AppMenu`, `PdfViewer`, `CodePreview`, `EditorPane`, `AIPalette`, dan `App`.
+  - Menggantinya dengan semantic tokens (`bg-app-canvas`, `bg-app-shell`, `bg-app-surface`, `border-app-border`, `text-app-primary`, `text-app-muted`, `bg-app-accent`).
+  - Menjamin mode Light Vellum tampil 100% terang, bersih, dan konsisten tanpa kebocoran warna gelap.
+- [x] **13.7.** Full Pre-Completion Quality Gate (100% PASS):
+  - `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+  - `bun run test` $\to$ **29/29 PASS across 12 test files** (100%)
+  - `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17/17 PASS**
+  - `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS**
+  - `bun run build` $\to$ **Production bundle generated cleanly in `dist/`**

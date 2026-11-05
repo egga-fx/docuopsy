@@ -28,6 +28,8 @@ interface AIPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   editorView?: EditorView | null;
+  width?: number;
+  onWidthChange?: (width: number) => void;
 }
 
 const PRESET_PROMPTS = [
@@ -84,7 +86,13 @@ function getContextualProgress(prompt: string, status?: string): { stage: string
   return { stage, message };
 }
 
-export const AIPalette: React.FC<AIPaletteProps> = ({ isOpen, onClose, editorView }) => {
+export const AIPalette: React.FC<AIPaletteProps> = ({
+  isOpen,
+  onClose,
+  editorView,
+  width = 360,
+  onWidthChange,
+}) => {
   const [prompt, setPrompt] = useState('');
   const [lastPrompt, setLastPrompt] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -92,12 +100,41 @@ export const AIPalette: React.FC<AIPaletteProps> = ({ isOpen, onClose, editorVie
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showRecentTasks, setShowRecentTasks] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
 
   const [messages, setMessages] = useState<AIChatMessage[]>([]);
   const [recentTasks, setRecentTasks] = useState<RecentTask[]>([]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Resize handler for the left edge of the sidebar
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = window.innerWidth - e.clientX;
+      if (onWidthChange) {
+        onWidthChange(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, onWidthChange]);
 
   // Load recent tasks from localStorage
   useEffect(() => {
@@ -283,276 +320,274 @@ export const AIPalette: React.FC<AIPaletteProps> = ({ isOpen, onClose, editorVie
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-obsidian/75 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 select-none overflow-hidden">
+    <aside
+      role="complementary"
+      aria-label="AI Assistant"
+      style={{ width: `${width}px` }}
+      className="h-full flex-shrink-0 border-l border-app-border bg-app-shell flex flex-col font-sans select-none overflow-hidden relative shadow-lg z-20"
+    >
+      {/* Resizable Left Drag Border */}
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="AI Assistant"
-        className="w-full max-w-3xl h-[82vh] max-h-[620px] min-h-[340px] bg-slate-shell border border-slate-border rounded-xl shadow-2xl flex flex-col font-sans overflow-hidden animate-in fade-in zoom-in-95 duration-150"
-      >
-        {/* Header Bar */}
-        <div className="h-11 sm:h-12 flex-shrink-0 border-b border-slate-border px-3 sm:px-4 flex items-center justify-between bg-slate-shell/90">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-kie-violet/10 border border-kie-violet/30 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-kie-violet" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-parchment">AI Assistant</span>
-                <span className="px-1.5 py-0.5 rounded bg-slate-surface text-[10px] text-kie-violet border border-kie-violet/30 font-mono">
-                  deepseek-v4-1-flash
-                </span>
-              </div>
-            </div>
-          </div>
+        onMouseDown={handleResizeStart}
+        className="absolute top-0 bottom-0 left-0 w-1.5 cursor-col-resize hover:bg-app-accent/60 active:bg-app-accent transition-colors z-30"
+        title="Drag to resize AI sidebar"
+      />
 
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setShowRecentTasks((p) => !p)}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
-                showRecentTasks
-                  ? 'bg-slate-surface text-parchment font-medium'
-                  : 'text-slate-muted hover:text-parchment hover:bg-slate-surface/60'
-              }`}
-              title="Recent Tasks"
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>Recent</span>
-              {recentTasks.length > 0 && (
-                <span className="ml-1 text-[10px] px-1 rounded bg-slate-border text-slate-muted">
-                  {recentTasks.length}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              aria-label="Close Assistant"
-              onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-slate-surface text-slate-muted hover:text-parchment transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+      {/* Header Bar */}
+      <div className="h-10 flex-shrink-0 border-b border-app-border px-3 flex items-center justify-between bg-app-shell">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-app-accent/15 border border-app-accent/30 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-app-accent" />
           </div>
+          <span className="font-semibold text-xs text-app-primary">AI Assistant</span>
         </div>
 
-        {/* Main Body Area: Recent Tasks Drawer + Chat Thread */}
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          {/* Collapsible Recent Tasks Drawer */}
-          {showRecentTasks && (
-            <div className="w-56 flex-shrink-0 border-r border-slate-border bg-slate-surface/40 flex flex-col overflow-hidden animate-in slide-in-from-left duration-150">
-              <div className="p-2.5 border-b border-slate-border flex items-center justify-between text-xs font-mono text-slate-muted">
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <Clock className="w-3.5 h-3.5" />
-                  Recent Tasks
-                </span>
-                {recentTasks.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={clearRecentTasks}
-                    className="p-1 hover:text-rose-400 rounded transition-colors"
-                    title="Clear history"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-none">
-                {recentTasks.length === 0 ? (
-                  <div className="text-[11px] text-slate-muted/60 p-3 text-center">
-                    No recent tasks yet.
-                  </div>
-                ) : (
-                  recentTasks.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => {
-                        setPrompt(t.prompt);
-                        setShowRecentTasks(false);
-                        inputRef.current?.focus();
-                      }}
-                      className="w-full text-left p-2 rounded hover:bg-slate-surface text-slate-muted hover:text-parchment transition-colors group"
-                    >
-                      <p className="text-xs truncate font-medium text-parchment/90">{t.prompt}</p>
-                      <span className="text-[10px] text-slate-muted/50 font-mono">
-                        {new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Chat Stream Thread */}
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-obsidian/40">
-            {messages.length === 0 ? (
-              // Empty State & Presets
-              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none scrollbar-none">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-kie-violet/10 border border-kie-violet/20 flex items-center justify-center mb-2.5 sm:mb-3 flex-shrink-0">
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-kie-violet" />
-                </div>
-                <h3 className="text-sm font-semibold text-parchment mb-1">How can I assist your document today?</h3>
-                <p className="text-xs text-slate-muted max-w-sm mb-4 sm:mb-5 leading-relaxed">
-                  Streaming contextual assistant powered by DeepSeek V4.1 Flash on KIE AI. Ask questions, draft recipes, generate code, or analyze text.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
-                  {PRESET_PROMPTS.map((item) => (
-                    <button
-                      key={item.label}
-                      type="button"
-                      onClick={() => handleSubmit(item.prompt)}
-                      className="text-left p-2.5 rounded-lg bg-slate-shell/80 border border-slate-border hover:border-kie-violet/40 hover:bg-slate-surface text-xs text-slate-muted hover:text-parchment transition-all flex flex-col gap-1"
-                    >
-                      <span className="font-semibold text-parchment">{item.label}</span>
-                      <span className="text-[10px] text-slate-muted/80 line-clamp-1">{item.prompt}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              // Message Stream List
-              <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-3.5 select-text">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex flex-col ${
-                      msg.role === 'user' ? 'items-end' : 'items-start'
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[88%] rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-xs leading-relaxed ${
-                        msg.role === 'user'
-                          ? 'bg-slate-surface border border-slate-border text-parchment font-medium shadow-sm'
-                          : 'bg-slate-shell border border-slate-border/80 text-parchment shadow-md w-full'
-                      }`}
-                    >
-                      {msg.role === 'assistant' ? (
-                        <div>
-                          <div
-                            className="prose-docuopsy prose-invert text-xs leading-relaxed select-text"
-                            dangerouslySetInnerHTML={{
-                              __html: sanitizeHtml(mdParser.render(msg.content || '...')),
-                            }}
-                          />
-
-                          {/* Action Toolbar for Assistant Response */}
-                          {msg.content && (
-                            <div className="mt-2.5 pt-2 border-t border-slate-border/60 flex items-center justify-between text-[11px] text-slate-muted select-none">
-                              <span className="font-mono text-[10px] opacity-50">
-                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopyMessage(msg.id, msg.content)}
-                                  className="flex items-center gap-1 px-2 py-0.5 rounded hover:bg-slate-surface text-slate-muted hover:text-parchment transition-colors"
-                                  title="Copy text"
-                                >
-                                  {copiedId === msg.id ? (
-                                    <Check className="w-3 h-3 text-emerald-verified" />
-                                  ) : (
-                                    <Copy className="w-3 h-3" />
-                                  )}
-                                  <span>{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleInsertAtCursor(msg.content)}
-                                  className="flex items-center gap-1 px-2 py-0.5 rounded bg-kie-violet/10 text-kie-violet hover:bg-kie-violet/20 border border-kie-violet/30 transition-colors"
-                                  title="Insert into document cursor"
-                                >
-                                  <ArrowDownToLine className="w-3 h-3" />
-                                  <span>Insert at Cursor</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowRecentTasks((p) => !p)}
+            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+              showRecentTasks
+                ? 'bg-app-surface text-app-primary font-medium'
+                : 'text-app-muted hover:text-app-primary hover:bg-app-surface'
+            }`}
+            title="Recent Tasks"
+          >
+            <Clock className="w-3 h-3" />
+            <span>Recent</span>
+            {recentTasks.length > 0 && (
+              <span className="ml-0.5 text-[9px] px-1 rounded bg-app-surface border border-app-border text-app-muted font-mono">
+                {recentTasks.length}
+              </span>
             )}
-          </div>
-        </div>
-
-        {/* Dynamic Context-Aware Progress Bar */}
-        {activeProgress && (
-          <div className="flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 border-t border-slate-border bg-slate-surface/40 flex items-center gap-2.5 text-xs select-none">
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-kie-violet/15 border border-kie-violet/30 text-kie-violet font-mono text-[10px] font-semibold uppercase tracking-wider animate-pulse">
-              <BrainCircuit className="w-3 h-3" />
-              <span>{activeProgress.stage}</span>
-            </div>
-            <span className="text-slate-muted truncate text-[11px]">
-              {activeProgress.message}
-            </span>
-            <Loader2 className="w-3 h-3 text-kie-violet animate-spin ml-auto" />
-          </div>
-        )}
-
-        {/* Error Notification */}
-        {errorMessage && (
-          <div className="flex-shrink-0 px-3 sm:px-4 py-2 border-t border-rose-500/30 bg-rose-500/10 text-rose-300 text-xs flex items-center justify-between gap-3">
-            <span className="flex-1 text-[11px] leading-snug">{errorMessage}</span>
-            {lastPrompt && (
-              <button
-                type="button"
-                onClick={() => handleSubmit(lastPrompt)}
-                disabled={isStreaming}
-                className="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/40 text-[11px] font-semibold transition-all whitespace-nowrap active:scale-95"
-              >
-                Coba Lagi
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Input Bar */}
-        <div className="flex-shrink-0 p-2.5 sm:p-3 border-t border-slate-border bg-slate-shell flex items-center gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              } else if (e.key === 'Escape') {
-                onClose();
-              }
-            }}
-            placeholder="Type prompt or task (e.g. buatkan resep puding coklat enak)..."
-            disabled={isStreaming}
-            className="flex-1 bg-slate-surface border border-slate-border focus:border-kie-violet focus:ring-1 focus:ring-kie-violet/40 rounded-lg px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs text-parchment placeholder:text-slate-muted outline-none transition-all"
-          />
+          </button>
 
           <button
             type="button"
-            onClick={() => handleSubmit()}
-            disabled={isStreaming || !prompt.trim()}
-            className="px-3 py-1.5 sm:py-2 rounded-lg bg-kie-violet hover:bg-kie-violet/90 disabled:opacity-40 disabled:hover:bg-kie-violet text-white transition-all flex items-center justify-center shadow-md shadow-kie-violet/20"
-            title="Send task to AI (Enter)"
+            aria-label="Close Assistant"
+            onClick={onClose}
+            className="p-1 rounded hover:bg-app-surface text-app-muted hover:text-app-primary transition-colors"
           >
-            {isStreaming ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <CornerDownLeft className="w-4 h-4" />
-            )}
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
-    </div>
+
+      {/* Main Body Area: Recent Tasks Drawer + Chat Thread */}
+      <div className="flex-1 min-h-0 flex overflow-hidden relative">
+        {/* Collapsible Recent Tasks Drawer */}
+        {showRecentTasks && (
+          <div className="w-52 flex-shrink-0 border-r border-app-border bg-app-surface/60 flex flex-col overflow-hidden animate-in slide-in-from-left duration-150 z-20">
+            <div className="p-2 border-b border-app-border flex items-center justify-between text-xs font-mono text-app-muted">
+              <span className="flex items-center gap-1.5 font-semibold text-[11px]">
+                <Clock className="w-3 h-3" />
+                Recent Tasks
+              </span>
+              {recentTasks.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearRecentTasks}
+                  className="p-1 hover:text-rose-500 rounded transition-colors"
+                  title="Clear history"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-1.5 space-y-1 scrollbar-none">
+              {recentTasks.length === 0 ? (
+                <div className="text-[11px] text-app-muted p-3 text-center">
+                  No recent tasks yet.
+                </div>
+              ) : (
+                recentTasks.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => {
+                      setPrompt(t.prompt);
+                      setShowRecentTasks(false);
+                      inputRef.current?.focus();
+                    }}
+                    className="w-full text-left p-2 rounded hover:bg-app-surface text-app-muted hover:text-app-primary transition-colors group"
+                  >
+                    <p className="text-xs truncate font-medium text-app-primary/90">{t.prompt}</p>
+                    <span className="text-[10px] text-app-muted/60 font-mono">
+                      {new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Chat Stream Thread */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-app-canvas/40">
+          {messages.length === 0 ? (
+            // Empty State & Presets
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-4 text-center select-none scrollbar-none">
+              <div className="w-10 h-10 rounded-2xl bg-app-accent/10 border border-app-accent/25 flex items-center justify-center mb-2.5 flex-shrink-0">
+                <Sparkles className="w-5 h-5 text-app-accent" />
+              </div>
+              <h3 className="text-xs font-semibold text-app-primary mb-1">How can I assist your document?</h3>
+              <p className="text-[11px] text-app-muted max-w-xs mb-4 leading-relaxed">
+                Contextual writing assistant. Ask questions, draft recipes, generate code, or analyze text.
+              </p>
+
+              <div className="grid grid-cols-1 gap-1.5 w-full max-w-xs">
+                {PRESET_PROMPTS.map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => handleSubmit(item.prompt)}
+                    className="text-left p-2 rounded-lg bg-app-surface/60 border border-app-border hover:border-app-accent/40 hover:bg-app-surface text-xs text-app-muted hover:text-app-primary transition-all flex flex-col gap-0.5"
+                  >
+                    <span className="font-semibold text-app-primary text-[11px]">{item.label}</span>
+                    <span className="text-[10px] text-app-muted line-clamp-1">{item.prompt}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            // Message Stream List
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 select-text">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex flex-col ${
+                    msg.role === 'user' ? 'items-end' : 'items-start'
+                  }`}
+                >
+                  <div
+                    className={`max-w-[92%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'bg-app-surface border border-app-border text-app-primary font-medium shadow-sm'
+                        : 'bg-app-shell border border-app-border text-app-primary shadow-sm w-full'
+                    }`}
+                  >
+                    {msg.role === 'assistant' ? (
+                      <div>
+                        <div
+                          className="prose-docuopsy text-xs leading-relaxed select-text"
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(mdParser.render(msg.content || '...')),
+                          }}
+                        />
+
+                        {/* Action Toolbar for Assistant Response */}
+                        {msg.content && (
+                          <div className="mt-2 pt-1.5 border-t border-app-border flex items-center justify-between text-[11px] text-app-muted select-none">
+                            <span className="font-mono text-[9px] opacity-60">
+                              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleCopyMessage(msg.id, msg.content)}
+                                className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-app-surface text-app-muted hover:text-app-primary transition-colors text-[10px]"
+                                title="Copy text"
+                              >
+                                {copiedId === msg.id ? (
+                                  <Check className="w-3 h-3 text-emerald-500" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                                <span>{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleInsertAtCursor(msg.content)}
+                                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-app-accent/15 text-app-accent hover:bg-app-accent/25 border border-app-accent/30 transition-colors text-[10px] font-medium"
+                                title="Insert into document cursor"
+                              >
+                                <ArrowDownToLine className="w-3 h-3" />
+                                <span>Insert</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Dynamic Context-Aware Progress Bar */}
+      {activeProgress && (
+        <div className="flex-shrink-0 px-3 py-1.5 border-t border-app-border bg-app-surface/60 flex items-center gap-2 text-xs select-none">
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-app-accent/15 border border-app-accent/30 text-app-accent font-mono text-[9px] font-semibold uppercase tracking-wider animate-pulse">
+            <BrainCircuit className="w-2.5 h-2.5" />
+            <span>{activeProgress.stage}</span>
+          </div>
+          <span className="text-app-muted truncate text-[10px]">
+            {activeProgress.message}
+          </span>
+          <Loader2 className="w-3 h-3 text-app-accent animate-spin ml-auto flex-shrink-0" />
+        </div>
+      )}
+
+      {/* Error Notification */}
+      {errorMessage && (
+        <div className="flex-shrink-0 px-3 py-1.5 border-t border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs flex items-center justify-between gap-2 font-mono">
+          <span className="flex-1 text-[10px] leading-snug truncate">{errorMessage}</span>
+          {lastPrompt && (
+            <button
+              type="button"
+              onClick={() => handleSubmit(lastPrompt)}
+              disabled={isStreaming}
+              className="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-[10px] font-semibold transition-all whitespace-nowrap active:scale-95"
+            >
+              Coba Lagi
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Input Bar */}
+      <div className="flex-shrink-0 p-2.5 border-t border-app-border bg-app-shell flex items-center gap-1.5">
+        <input
+          ref={inputRef}
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit();
+            } else if (e.key === 'Escape') {
+              onClose();
+            }
+          }}
+          placeholder="Type prompt or task (e.g. buatkan resep)..."
+          disabled={isStreaming}
+          className="flex-1 bg-app-surface border border-app-border focus:border-app-accent focus:ring-1 focus:ring-app-accent/30 rounded-lg px-2.5 py-1.5 text-xs text-app-primary placeholder:text-app-muted outline-none transition-all"
+        />
+
+        <button
+          type="button"
+          onClick={() => handleSubmit()}
+          disabled={isStreaming || !prompt.trim()}
+          className="px-2.5 py-1.5 rounded-lg bg-app-accent hover:opacity-90 disabled:opacity-40 text-white transition-all flex items-center justify-center shadow-sm"
+          title="Send task to AI (Enter)"
+        >
+          {isStreaming ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <CornerDownLeft className="w-3.5 h-3.5" />
+          )}
+        </button>
+      </div>
+    </aside>
   );
 };

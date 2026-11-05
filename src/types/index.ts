@@ -20,6 +20,9 @@ export interface AppSession {
   layoutMode: LayoutMode;
   splitRatio: number;
   theme?: string;
+  accentColor?: string;
+  isAiSidebarOpen?: boolean;
+  aiSidebarWidth?: number;
   tabs: Omit<TabState, 'content'>[];
 }
 

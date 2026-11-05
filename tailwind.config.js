@@ -8,6 +8,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        app: {
+          canvas: 'var(--bg-canvas)',
+          shell: 'var(--bg-shell)',
+          surface: 'var(--bg-surface)',
+          'surface-hover': 'var(--bg-surface-hover)',
+          border: 'var(--border-subtle)',
+          primary: 'var(--text-primary)',
+          muted: 'var(--text-muted)',
+          accent: 'var(--app-accent)',
+        },
         verdigris: {
           DEFAULT: '#0E9F8A',
           deep: '#0B7A6A',

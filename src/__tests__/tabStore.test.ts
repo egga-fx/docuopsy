@@ -55,5 +55,28 @@ describe('Tab Store Unit Tests', () => {
 
     expect(useTabStore.getState().layoutMode).toBe('FullPreview');
   });
+
+  it('should manage accent color and AI sidebar state with clamping', () => {
+    const { setAccentColor, toggleAiSidebar, setAiSidebarWidth } = useTabStore.getState();
+
+    setAccentColor('#7C5CFC');
+    expect(useTabStore.getState().accentColor).toBe('#7C5CFC');
+
+    toggleAiSidebar();
+    expect(useTabStore.getState().isAiSidebarOpen).toBe(true);
+
+    toggleAiSidebar();
+    expect(useTabStore.getState().isAiSidebarOpen).toBe(false);
+
+    // Clamping test: min 300, max 560
+    setAiSidebarWidth(200);
+    expect(useTabStore.getState().aiSidebarWidth).toBe(300);
+
+    setAiSidebarWidth(800);
+    expect(useTabStore.getState().aiSidebarWidth).toBe(560);
+
+    setAiSidebarWidth(420);
+    expect(useTabStore.getState().aiSidebarWidth).toBe(420);
+  });
 });
 

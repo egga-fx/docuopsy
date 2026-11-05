@@ -217,3 +217,36 @@ This log records every major milestone, completed task, test verification, and a
 2. `bun run tsc --noEmit` $\to$ **0 type errors.**
 3. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures in 0.15s.**
 4. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **0 warnings, clean compile.**
+
+---
+
+## [2026-11-05] - Phase 13: Right Sidebar AI Assistant, Customizable Accent Palette, Full State Persistence & Light Mode Parity
+
+### 1. Work Completed
+1. **Right Sidebar Docked AI Assistant:**
+   - Transformed `AIPalette.tsx` from an intrusive center modal dialog into an integrated right-docked `<aside>` panel inside `LayoutManager.tsx`.
+   - Added interactive draggable left border handle allowing the user to resize the sidebar between 300px and 560px (clamped), persisting `aiSidebarWidth` in store and session.
+   - Allows users to simultaneously write/edit documents in CodeMirror 6 or review preview while conversing with the AI assistant.
+2. **Total Removal of Model Name Badges:**
+   - Stripped all model name strings (`deepseek-v4-1-flash`, `claude-haiku-5-5`) from the UI (header bar, palette badges, status bar footer) as strictly requested by the user.
+3. **Header AI Button Relocation & Minimal Icon Design:**
+   - Relocated the AI Assistant toggle button to the workspace header bar immediately adjacent to the Light/Dark theme toggle button.
+   - Replaced text button with an icon-only button combining `MessageSquare` with an accent-highlighted `Sparkles` icon, showing active border and background when opened.
+4. **Global Mono Color Palette with 1 Customizable Accent Color:**
+   - Created semantic Tailwind color mapping (`app.canvas`, `app.shell`, `app.surface`, `app.surface-hover`, `app.border`, `app.primary`, `app.muted`, `app.accent`) bound to CSS variables (`--bg-canvas`, `--bg-shell`, `--bg-surface`, `--bg-surface-hover`, `--border-subtle`, `--text-primary`, `--text-muted`, `--app-accent`).
+   - Added an Accent Color Picker popover in the header with 6 curated presets (*Verdigris*, *Violet*, *Amber*, *Cyan*, *Rose*, *Monochrome*) plus a native hex color input.
+   - Dynamic zero-latency CSS variable update (`--app-accent`) on the document root element.
+5. **Full UI & System State Memory Persistence:**
+   - Enhanced `AppSession` in Rust and TypeScript with `accentColor`, `isAiSidebarOpen`, and `aiSidebarWidth`.
+   - Dual-tier persistence: instant synchronous `localStorage` snapshot cache (preventing boot flicker) plus debounced atomic persistence to `%APPDATA%\Docuopsy\session.json`.
+   - Clean file disk hydration on application boot: loads active tabs and hydrates files via `readDocument(filePath)`.
+6. **100% Light Mode Parity (Zero Dark Leaks):**
+   - Replaced all legacy hardcoded dark classes (`bg-obsidian`, `bg-slate-shell`, `bg-slate-surface`, `text-parchment`, `border-slate-border`) with semantic `app.*` classes across `TabBar`, `AppMenu`, `PdfViewer`, `CodePreview`, `EditorPane`, `AIPalette`, and `App`.
+   - In Light Vellum mode (`[data-theme="light"]`), the entire interface now renders cleanly in crisp paper tones with dark charcoal typography and zero dark background leaks.
+
+### 2. Pre-Completion Quality Gate (100% PASS)
+1. `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+2. `bun run test` $\to$ **12 test files passed, 29 tests passed, 0 failures (100%)**
+3. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures (100%)**
+4. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS, clean compile**
+5. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` (31.38s)**

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { TabBar } from './components/TabBar';
 import { AppMenu } from './components/AppMenu';
 import { LayoutManager } from './components/LayoutManager';
 import { EditorPane } from './components/EditorPane';
 import { PreviewContainer } from './components/PreviewContainer';
-import { AIPalette } from './components/AIPalette';
 import { useTabStore } from './store/tabStore';
 import {
   loadSession,
@@ -15,21 +14,21 @@ import {
   pickFileToSave,
 } from './api/ipc';
 import { undo, redo } from '@codemirror/commands';
-import { Sparkles } from 'lucide-react';
+import { MessageSquare, Sparkles } from 'lucide-react';
 import type { EditorView } from '@codemirror/view';
 
 export default function App(): React.JSX.Element {
-  const [isAiPaletteOpen, setIsAiPaletteOpen] = useState(false);
   const editorViewRef = useRef<EditorView | null>(null);
 
   const activeTab = useTabStore((s) => s.getActiveTab());
   const layoutMode = useTabStore((s) => s.layoutMode);
-  const theme = useTabStore((s) => s.theme);
   const restoreSession = useTabStore((s) => s.restoreSession);
   const updateContent = useTabStore((s) => s.updateContent);
   const addTab = useTabStore((s) => s.addTab);
   const closeTab = useTabStore((s) => s.closeTab);
   const markClean = useTabStore((s) => s.markClean);
+  const toggleAiSidebar = useTabStore((s) => s.toggleAiSidebar);
+  const setAiSidebarOpen = useTabStore((s) => s.setAiSidebarOpen);
 
   // Restore session on application boot
   useEffect(() => {
@@ -40,11 +39,19 @@ export default function App(): React.JSX.Element {
           if (session && session.tabs && session.tabs.length > 0) {
             restoreSession(session);
 
-            // Attempt to restore drafts for active tabs
+            // Attempt to restore drafts or read file content from disk
             for (const t of session.tabs) {
               const draft = await loadDraft(t.id);
               if (draft) {
                 updateContent(t.id, draft);
+              } else if (t.filePath) {
+                try {
+                  const fileContent = await readDocument(t.filePath);
+                  updateContent(t.id, fileContent);
+                  markClean(t.id, t.filePath);
+                } catch (err) {
+                  console.warn('Failed to hydrate file from disk:', t.filePath, err);
+                }
               }
             }
           }
@@ -55,7 +62,7 @@ export default function App(): React.JSX.Element {
     }
 
     initSession();
-  }, [restoreSession, updateContent]);
+  }, [restoreSession, updateContent, markClean]);
 
   // Document Save As Handler
   const handleSaveAs = useCallback(async () => {
@@ -126,20 +133,16 @@ export default function App(): React.JSX.Element {
       // Ctrl+K: AI Assistant
       else if (e.ctrlKey && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setIsAiPaletteOpen((prev) => !prev);
+        toggleAiSidebar();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSave, handleSaveAs, handleOpenFile]);
+  }, [handleSave, handleSaveAs, handleOpenFile, toggleAiSidebar]);
 
   return (
-    <div
-      className={`flex flex-col h-screen w-screen select-none font-sans overflow-hidden ${
-        theme === 'light' ? 'bg-vellum-canvas text-forensic-ink' : 'bg-obsidian text-parchment'
-      }`}
-    >
+    <div className="flex flex-col h-screen w-screen select-none font-sans overflow-hidden bg-app-canvas text-app-primary">
       {/* Top Document Tab Strip with App Menu Toolbar */}
       <TabBar
         leftAddon={
@@ -151,7 +154,7 @@ export default function App(): React.JSX.Element {
             onCloseTab={() => activeTab && closeTab(activeTab.id)}
             onUndo={() => editorViewRef.current && undo(editorViewRef.current)}
             onRedo={() => editorViewRef.current && redo(editorViewRef.current)}
-            onOpenAI={() => setIsAiPaletteOpen(true)}
+            onOpenAI={() => setAiSidebarOpen(true)}
           />
         }
       />
@@ -160,22 +163,16 @@ export default function App(): React.JSX.Element {
       <LayoutManager
         editor={<EditorPane onViewReady={(view) => { editorViewRef.current = view; }} />}
         preview={<PreviewContainer tab={activeTab} />}
-      />
-
-      {/* Floating AI Assistant Palette (Ctrl+K) */}
-      <AIPalette
-        isOpen={isAiPaletteOpen}
-        onClose={() => setIsAiPaletteOpen(false)}
         editorView={editorViewRef.current}
       />
 
       {/* Forensic Telemetry Status Bar */}
-      <footer className="h-6 bg-slate-shell border-t border-slate-border px-3.5 flex items-center justify-between font-mono text-[11px] text-slate-muted tabular-nums select-none z-20">
+      <footer className="h-6 bg-app-shell border-t border-app-border px-3.5 flex items-center justify-between font-mono text-[11px] text-app-muted tabular-nums select-none z-20">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-parchment">
+          <span className="flex items-center gap-1.5 text-app-primary">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                activeTab?.isDirty ? 'bg-amber-dirty' : 'bg-emerald-verified'
+                activeTab?.isDirty ? 'bg-amber-500' : 'bg-emerald-500'
               }`}
             />
             {activeTab?.isDirty ? 'Draft Cached (Unsaved)' : 'Clean'}
@@ -191,13 +188,16 @@ export default function App(): React.JSX.Element {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setIsAiPaletteOpen(true)}
-            className="flex items-center gap-1 text-kie-violet hover:text-kie-violet/80 transition-colors"
-            title="Open AI Assistant (Ctrl+K)"
+            onClick={toggleAiSidebar}
+            className="flex items-center gap-1.5 text-app-accent hover:opacity-85 transition-opacity"
+            title="Toggle AI Assistant (Ctrl+K)"
           >
-            <Sparkles className="w-3 h-3" />
-            <span>AI: deepseek-v4-1-flash</span>
-            <kbd className="text-[9px] bg-slate-surface px-1 rounded border border-slate-border">Ctrl+K</kbd>
+            <div className="relative flex items-center justify-center">
+              <MessageSquare className="w-3 h-3" />
+              <Sparkles className="w-1.5 h-1.5 text-app-accent absolute -top-0.5 -right-0.5" />
+            </div>
+            <span>AI Assistant</span>
+            <kbd className="text-[9px] bg-app-surface text-app-primary px-1 rounded border border-app-border">Ctrl+K</kbd>
           </button>
           <span className="opacity-40">|</span>
           <span>UTF-8</span>

@@ -60,5 +60,36 @@ describe('LayoutManager Component', () => {
 
     expect(useTabStore.getState().layoutMode).toBe('FullEditor');
   });
+
+  it('toggles AI Assistant sidebar when AI button is clicked', () => {
+    render(
+      <LayoutManager
+        editor={<div>Editor</div>}
+        preview={<div>Preview</div>}
+      />
+    );
+    const aiBtn = screen.getByLabelText('AI Assistant');
+    expect(screen.queryByRole('complementary', { name: 'AI Assistant' })).not.toBeInTheDocument();
+
+    fireEvent.click(aiBtn);
+    expect(useTabStore.getState().isAiSidebarOpen).toBe(true);
+    expect(screen.getByRole('complementary', { name: 'AI Assistant' })).toBeInTheDocument();
+  });
+
+  it('allows picking an accent color from presets', () => {
+    render(
+      <LayoutManager
+        editor={<div>Editor</div>}
+        preview={<div>Preview</div>}
+      />
+    );
+    const paletteBtn = screen.getByLabelText('Customize Accent Color');
+    fireEvent.click(paletteBtn);
+
+    const violetPreset = screen.getByTitle('Violet');
+    fireEvent.click(violetPreset);
+
+    expect(useTabStore.getState().accentColor).toBe('#7C5CFC');
+  });
 });
 

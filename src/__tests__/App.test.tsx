@@ -11,7 +11,7 @@ describe('App Root Assembly Component', () => {
     expect(screen.getByRole('button', { name: 'Application Menu' })).toBeInTheDocument();
 
     // Telemetry footer rendered
-    expect(screen.getByText(/AI: deepseek-v4-1-flash/i)).toBeInTheDocument();
+    expect(screen.getByTitle(/Toggle AI Assistant \(Ctrl\+K\)/i)).toBeInTheDocument();
     expect(screen.getByText(/UTF-8/i)).toBeInTheDocument();
   }, 15000);
 });

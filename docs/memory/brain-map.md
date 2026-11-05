@@ -90,6 +90,9 @@ export interface AppSession {
   layoutMode: 'Split' | 'FullEditor' | 'FullPreview';
   splitRatio: number;
   theme?: string;
+  accentColor?: string;
+  isAiSidebarOpen?: boolean;
+  aiSidebarWidth?: number;
   tabs: Omit<TabState, 'content'>[];
 }
 

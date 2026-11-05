@@ -103,7 +103,7 @@ export const EditorPane: React.FC<EditorPaneProps> = ({ onViewReady }) => {
   }, [activeTab?.content]);
 
   return (
-    <div className={`h-full w-full flex flex-col min-h-0 ${theme === 'light' ? 'bg-vellum-canvas' : 'bg-obsidian'}`}>
+    <div className="h-full w-full flex flex-col min-h-0 bg-app-canvas">
       <div ref={containerRef} className="flex-1 min-h-0 overflow-auto" />
     </div>
   );
