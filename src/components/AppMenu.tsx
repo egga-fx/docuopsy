@@ -44,6 +44,9 @@ export const AppMenu: React.FC<AppMenuProps> = ({
   const [activeMenu, setActiveMenu] = useState<'file' | 'edit' | 'view'>('file');
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const mod = isMac ? '⌘' : 'Ctrl';
+
   const theme = useTabStore((s) => s.theme);
   const setTheme = useTabStore((s) => s.setTheme);
   const layoutMode = useTabStore((s) => s.layoutMode);
@@ -105,7 +108,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
         <div
           role="menu"
           aria-label="Main Menu"
-          className="absolute left-0 top-full mt-0.5 w-72 bg-app-shell border border-app-border rounded-b-lg shadow-2xl py-2 z-50 font-sans text-xs select-none backdrop-blur-md"
+          className="absolute left-0 top-full mt-1 w-72 bg-app-surface border border-app-border rounded-lg shadow-2xl py-2 z-50 font-sans text-xs select-none"
         >
           {/* Menu Category Switcher Bar */}
           <div className="flex border-b border-app-border px-2 pb-1.5 mb-1 gap-1">
@@ -114,7 +117,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               onClick={() => setActiveMenu('file')}
               className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
                 activeMenu === 'file'
-                  ? 'bg-app-surface text-app-primary font-semibold'
+                  ? 'bg-app-surface-hover text-app-primary font-semibold'
                   : 'text-app-muted hover:text-app-primary'
               }`}
             >
@@ -125,7 +128,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               onClick={() => setActiveMenu('edit')}
               className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
                 activeMenu === 'edit'
-                  ? 'bg-app-surface text-app-primary font-semibold'
+                  ? 'bg-app-surface-hover text-app-primary font-semibold'
                   : 'text-app-muted hover:text-app-primary'
               }`}
             >
@@ -136,7 +139,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               onClick={() => setActiveMenu('view')}
               className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
                 activeMenu === 'view'
-                  ? 'bg-app-surface text-app-primary font-semibold'
+                  ? 'bg-app-surface-hover text-app-primary font-semibold'
                   : 'text-app-muted hover:text-app-primary'
               }`}
             >
@@ -156,7 +159,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <FilePlus className="w-3.5 h-3.5 text-app-muted" />
                   New File
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+N</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+N</span>
               </button>
 
               <button
@@ -168,7 +171,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <FolderOpen className="w-3.5 h-3.5 text-app-muted" />
                   Open File...
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+O</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+O</span>
               </button>
 
               <div className="h-px bg-app-border my-1" />
@@ -182,7 +185,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Save className="w-3.5 h-3.5 text-app-muted" />
                   Save
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+S</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+S</span>
               </button>
 
               <button
@@ -194,7 +197,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <FileText className="w-3.5 h-3.5 text-app-muted" />
                   Save As...
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+S</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Shift+S</span>
               </button>
 
               <div className="h-px bg-app-border my-1" />
@@ -208,7 +211,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <X className="w-3.5 h-3.5" />
                   Close Tab
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+W</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+W</span>
               </button>
             </div>
           )}
@@ -225,7 +228,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Undo2 className="w-3.5 h-3.5 text-app-muted" />
                   Undo
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+Z</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Z</span>
               </button>
 
               <button
@@ -237,7 +240,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Redo2 className="w-3.5 h-3.5 text-app-muted" />
                   Redo
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+Y</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Y</span>
               </button>
 
               <div className="h-px bg-app-border my-1" />
@@ -251,7 +254,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Scissors className="w-3.5 h-3.5 text-app-muted" />
                   Cut
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+X</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+X</span>
               </button>
 
               <button
@@ -263,7 +266,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Copy className="w-3.5 h-3.5 text-app-muted" />
                   Copy
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+C</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+C</span>
               </button>
 
               <button
@@ -275,7 +278,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Clipboard className="w-3.5 h-3.5 text-app-muted" />
                   Paste
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+V</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+V</span>
               </button>
             </div>
           )}
@@ -294,7 +297,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Columns2 className="w-3.5 h-3.5 text-app-muted" />
                   Split Mode
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+\</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+\</span>
               </button>
 
               <button
@@ -308,7 +311,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Maximize2 className="w-3.5 h-3.5 text-app-muted" />
                   Editor Only
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+E</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Shift+E</span>
               </button>
 
               <button
@@ -322,7 +325,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Eye className="w-3.5 h-3.5 text-app-muted" />
                   Preview Only
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+P</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Shift+P</span>
               </button>
 
               <div className="h-px bg-app-border my-1" />
@@ -336,7 +339,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <SunMoon className="w-3.5 h-3.5 text-app-muted" />
                   Toggle Theme ({theme === 'dark' ? 'Light Vellum' : 'Dark Forensics'})
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+Shift+L</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Shift+L</span>
               </button>
 
               <button
@@ -348,7 +351,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                   <Sparkles className="w-3.5 h-3.5" />
                   AI Assistant
                 </span>
-                <span className="font-mono text-[10px] text-app-muted">Ctrl+K</span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+K</span>
               </button>
             </div>
           )}

@@ -27,40 +27,42 @@ export function getLanguageExtension(filename: string): Extension {
 export const darkForensicsTheme = EditorView.theme(
   {
     '&': {
-      color: '#ECF2F8',
-      backgroundColor: '#0B0F14',
+      color: '#f7f8f8',
+      backgroundColor: '#08090a',
       height: '100%',
-      fontFamily: "'JetBrains Mono', Consolas, monospace",
+      fontFamily: "'Berkeley Mono', 'JetBrains Mono', Consolas, monospace",
       fontSize: '13px',
+      letterSpacing: '0px',
     },
     '.cm-content': {
-      caretColor: '#0E9F8A',
-      padding: '12px 0',
+      caretColor: '#7170ff',
+      padding: '16px 0',
     },
     '&.cm-focused .cm-cursor': {
-      borderLeftColor: '#0E9F8A',
+      borderLeftColor: '#7170ff',
       borderLeftWidth: '2px',
     },
     '&.cm-focused .cm-selectionBackground, ::selection': {
-      backgroundColor: 'rgba(14, 159, 138, 0.30)',
+      backgroundColor: 'rgba(113, 112, 255, 0.25)',
     },
     '.cm-gutters': {
-      backgroundColor: '#111722',
-      color: '#94A6BE',
-      borderRight: '1px solid #243044',
+      backgroundColor: '#08090a',
+      color: '#8a9099',
+      borderRight: '1px solid rgba(255, 255, 255, 0.078)',
       fontVariantNumeric: 'tabular-nums',
-      paddingRight: '6px',
+      paddingRight: '10px',
     },
     '.cm-activeLineGutter': {
-      backgroundColor: '#18202F',
-      color: '#0E9F8A',
-      fontWeight: 'bold',
+      backgroundColor: '#0f1011',
+      color: '#7170ff',
+      fontWeight: '510',
     },
     '.cm-activeLine': {
-      backgroundColor: 'rgba(24, 32, 47, 0.40)',
+      backgroundColor: 'rgba(255, 255, 255, 0.02)',
     },
     '.cm-line': {
-      padding: '0 16px',
+      padding: '0 20px',
+      lineHeight: '20px',
     },
   },
   { dark: true }
@@ -69,40 +71,42 @@ export const darkForensicsTheme = EditorView.theme(
 export const lightVellumTheme = EditorView.theme(
   {
     '&': {
-      color: '#12161F',
-      backgroundColor: '#FAF7F0',
+      color: '#08090a',
+      backgroundColor: '#f7f8f8',
       height: '100%',
-      fontFamily: "'JetBrains Mono', Consolas, monospace",
+      fontFamily: "'Berkeley Mono', 'JetBrains Mono', Consolas, monospace",
       fontSize: '13px',
+      letterSpacing: '0px',
     },
     '.cm-content': {
-      caretColor: '#0B7A6A',
-      padding: '12px 0',
+      caretColor: '#7170ff',
+      padding: '16px 0',
     },
     '&.cm-focused .cm-cursor': {
-      borderLeftColor: '#0B7A6A',
+      borderLeftColor: '#7170ff',
       borderLeftWidth: '2px',
     },
     '&.cm-focused .cm-selectionBackground, ::selection': {
-      backgroundColor: 'rgba(11, 122, 106, 0.25)',
+      backgroundColor: 'rgba(113, 112, 255, 0.20)',
     },
     '.cm-gutters': {
-      backgroundColor: '#F0ECE1',
-      color: '#4A5568',
-      borderRight: '1px solid #CFC7B4',
+      backgroundColor: '#efeff0',
+      color: '#8a9099',
+      borderRight: '1px solid rgba(0, 0, 0, 0.08)',
       fontVariantNumeric: 'tabular-nums',
-      paddingRight: '6px',
+      paddingRight: '10px',
     },
     '.cm-activeLineGutter': {
-      backgroundColor: '#E5DFD0',
-      color: '#0B7A6A',
-      fontWeight: 'bold',
+      backgroundColor: '#e5e5e6',
+      color: '#7170ff',
+      fontWeight: '510',
     },
     '.cm-activeLine': {
-      backgroundColor: 'rgba(229, 223, 208, 0.50)',
+      backgroundColor: 'rgba(0, 0, 0, 0.02)',
     },
     '.cm-line': {
-      padding: '0 16px',
+      padding: '0 20px',
+      lineHeight: '20px',
     },
   },
   { dark: false }
@@ -118,4 +122,3 @@ export const baseEditorExtensions: Extension[] = [
   syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
   keymap.of([...defaultKeymap, ...historyKeymap]),
 ];
-

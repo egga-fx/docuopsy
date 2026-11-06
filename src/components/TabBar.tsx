@@ -22,18 +22,20 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+N: New tab
-      if (e.ctrlKey && e.key.toLowerCase() === 'n') {
+      const isMod = e.ctrlKey || e.metaKey;
+
+      // Mod+N: New tab
+      if (isMod && e.key.toLowerCase() === 'n') {
         e.preventDefault();
         addTab();
       }
-      // Ctrl+W: Close active tab
-      else if (e.ctrlKey && e.key.toLowerCase() === 'w') {
+      // Mod+W: Close active tab
+      else if (isMod && e.key.toLowerCase() === 'w') {
         e.preventDefault();
         closeTab(activeTabId);
       }
-      // Ctrl+Tab: Next tab
-      else if (e.ctrlKey && e.key === 'Tab') {
+      // Mod+Tab: Next tab
+      else if (isMod && e.key === 'Tab') {
         e.preventDefault();
         const currentIndex = tabs.findIndex((t) => t.id === activeTabId);
         const nextIndex = (currentIndex + 1) % tabs.length;
@@ -47,7 +49,7 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
 
   return (
     <div
-      className="h-9 bg-app-shell border-b border-app-border flex items-stretch select-none font-mono text-xs relative z-30"
+      className="h-10 bg-app-shell border-b border-app-border flex items-stretch select-none font-mono text-xs relative z-30"
     >
       {leftAddon}
       <div
@@ -63,10 +65,10 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
               role="tab"
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.id)}
-              className={`group flex items-center gap-2 px-3.5 border-r border-app-border cursor-pointer transition-colors duration-100 ${
+              className={`group flex items-center gap-2 px-3.5 border-r border-app-border cursor-pointer transition-all duration-100 ${
                 isActive
-                  ? 'bg-app-canvas text-app-primary border-t-2 border-t-app-accent'
-                  : 'bg-app-shell text-app-muted hover:bg-app-surface hover:text-app-primary border-t-2 border-t-transparent'
+                  ? 'bg-app-surface text-app-primary border-t-2 border-t-app-accent font-medium'
+                  : 'bg-app-shell text-app-muted hover:bg-app-surface/50 hover:text-app-primary border-t-2 border-t-transparent'
               }`}
             >
               {getFileIcon(tab.title)}
@@ -77,7 +79,7 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
                   role="status"
                   aria-label="dirty-indicator"
                   title="Unsaved changes (Atomic draft cached)"
-                  className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block animate-pulse"
+                  className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_#7170ff] inline-block animate-pulse"
                 />
               )}
 
@@ -88,7 +90,7 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
                   e.stopPropagation();
                   closeTab(tab.id);
                 }}
-                className="opacity-0 group-hover:opacity-100 hover:bg-app-border rounded p-0.5 text-app-muted hover:text-app-primary transition-opacity"
+                className="opacity-0 group-hover:opacity-100 hover:bg-app-surface-hover rounded p-0.5 text-app-muted hover:text-app-primary transition-opacity"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -100,7 +102,7 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon }) => {
           type="button"
           aria-label="New scratch document"
           onClick={() => addTab()}
-          className="px-2.5 flex items-center justify-center text-app-muted hover:text-app-primary hover:bg-app-surface transition-colors"
+          className="px-3 flex items-center justify-center text-app-muted hover:text-app-primary hover:bg-app-surface/60 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
         </button>

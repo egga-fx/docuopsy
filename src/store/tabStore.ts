@@ -147,7 +147,7 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
   layoutMode: snapshot?.layoutMode ?? 'Split',
   splitRatio: snapshot?.splitRatio ?? 0.5,
   theme: snapshot?.theme ?? 'dark',
-  accentColor: snapshot?.accentColor ?? '#0E9F8A',
+  accentColor: snapshot?.accentColor ?? '#7170ff',
   isAiSidebarOpen: snapshot?.isAiSidebarOpen ?? false,
   aiSidebarWidth: snapshot?.aiSidebarWidth ?? 360,
 

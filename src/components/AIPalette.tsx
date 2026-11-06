@@ -10,19 +10,37 @@ import {
   Trash2,
   Copy,
   Check,
-  ArrowDownToLine,
+  ArrowLeft,
   BrainCircuit,
 } from 'lucide-react';
 import type { AIStreamChunk, AIChatMessage, RecentTask } from '../types';
 import type { EditorView } from '@codemirror/view';
 import MarkdownIt from 'markdown-it';
 import { sanitizeHtml } from '../utils/sanitizer';
+import { useTabStore } from '../store/tabStore';
 
 const mdParser = new MarkdownIt({
   html: false,
   linkify: true,
   typographer: true,
 });
+
+function injectStreamCaret(html: string): string {
+  const caret = '<span class="stream-caret" aria-hidden="true"></span>';
+  const lastTagMatch = html.match(/(<\/(?:p|li|h[1-6]|pre|blockquote|td)>)(\s*(?:<\/(?:ul|ol|table|tbody)>)?\s*)$/);
+  if (lastTagMatch) {
+    const [full, closingTag, remainder] = lastTagMatch;
+    const index = html.lastIndexOf(full);
+    return html.slice(0, index) + caret + closingTag + remainder;
+  }
+  return html + caret;
+}
+
+function renderAssistantMarkdown(content: string, isStreaming: boolean): string {
+  const parsed = mdParser.render(content);
+  const withCaret = isStreaming ? injectStreamCaret(parsed) : parsed;
+  return sanitizeHtml(withCaret);
+}
 
 interface AIPaletteProps {
   isOpen: boolean;
@@ -106,7 +124,14 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
   const [recentTasks, setRecentTasks] = useState<RecentTask[]>([]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Typewriter streaming animation refs
+  const streamTargetRef = useRef<string>('');
+  const streamDisplayRef = useRef<string>('');
+  const activeMsgIdRef = useRef<string | null>(null);
+  const isDoneReceivedRef = useRef<boolean>(false);
 
   // Resize handler for the left edge of the sidebar
   const handleResizeStart = (e: React.MouseEvent) => {
@@ -172,62 +197,133 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
     } catch {}
   };
 
-  // Auto-scroll chat to bottom
+  // Auto-scroll chat when idle or when new messages arrive
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!isStreaming) {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages, isStreaming]);
+
+  // Smooth Typewriter Animation Engine for Streaming Output
+  useEffect(() => {
+    if (!isStreaming) return;
+
+    let rafId: number;
+    let lastTick = performance.now();
+
+    const updateDisplay = (now: number) => {
+      const elapsed = now - lastTick;
+
+      // Update at smooth ~16ms animation intervals
+      if (elapsed >= 16) {
+        lastTick = now;
+        const target = streamTargetRef.current;
+        const current = streamDisplayRef.current;
+
+        if (current.length < target.length) {
+          const diff = target.length - current.length;
+          // Adaptive fluid typing speed:
+          // Low backlog: 1-2 chars per tick (~60-120 cps typewriter feel)
+          // High backlog: progressively accelerated catchup
+          // Stream completed: fast clean flush
+          const step = isDoneReceivedRef.current
+            ? Math.max(4, Math.ceil(diff / 3))
+            : diff > 60
+            ? Math.ceil(diff / 4)
+            : diff > 20
+            ? Math.ceil(diff / 6)
+            : Math.min(2, diff);
+
+          const nextText = target.slice(0, current.length + step);
+          streamDisplayRef.current = nextText;
+
+          const activeId = activeMsgIdRef.current;
+          setMessages((prev) => {
+            const index = prev.findIndex((m) => m.id === activeId);
+            if (index !== -1 && prev[index].content !== nextText) {
+              const updated = [...prev];
+              updated[index] = { ...updated[index], content: nextText };
+              return updated;
+            }
+            return prev;
+          });
+
+          // Butter-smooth scroll tracking without layout jitter
+          if (scrollContainerRef.current) {
+            const el = scrollContainerRef.current;
+            const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 160;
+            if (isNearBottom) {
+              el.scrollTop = el.scrollHeight;
+            }
+          }
+        } else if (isDoneReceivedRef.current) {
+          // Finished unspooling all tokens
+          setIsStreaming(false);
+          setStreamStatus('idle');
+          activeMsgIdRef.current = null;
+        }
+      }
+
+      rafId = requestAnimationFrame(updateDisplay);
+    };
+
+    rafId = requestAnimationFrame(updateDisplay);
+    return () => cancelAnimationFrame(rafId);
+  }, [isStreaming]);
 
   // Setup streaming event listener
   useEffect(() => {
     let unlistenFn: (() => void) | null = null;
 
+    const handleChunk = (chunk: AIStreamChunk) => {
+      if (chunk.status) {
+        setStreamStatus(chunk.status);
+      }
+
+      if (chunk.error) {
+        setErrorMessage(chunk.error);
+        setIsStreaming(false);
+        setStreamStatus('idle');
+        activeMsgIdRef.current = null;
+        return;
+      }
+
+      if (chunk.delta) {
+        if (!activeMsgIdRef.current) {
+          const newId = `asst-${Date.now()}`;
+          activeMsgIdRef.current = newId;
+          setMessages((prev) => [
+            ...prev,
+            { id: newId, role: 'assistant', content: '', timestamp: Date.now() },
+          ]);
+        }
+        streamTargetRef.current += chunk.delta;
+      }
+
+      if (chunk.isDone) {
+        isDoneReceivedRef.current = true;
+      }
+    };
+
     async function setupListener() {
       try {
         if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
           const unlisten = await listen<AIStreamChunk>('ai:stream:chunk', (event) => {
-            const chunk = event.payload;
-
-            if (chunk.status) {
-              setStreamStatus(chunk.status);
-            }
-
-            if (chunk.error) {
-              setErrorMessage(chunk.error);
-              setIsStreaming(false);
-              setStreamStatus('idle');
-              return;
-            }
-
-            if (chunk.delta) {
-              setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last && last.role === 'assistant') {
-                  return [
-                    ...prev.slice(0, -1),
-                    { ...last, content: last.content + chunk.delta },
-                  ];
-                }
-                return [
-                  ...prev,
-                  {
-                    id: `msg-${Date.now()}`,
-                    role: 'assistant',
-                    content: chunk.delta,
-                    timestamp: Date.now(),
-                  },
-                ];
-              });
-            }
-
-            if (chunk.isDone) {
-              setIsStreaming(false);
-              setStreamStatus('idle');
-            }
+            handleChunk(event.payload);
           });
           unlistenFn = unlisten;
+        } else if (typeof window !== 'undefined') {
+          const customEventHandler = (event: Event) => {
+            const ce = event as CustomEvent<AIStreamChunk>;
+            if (ce.detail) {
+              handleChunk(ce.detail);
+            }
+          };
+          window.addEventListener('ai:stream:chunk', customEventHandler);
+          unlistenFn = () => window.removeEventListener('ai:stream:chunk', customEventHandler);
         }
       } catch (err) {
-        console.warn('Tauri event listener setup skipped:', err);
+        console.warn('Event listener setup failed:', err);
       }
     }
 
@@ -248,6 +344,12 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
     setErrorMessage(null);
     setIsStreaming(true);
     setStreamStatus('thinking');
+    isDoneReceivedRef.current = false;
+    streamTargetRef.current = '';
+    streamDisplayRef.current = '';
+
+    const assistantId = `asst-${Date.now()}`;
+    activeMsgIdRef.current = assistantId;
 
     // Add user message to chat thread
     const userMsg: AIChatMessage = {
@@ -259,7 +361,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
 
     // Add placeholder assistant message
     const assistantMsg: AIChatMessage = {
-      id: `asst-${Date.now()}`,
+      id: assistantId,
       role: 'assistant',
       content: '',
       timestamp: Date.now(),
@@ -272,26 +374,29 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
 
     // Context from current editor buffer
     const editorContext = editorView ? editorView.state.doc.toString().slice(0, 8000) : '';
+    const activeTab = useTabStore.getState().getActiveTab();
+    const activeFileName = activeTab?.title || 'Untitled-1';
     const streamId = `stream-${Date.now()}`;
 
     try {
-      const fullResult = await aiGenerateStream(streamId, finalPrompt, editorContext);
-      if (fullResult) {
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last && last.role === 'assistant' && !last.content) {
-            return [...prev.slice(0, -1), { ...last, content: fullResult }];
-          }
-          return prev;
-        });
+      const fullResult = await aiGenerateStream(streamId, finalPrompt, editorContext, activeFileName);
+      if (fullResult && streamTargetRef.current.length < fullResult.length) {
+        streamTargetRef.current = fullResult;
       }
-      setIsStreaming(false);
-      setStreamStatus('idle');
+      isDoneReceivedRef.current = true;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
       setIsStreaming(false);
       setStreamStatus('idle');
+      activeMsgIdRef.current = null;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last && last.role === 'assistant' && !last.content) {
+          return prev.slice(0, -1);
+        }
+        return prev;
+      });
     }
   };
 
@@ -303,6 +408,18 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
       selection: { anchor: selection.to + text.length },
       scrollIntoView: true,
     });
+  };
+
+  const handleNewSession = () => {
+    if (isStreaming) return;
+    setMessages([]);
+    setErrorMessage(null);
+    setPrompt('');
+    streamTargetRef.current = '';
+    streamDisplayRef.current = '';
+    activeMsgIdRef.current = null;
+    isDoneReceivedRef.current = false;
+    setTimeout(() => inputRef.current?.focus(), 50);
   };
 
   const handleCopyMessage = (id: string, text: string) => {
@@ -324,7 +441,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
       role="complementary"
       aria-label="AI Assistant"
       style={{ width: `${width}px` }}
-      className="h-full flex-shrink-0 border-l border-app-border bg-app-shell flex flex-col font-sans select-none overflow-hidden relative shadow-lg z-20"
+      className="h-full flex-shrink-0 border-l border-app-border bg-app-surface flex flex-col font-sans select-none overflow-hidden relative shadow-2xl z-20"
     >
       {/* Resizable Left Drag Border */}
       <div
@@ -334,29 +451,35 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
       />
 
       {/* Header Bar */}
-      <div className="h-10 flex-shrink-0 border-b border-app-border px-3 flex items-center justify-between bg-app-shell">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-app-accent/15 border border-app-accent/30 flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-app-accent" />
-          </div>
-          <span className="font-semibold text-xs text-app-primary">AI Assistant</span>
-        </div>
+      <div className="h-10 flex-shrink-0 border-b border-app-border px-3.5 flex items-center justify-between bg-app-surface">
+        <button
+          type="button"
+          onClick={handleNewSession}
+          className="flex items-center gap-2 group hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer p-1 -ml-1 rounded-md focus:outline-none focus-visible:ring-1 focus-visible:ring-app-accent"
+          title="New Session (Click icon or text to start new session)"
+          aria-label="New Session"
+        >
+          <Sparkles className="w-4 h-4 text-app-accent fill-app-accent group-hover:scale-105 transition-transform" />
+          <span className="font-semibold text-xs text-app-primary group-hover:text-app-accent transition-colors">
+            AI Assistant
+          </span>
+        </button>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => setShowRecentTasks((p) => !p)}
-            className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] transition-colors border ${
               showRecentTasks
-                ? 'bg-app-surface text-app-primary font-medium'
-                : 'text-app-muted hover:text-app-primary hover:bg-app-surface'
+                ? 'bg-app-surface-hover border-app-border text-app-primary font-medium'
+                : 'border-transparent text-app-muted hover:text-app-primary hover:bg-app-surface-hover'
             }`}
             title="Recent Tasks"
           >
             <Clock className="w-3 h-3" />
             <span>Recent</span>
             {recentTasks.length > 0 && (
-              <span className="ml-0.5 text-[9px] px-1 rounded bg-app-surface border border-app-border text-app-muted font-mono">
+              <span className="ml-0.5 text-[9px] px-1.5 rounded-full bg-app-surface-hover border border-app-border text-app-muted font-mono">
                 {recentTasks.length}
               </span>
             )}
@@ -366,7 +489,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
             type="button"
             aria-label="Close Assistant"
             onClick={onClose}
-            className="p-1 rounded hover:bg-app-surface text-app-muted hover:text-app-primary transition-colors"
+            className="p-1 rounded-full hover:bg-app-surface-hover text-app-muted hover:text-app-primary transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -428,8 +551,8 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
           {messages.length === 0 ? (
             // Empty State & Presets
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-4 text-center select-none scrollbar-none">
-              <div className="w-10 h-10 rounded-2xl bg-app-accent/10 border border-app-accent/25 flex items-center justify-center mb-2.5 flex-shrink-0">
-                <Sparkles className="w-5 h-5 text-app-accent" />
+              <div className="mb-2.5 flex-shrink-0">
+                <Sparkles className="w-6 h-6 text-app-accent fill-app-accent" />
               </div>
               <h3 className="text-xs font-semibold text-app-primary mb-1">How can I assist your document?</h3>
               <p className="text-[11px] text-app-muted max-w-xs mb-4 leading-relaxed">
@@ -452,71 +575,88 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
             </div>
           ) : (
             // Message Stream List
-            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 select-text">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col ${
-                    msg.role === 'user' ? 'items-end' : 'items-start'
-                  }`}
-                >
+            <div
+              ref={scrollContainerRef}
+              className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 select-text"
+            >
+              {messages.map((msg, index) => {
+                const isLastAssistant = msg.role === 'assistant' && index === messages.length - 1;
+                const isMessageStreaming = isStreaming && isLastAssistant;
+
+                return (
                   <div
-                    className={`max-w-[92%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'bg-app-surface border border-app-border text-app-primary font-medium shadow-sm'
-                        : 'bg-app-shell border border-app-border text-app-primary shadow-sm w-full'
+                    key={msg.id}
+                    className={`flex flex-col ${
+                      msg.role === 'user' ? 'items-end' : 'items-start'
                     }`}
                   >
-                    {msg.role === 'assistant' ? (
-                      <div>
-                        <div
-                          className="prose-docuopsy text-xs leading-relaxed select-text"
-                          dangerouslySetInnerHTML={{
-                            __html: sanitizeHtml(mdParser.render(msg.content || '...')),
-                          }}
-                        />
-
-                        {/* Action Toolbar for Assistant Response */}
-                        {msg.content && (
-                          <div className="mt-2 pt-1.5 border-t border-app-border flex items-center justify-between text-[11px] text-app-muted select-none">
-                            <span className="font-mono text-[9px] opacity-60">
-                              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleCopyMessage(msg.id, msg.content)}
-                                className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-app-surface text-app-muted hover:text-app-primary transition-colors text-[10px]"
-                                title="Copy text"
-                              >
-                                {copiedId === msg.id ? (
-                                  <Check className="w-3 h-3 text-emerald-500" />
-                                ) : (
-                                  <Copy className="w-3 h-3" />
-                                )}
-                                <span>{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => handleInsertAtCursor(msg.content)}
-                                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-app-accent/15 text-app-accent hover:bg-app-accent/25 border border-app-accent/30 transition-colors text-[10px] font-medium"
-                                title="Insert into document cursor"
-                              >
-                                <ArrowDownToLine className="w-3 h-3" />
-                                <span>Insert</span>
-                              </button>
+                    <div
+                      className={`max-w-[92%] rounded-lg px-3.5 py-2.5 text-xs leading-relaxed ${
+                        msg.role === 'user'
+                          ? 'bg-app-surface-hover border border-app-border text-app-primary font-medium shadow-sm'
+                          : 'bg-app-surface border border-app-border text-app-primary shadow-sm w-full'
+                      }`}
+                    >
+                      {msg.role === 'assistant' ? (
+                        <div>
+                          {msg.content ? (
+                            <div
+                              className={`prose-docuopsy text-xs leading-relaxed select-text ${
+                                isMessageStreaming ? 'stream-text-active' : ''
+                              }`}
+                              dangerouslySetInnerHTML={{
+                                __html: renderAssistantMarkdown(msg.content, isMessageStreaming),
+                              }}
+                            />
+                          ) : (
+                            <div className="flex items-center gap-2 text-app-muted font-mono text-[11px] py-1">
+                              <Loader2 className="w-3 h-3 text-app-accent animate-spin" />
+                              <span>Menganalisis & menyusun respons...</span>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
-                    )}
+                          )}
+
+                          {/* Action Toolbar for Assistant Response */}
+                          {msg.content && !isMessageStreaming && (
+                            <div className="mt-2.5 pt-2 border-t border-app-border flex items-center justify-between text-[11px] text-app-muted select-none">
+                              <span className="font-mono text-[9px] opacity-50">
+                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyMessage(msg.id, msg.content)}
+                                  className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-app-border hover:border-app-border-strong bg-transparent text-app-muted hover:text-app-primary transition-all text-[10px]"
+                                  title="Copy text"
+                                >
+                                  {copiedId === msg.id ? (
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                  ) : (
+                                    <Copy className="w-3 h-3" />
+                                  )}
+                                  <span>{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleInsertAtCursor(msg.content)}
+                                  className="p-1.5 rounded-full bg-app-accent text-white hover:opacity-90 active:scale-95 transition-all flex items-center justify-center shadow-sm"
+                                  title="Insert into document cursor"
+                                  aria-label="Insert into document cursor"
+                                >
+                                  <ArrowLeft className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={chatEndRef} />
             </div>
           )}
@@ -525,8 +665,9 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
 
       {/* Dynamic Context-Aware Progress Bar */}
       {activeProgress && (
-        <div className="flex-shrink-0 px-3 py-1.5 border-t border-app-border bg-app-surface/60 flex items-center gap-2 text-xs select-none">
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-app-accent/15 border border-app-accent/30 text-app-accent font-mono text-[9px] font-semibold uppercase tracking-wider animate-pulse">
+        <div className="flex-shrink-0 px-3 py-1.5 border-t border-app-border bg-app-surface flex items-center gap-2 text-xs select-none">
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-app-surface-hover border border-app-border text-app-accent font-mono text-[9px] font-semibold uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             <BrainCircuit className="w-2.5 h-2.5" />
             <span>{activeProgress.stage}</span>
           </div>
@@ -539,14 +680,14 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
 
       {/* Error Notification */}
       {errorMessage && (
-        <div className="flex-shrink-0 px-3 py-1.5 border-t border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs flex items-center justify-between gap-2 font-mono">
+        <div className="flex-shrink-0 px-3 py-1.5 border-t border-error/30 bg-error/10 text-error text-xs flex items-center justify-between gap-2 font-mono">
           <span className="flex-1 text-[10px] leading-snug truncate">{errorMessage}</span>
           {lastPrompt && (
             <button
               type="button"
               onClick={() => handleSubmit(lastPrompt)}
               disabled={isStreaming}
-              className="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-[10px] font-semibold transition-all whitespace-nowrap active:scale-95"
+              className="px-2.5 py-0.5 rounded-full bg-error/20 hover:bg-error/30 text-white border border-error/40 text-[10px] font-medium transition-all whitespace-nowrap active:scale-95"
             >
               Coba Lagi
             </button>
@@ -555,7 +696,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
       )}
 
       {/* Input Bar */}
-      <div className="flex-shrink-0 p-2.5 border-t border-app-border bg-app-shell flex items-center gap-1.5">
+      <div className="flex-shrink-0 p-3 border-t border-app-border bg-app-surface flex items-center gap-2">
         <input
           ref={inputRef}
           type="text"
@@ -571,14 +712,14 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
           }}
           placeholder="Type prompt or task (e.g. buatkan resep)..."
           disabled={isStreaming}
-          className="flex-1 bg-app-surface border border-app-border focus:border-app-accent focus:ring-1 focus:ring-app-accent/30 rounded-lg px-2.5 py-1.5 text-xs text-app-primary placeholder:text-app-muted outline-none transition-all"
+          className="flex-1 bg-app-canvas border border-app-border focus:border-app-accent focus:ring-1 focus:ring-app-accent/30 rounded-md px-3 py-2 text-xs text-app-primary placeholder:text-app-muted outline-none transition-all"
         />
 
         <button
           type="button"
           onClick={() => handleSubmit()}
           disabled={isStreaming || !prompt.trim()}
-          className="px-2.5 py-1.5 rounded-lg bg-app-accent hover:opacity-90 disabled:opacity-40 text-white transition-all flex items-center justify-center shadow-sm"
+          className="h-8 px-3.5 rounded-full bg-app-accent hover:opacity-90 disabled:opacity-40 text-white font-medium transition-all flex items-center justify-center shadow-sm"
           title="Send task to AI (Enter)"
         >
           {isStreaming ? (

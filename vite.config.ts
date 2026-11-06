@@ -7,6 +7,13 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    proxy: {
+      '/api/omniroute': {
+        target: 'https://api.eggafx.space',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/omniroute/, '/v1'),
+      },
+    },
   },
   envPrefix: ['VITE_', 'TAURI_'],
   build: {
@@ -15,4 +22,3 @@ export default defineConfig({
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
   },
 });
-

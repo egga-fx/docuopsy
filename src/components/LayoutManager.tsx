@@ -15,12 +15,12 @@ import type { EditorView } from '@codemirror/view';
 import { AIPalette } from './AIPalette';
 
 const ACCENT_PRESETS = [
+  { label: 'Electric Indigo', color: '#7170ff' },
   { label: 'Verdigris', color: '#0E9F8A' },
   { label: 'Violet', color: '#7C5CFC' },
   { label: 'Amber', color: '#D97706' },
   { label: 'Cyan', color: '#06B6D4' },
-  { label: 'Rose', color: '#E11D48' },
-  { label: 'Monochrome', color: '#71717A' },
+  { label: 'Monochrome', color: '#e5e5e6' },
 ];
 
 interface LayoutManagerProps {
@@ -94,31 +94,33 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // Keyboard layout shortcuts
+  // Keyboard layout shortcuts (Cross-platform Ctrl/Cmd)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+\: Toggle Split
-      if (e.ctrlKey && e.key === '\\') {
+      const isMod = e.ctrlKey || e.metaKey;
+
+      // Mod+\: Toggle Split
+      if (isMod && e.key === '\\') {
         e.preventDefault();
         setLayoutMode(layoutMode === 'Split' ? 'FullEditor' : 'Split');
       }
-      // Ctrl+Shift+E: Full Editor
-      else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
+      // Mod+Shift+E: Full Editor
+      else if (isMod && e.shiftKey && e.key.toLowerCase() === 'e') {
         e.preventDefault();
         setLayoutMode('FullEditor');
       }
-      // Ctrl+Shift+P: Full Preview
-      else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'p') {
+      // Mod+Shift+P: Full Preview
+      else if (isMod && e.shiftKey && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         setLayoutMode('FullPreview');
       }
-      // Ctrl+Shift+L: Toggle Theme
-      else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') {
+      // Mod+Shift+L: Toggle Theme
+      else if (isMod && e.shiftKey && e.key.toLowerCase() === 'l') {
         e.preventDefault();
         setTheme(theme === 'dark' ? 'light' : 'dark');
       }
-      // Ctrl+K: Toggle AI Assistant Sidebar
-      else if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+      // Mod+K: Toggle AI Assistant Sidebar
+      else if (isMod && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         toggleAiSidebar();
       }
@@ -131,31 +133,31 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-app-canvas text-app-primary">
       {/* Sub-toolbar for layout & theme mode controls */}
-      <div className="h-7 bg-app-shell border-b border-app-border px-3 flex items-center justify-between font-mono text-xs text-app-muted select-none flex-shrink-0">
-        <div className="flex items-center gap-1">
+      <div className="h-8 bg-app-shell border-b border-app-border px-3.5 flex items-center justify-between font-mono text-xs text-app-muted select-none flex-shrink-0">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             aria-label="Split Layout"
             onClick={() => setLayoutMode('Split')}
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all ${
               layoutMode === 'Split'
-                ? 'bg-app-surface text-app-primary border border-app-accent font-medium'
-                : 'hover:text-app-primary hover:bg-app-surface'
+                ? 'bg-app-surface text-app-primary border border-app-accent font-medium shadow-sm'
+                : 'hover:text-app-primary hover:bg-app-surface/50 border border-transparent'
             }`}
           >
             <Columns className="w-3 h-3 text-app-accent" />
             <span>Split</span>
-            <kbd className="text-[10px] opacity-60">Ctrl+\</kbd>
+            <kbd className="text-[10px] opacity-50">Ctrl+\</kbd>
           </button>
 
           <button
             type="button"
             aria-label="Full Editor Layout"
             onClick={() => setLayoutMode('FullEditor')}
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all ${
               layoutMode === 'FullEditor'
-                ? 'bg-app-surface text-app-primary border border-app-accent font-medium'
-                : 'hover:text-app-primary hover:bg-app-surface'
+                ? 'bg-app-surface text-app-primary border border-app-accent font-medium shadow-sm'
+                : 'hover:text-app-primary hover:bg-app-surface/50 border border-transparent'
             }`}
           >
             <Square className="w-3 h-3 text-app-accent" />
@@ -166,10 +168,10 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
             type="button"
             aria-label="Full Preview Layout"
             onClick={() => setLayoutMode('FullPreview')}
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] transition-all ${
               layoutMode === 'FullPreview'
-                ? 'bg-app-surface text-app-primary border border-app-accent font-medium'
-                : 'hover:text-app-primary hover:bg-app-surface'
+                ? 'bg-app-surface text-app-primary border border-app-accent font-medium shadow-sm'
+                : 'hover:text-app-primary hover:bg-app-surface/50 border border-transparent'
             }`}
           >
             <Eye className="w-3 h-3 text-app-accent" />
@@ -177,26 +179,26 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {/* Accent Color Customizer Popover */}
           <div ref={accentPickerRef} className="relative">
             <button
               type="button"
               aria-label="Customize Accent Color"
               onClick={() => setIsAccentPickerOpen((p) => !p)}
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] hover:text-app-primary hover:bg-app-surface transition-colors"
+              className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] hover:text-app-primary hover:bg-app-surface/60 transition-colors border border-app-border"
               title="Customize Accent Color"
             >
               <Palette className="w-3 h-3 text-app-muted" />
               <span
-                className="w-2.5 h-2.5 rounded-full inline-block border border-app-border"
+                className="w-2.5 h-2.5 rounded-full inline-block border border-app-border shadow-[0_0_4px_currentColor]"
                 style={{ backgroundColor: accentColor }}
               />
             </button>
 
             {isAccentPickerOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-48 bg-app-shell border border-app-border rounded-lg shadow-xl p-2.5 z-50 font-sans text-xs">
-                <span className="text-[10px] font-semibold text-app-muted uppercase tracking-wider block mb-2 font-mono">
+              <div className="absolute right-0 top-full mt-1.5 w-52 bg-app-surface border border-app-border rounded-lg shadow-2xl p-3 z-50 font-sans text-xs">
+                <span className="text-[10px] font-semibold text-app-muted uppercase tracking-wider block mb-2.5 font-mono">
                   Accent Color
                 </span>
                 <div className="grid grid-cols-6 gap-1.5 mb-2.5">

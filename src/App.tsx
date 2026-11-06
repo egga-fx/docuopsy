@@ -112,26 +112,28 @@ export default function App(): React.JSX.Element {
     }
   }, [addTab]);
 
-  // Global keyboard shortcuts (Ctrl+S, Ctrl+Shift+S, Ctrl+O, Ctrl+K)
+  // Global cross-platform keyboard shortcuts (Ctrl/Cmd+S, Ctrl/Cmd+Shift+S, Ctrl/Cmd+O, Ctrl/Cmd+K)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Shift+S: Save As
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's') {
+      const isMod = e.ctrlKey || e.metaKey;
+
+      // Mod+Shift+S: Save As
+      if (isMod && e.shiftKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         handleSaveAs();
       }
-      // Ctrl+S: Save
-      else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 's') {
+      // Mod+S: Save
+      else if (isMod && !e.shiftKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         handleSave();
       }
-      // Ctrl+O: Open File
-      else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'o') {
+      // Mod+O: Open File
+      else if (isMod && !e.shiftKey && e.key.toLowerCase() === 'o') {
         e.preventDefault();
         handleOpenFile();
       }
-      // Ctrl+K: AI Assistant
-      else if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+      // Mod+K: AI Assistant
+      else if (isMod && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         toggleAiSidebar();
       }
@@ -167,21 +169,21 @@ export default function App(): React.JSX.Element {
       />
 
       {/* Forensic Telemetry Status Bar */}
-      <footer className="h-6 bg-app-shell border-t border-app-border px-3.5 flex items-center justify-between font-mono text-[11px] text-app-muted tabular-nums select-none z-20">
+      <footer className="h-7 bg-app-shell border-t border-app-border px-3.5 flex items-center justify-between font-mono text-[11px] text-app-muted tabular-nums select-none z-20">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-app-primary">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                activeTab?.isDirty ? 'bg-amber-500' : 'bg-emerald-500'
+                activeTab?.isDirty ? 'bg-primary shadow-[0_0_6px_#7170ff]' : 'bg-emerald-500'
               }`}
             />
             {activeTab?.isDirty ? 'Draft Cached (Unsaved)' : 'Clean'}
           </span>
-          <span className="opacity-40">|</span>
+          <span className="opacity-30">|</span>
           <span>
             Ln {activeTab?.cursorLine ?? 1}, Col {activeTab?.cursorCol ?? 1}
           </span>
-          <span className="opacity-40">|</span>
+          <span className="opacity-30">|</span>
           <span>Mode: {layoutMode}</span>
         </div>
 
@@ -189,17 +191,17 @@ export default function App(): React.JSX.Element {
           <button
             type="button"
             onClick={toggleAiSidebar}
-            className="flex items-center gap-1.5 text-app-accent hover:opacity-85 transition-opacity"
+            className="flex items-center gap-1.5 text-app-accent hover:brightness-125 transition-all"
             title="Toggle AI Assistant (Ctrl+K)"
           >
             <div className="relative flex items-center justify-center">
-              <MessageSquare className="w-3 h-3" />
+              <MessageSquare className="w-3 h-3 text-app-accent" />
               <Sparkles className="w-1.5 h-1.5 text-app-accent absolute -top-0.5 -right-0.5" />
             </div>
-            <span>AI Assistant</span>
-            <kbd className="text-[9px] bg-app-surface text-app-primary px-1 rounded border border-app-border">Ctrl+K</kbd>
+            <span className="font-medium text-app-primary">AI Assistant</span>
+            <kbd className="text-[9px] bg-app-surface text-app-primary px-1.5 py-0.5 rounded border border-app-border">Ctrl+K</kbd>
           </button>
-          <span className="opacity-40">|</span>
+          <span className="opacity-30">|</span>
           <span>UTF-8</span>
         </div>
       </footer>

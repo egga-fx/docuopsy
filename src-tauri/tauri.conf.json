@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-cli/schema.json",
   "productName": "Docuopsy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "identifier": "com.docuopsy.desktop",
   "build": {
     "frontendDist": "../dist",
@@ -24,18 +24,42 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' 'unsafe-inline' blob: data:; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'self' https://api.kie.ai;"
+      "csp": "default-src 'self' 'unsafe-inline' blob: data:; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'self' https://api.kie.ai https://api.eggafx.space;"
     }
   },
   "bundle": {
     "active": true,
     "targets": "all",
+    "category": "DeveloperTool",
+    "shortDescription": "Forensic-grade multi-format document viewer and text editor",
+    "longDescription": "Docuopsy (Document + Autopsy): High-Performance, Secure, Multi-Format Desktop Text Editor & Viewer with Forensic-Grade Session Persistence.",
+    "copyright": "Copyright © 2026 eggafx-labs. All rights reserved.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "en-US"
+        ]
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "frameworks": []
+    },
+    "linux": {
+      "deb": {
+        "depends": []
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    }
   }
 }

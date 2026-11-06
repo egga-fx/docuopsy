@@ -1,0 +1,35 @@
+name: "CI Quality Gate"
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  verify:
+    name: "TypeCheck, Lint & Vitest Suite"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: TypeCheck & Vitest Suite
+        run: |
+          bun run tsc --noEmit
+          bun run test
+
+      - name: Production Web Bundle Build
+        run: bun run build

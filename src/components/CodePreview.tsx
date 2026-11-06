@@ -23,12 +23,12 @@ export const CodePreview: React.FC<CodePreviewProps> = ({ content = '', fileName
       className="h-full w-full flex flex-col overflow-hidden font-mono text-xs bg-app-canvas text-app-primary"
     >
       {/* Mini header showing file info and copy button */}
-      <div className="h-8 border-b border-app-border px-4 flex items-center justify-between bg-app-shell select-none">
-        <span className="text-[11px] text-app-muted">{fileName} (Preview)</span>
+      <div className="h-9 border-b border-app-border px-4 flex items-center justify-between bg-app-surface select-none">
+        <span className="text-[11px] text-app-muted font-mono">{fileName} (Preview)</span>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded text-app-muted hover:text-app-primary hover:bg-app-surface transition-colors"
+          className="flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full border border-app-border text-app-muted hover:text-app-primary hover:bg-app-surface-hover transition-all"
           title="Copy content"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-app-accent" /> : <Copy className="w-3.5 h-3.5" />}

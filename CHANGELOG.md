@@ -9,10 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned
-- Cross-platform packaging for Linux (`.AppImage`, `.deb`) and macOS (`.dmg`).
-- Plugin architecture for community syntax grammars and language packs.
-- Bi-directional scrolling synchronization in split editor/preview mode.
+## [0.2.0] - 2026-11-06
+
+### Added
+- **Multi-Platform Release Architecture (Windows, Linux, macOS):**
+  - Automated GitHub Actions matrix CI/CD release workflow (`.github/workflows/release.yml`) producing:
+    - **Windows:** NSIS installer `.exe` and `.msi` (`x86_64-pc-windows-msvc`).
+    - **Linux:** `.deb` and `.AppImage` packages (`x86_64-unknown-linux-gnu`) with full WebKit2GTK dependencies.
+    - **macOS:** Universal Apple Silicon (`aarch64-apple-darwin`) and Intel (`x86_64-apple-darwin`) `.dmg` and `.app` bundles.
+  - Automated pull request and push verification CI workflow (`.github/workflows/ci.yml`).
+- **Universal Keyboard Shortcut Parity:**
+  - Dynamic modifier key detection (`Cmd ⌘` on macOS, `Ctrl` on Windows and Linux) for all keybindings:
+    - `Mod+N`: New Tab / Document
+    - `Mod+O`: Open File Dialog
+    - `Mod+S`: Save Active Document
+    - `Mod+Shift+S`: Save As with New Path
+    - `Mod+W`: Close Active Tab
+    - `Mod+Tab`: Cycle Document Tabs
+    - `Mod+\`: Toggle Split / FullEditor Layout
+    - `Mod+Shift+E`: Full Editor Mode
+    - `Mod+Shift+P`: Full Preview Mode
+    - `Mod+Shift+L`: Toggle Theme
+    - `Mod+K`: Toggle AI Assistant Sidebar
+  - Platform-adaptive shortcut labels in the App Menu (`⌘` on macOS, `Ctrl` on Windows/Linux).
+- **Dynamic Context-Aware AI System Prompt & Runtime Metadata:**
+  - Real-time client date, time, and timezone awareness (`Current Date & Time`) injected into every AI completion.
+  - Full application awareness: Docuopsy identity and supported file formats (`.md`, `.pdf`, `.txt`, `.rs`, `.ts`, `.json`, etc.).
+  - Active document tracking dynamically identifying the current working file in the editor buffer.
+- **Unconstrained User-Driven AI Output Formatting:**
+  - Eliminated rigid syntax constraints; AI format output now strictly and dynamically conforms to user instructions (plain text, single sentence, bullet points, raw code, JSON, or GFM).
+  - Absolute user compliance guardrails: zero preachiness, moralizing, or unwarranted refusals.
+- **AI Assistant UX Polishing:**
+  - Smooth `requestAnimationFrame` typewriter unspooling engine eliminating bursty layout jitter.
+  - Animated glowing electric accent stream caret (`.stream-caret`).
+  - Interactive "New Session" header trigger with clean filled `Sparkles` icon.
+  - Minimalist left-arrow (`ArrowLeft`) cursor insert button.
+- **Forensics Dark Product System Redesign:**
+  - Unified `#7170ff` electric accent, Inter Variable typography, and Berkeley Mono code accents.
+  - Flawless dual-theme parity between *Dark Forensics* (`#08090a`) and *Light Vellum* (`#f7f8f8`) with zero dark leaks.
+
+### Security
+- Hardened Content Security Policy (CSP) whitelisting `https://api.kie.ai` and `https://api.eggafx.space`.
+- Sandboxed directory traversal prevention and DOMPurify HTML sanitization.
 
 ---
 
