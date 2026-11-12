@@ -100,22 +100,35 @@ git push origin master --tags
 
 ---
 
-## 5. Building Release Desktop Installers
+## 5. Building & Packaging Release Artifacts (Dual-Distribution)
 
-To build the standalone desktop binary and installer packages (MSI, NSIS executable):
+Docuopsy follows the eggafx-labs production release protocol, delivering dual-distribution artifacts:
 
+1. **Windows Setup Installer (`.exe`)**: Full NSIS installer with desktop/start-menu shortcuts and uninstaller.
+2. **Portable Edition (`.zip`)**: Standalone binary with static MSVC runtime (`docuopsy.exe` + documentation) ready to run without installation.
+3. **Cryptographic Integrity (`SHA256SUMS.txt`)**: Authenticity hashes for all release binaries.
+
+### Step 1: Compile Release Binary
 ```bash
-# Set temporary directory for MSVC linker on Windows
-$env:TEMP = "D:\temp"; $env:TMP = "D:\temp"
-
-# Run Tauri release build
-bun run tauri build
+bun run tauri:build
 ```
 
-Generated installer bundles will be located in:
+### Step 2: Verify Static Runtime Guardrail
+```bash
+bun run verify:runtime
 ```
-src-tauri/target/release/bundle/
-├── msi/     # Windows MSI Installer (.msi)
-└── nsis/    # Windows NSIS Setup (.exe)
+*Ensures the binary does not depend on dynamic MSVC redistributables (`vcruntime140.dll` / `msvcp140.dll`).*
+
+### Step 3: Package Dual-Distribution Artifacts
+```bash
+bun run release:package
+```
+
+Output directory will be created at:
+```
+releases/vX.Y.Z/
+├── Docuopsy_X.Y.Z_x64-setup.exe    # NSIS Windows Installer
+├── Docuopsy_X.Y.Z_Portable_x64.zip # Standalone Portable ZIP
+└── SHA256SUMS.txt                  # Cryptographic SHA256 hashes
 ```
 

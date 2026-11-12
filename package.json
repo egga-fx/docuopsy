@@ -1,7 +1,7 @@
 {
   "name": "docuopsy",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,10 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build --bundles nsis --no-sign",
+    "verify:runtime": "bun scripts/check-static-runtime.mjs",
+    "release:package": "bun scripts/package-release.mjs",
     "version:bump": "bun scripts/bump-version.js",
     "release:check": "bun run tsc --noEmit && bun run test"
   },

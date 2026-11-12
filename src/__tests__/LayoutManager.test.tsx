@@ -9,6 +9,7 @@ describe('LayoutManager Component', () => {
       layoutMode: 'Split',
       splitRatio: 0.5,
       theme: 'dark',
+      isAiSidebarOpen: false,
     });
   });
 
@@ -76,20 +77,19 @@ describe('LayoutManager Component', () => {
     expect(screen.getByRole('complementary', { name: 'AI Assistant' })).toBeInTheDocument();
   });
 
-  it('allows picking an accent color from presets', () => {
+  it('keeps appearance controls out of the toolbar and preserves the theme shortcut', () => {
     render(
       <LayoutManager
         editor={<div>Editor</div>}
         preview={<div>Preview</div>}
       />
     );
-    const paletteBtn = screen.getByLabelText('Customize Accent Color');
-    fireEvent.click(paletteBtn);
-
-    const violetPreset = screen.getByTitle('Violet');
-    fireEvent.click(violetPreset);
-
-    expect(useTabStore.getState().accentColor).toBe('#7C5CFC');
+    expect(screen.queryByLabelText('Customize Accent Color')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Toggle Theme')).not.toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'L', ctrlKey: true, shiftKey: true });
+    expect(useTabStore.getState().theme).toBe('light');
+    fireEvent.keyDown(window, { key: 'L', ctrlKey: true, shiftKey: true });
+    expect(useTabStore.getState().theme).toBe('dark');
   });
 });
 

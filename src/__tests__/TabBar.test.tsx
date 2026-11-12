@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TabBar } from '../components/TabBar';
 import { useTabStore } from '../store/tabStore';
 
@@ -78,13 +78,43 @@ describe('TabBar Component', () => {
     const grip = screen.getByLabelText('Drag to move the window');
     expect(grip).toHaveAttribute('data-tauri-drag-region');
     expect(container.firstChild?.childNodes[0]).toBe(grip);
+    expect(grip).toHaveClass('cursor-default');
+    expect(grip).not.toHaveClass('cursor-grab', 'active:cursor-grabbing');
+    expect(grip.querySelector('svg')).toHaveClass('opacity-50', 'pointer-events-none');
+  });
+
+  it('makes empty tab-strip space draggable without panning or capturing the pointer', () => {
+    render(<TabBar />);
+    const strip = makePannable();
+    const capture = vi.fn();
+    strip.setPointerCapture = capture;
+    expect(strip).toHaveAttribute('data-tauri-drag-region');
+    expect(strip).toHaveClass('cursor-default');
+    expect(strip).not.toHaveClass('cursor-grab', 'active:cursor-grabbing');
+
+    pointer(strip, 'pointerdown', { clientX: 300, buttons: 1 });
+    pointer(strip, 'pointermove', { clientX: 200, buttons: 1 });
+    pointer(strip, 'pointerup', { clientX: 200, buttons: 0 });
+    expect(strip.scrollLeft).toBe(0);
+    expect(capture).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText('sample.pdf'));
+    expect(useTabStore.getState().activeTabId).toBe('tab-2');
+  });
+
+  it('keeps tab controls and rename fields out of native drag regions', () => {
+    render(<TabBar />);
+    for (const element of screen.getAllByRole('tab').concat(screen.getAllByRole('button'))) {
+      expect(element).not.toHaveAttribute('data-tauri-drag-region');
+    }
+    fireEvent.doubleClick(screen.getAllByRole('tab')[0]);
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('data-tauri-drag-region');
   });
 
   it('pans the tab strip on hold-and-move and suppresses the trailing click', () => {
     render(<TabBar />);
     const strip = makePannable();
 
-    pointer(strip, 'pointerdown', { clientX: 300, buttons: 1 });
+    pointer(screen.getByText('sample.pdf'), 'pointerdown', { clientX: 300, buttons: 1 });
     pointer(strip, 'pointermove', { clientX: 200, buttons: 1 });
     expect(strip.scrollLeft).toBe(100);
 
@@ -97,7 +127,7 @@ describe('TabBar Component', () => {
     render(<TabBar />);
     const strip = makePannable();
 
-    pointer(strip, 'pointerdown', { clientX: 300, buttons: 1 });
+    pointer(screen.getByText('sample.pdf'), 'pointerdown', { clientX: 300, buttons: 1 });
     pointer(strip, 'pointerup', { clientX: 300, buttons: 0 });
     fireEvent.click(screen.getByText('sample.pdf'));
     expect(useTabStore.getState().activeTabId).toBe('tab-2');
@@ -108,13 +138,13 @@ describe('TabBar Component', () => {
     const strip = makePannable();
 
     // mouseup never arrives: the released button is detected on the next move
-    pointer(strip, 'pointerdown', { clientX: 300, buttons: 1 });
+    pointer(screen.getByText('sample.pdf'), 'pointerdown', { clientX: 300, buttons: 1 });
     pointer(strip, 'pointermove', { clientX: 200, buttons: 0 });
     expect(strip.scrollLeft).toBe(0);
     pointer(strip, 'pointermove', { clientX: 100, buttons: 1 });
     expect(strip.scrollLeft).toBe(0);
 
-    pointer(strip, 'pointerdown', { clientX: 300, buttons: 1 });
+    pointer(screen.getByText('sample.pdf'), 'pointerdown', { clientX: 300, buttons: 1 });
     unmount();
     pointer(strip, 'pointermove', { clientX: 100, buttons: 1 });
     expect(strip.scrollLeft).toBe(0);

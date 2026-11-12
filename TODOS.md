@@ -12,6 +12,25 @@
 - **AI Provider:** KIE AI (`claude-haiku-5-5`) via Streaming SSE in Rust Backend
 - **Quality Gates:** Current results and limitations are recorded in `docs/audits/2026-11-05-production-readiness.md`; passing unit tests alone does not establish release readiness.
 
+## Focus corner consistency — 2026-11-13
+
+- [x] Preserve normal border radii while focused; AI prompt remains 8px.
+- [x] Four new focus/blur regressions reproduce the old mismatch; 94 frontend tests and TypeScript pass.
+
+## Appearance options — 2026-11-13
+
+- [x] Move theme and accent controls from the toolbar into Application Menu → Options.
+- [x] Preserve presets/custom colors, persisted preferences, and Ctrl/Cmd+Shift+L.
+- [x] Verify 90 frontend tests, 23 Rust tests, TypeScript/build, and Clippy; rendered verification remains outstanding.
+
+## Header and input fixes — 2026-11-13
+
+- [x] Empty tab-header space is a native drag region without consuming tab panning gestures.
+- [x] Drag surfaces use the normal arrow cursor; top-left grip icon is 50% opaque.
+- [x] Form inputs share one inset focus edge; rename and AI prompt no longer stack focus decorations.
+- [x] Regression and quality gates: 87 frontend tests (two workers), 23 Rust tests, TypeScript/build, and Clippy pass.
+- [ ] Rendered/native acceptance: browser verification was blocked; verify dragging and focused inputs in the real desktop window. Cross-model audit unavailable because Qoder CLI is not installed.
+
 ## Pre-production audit — 2026-11-05
 
 - [x] Read product/specification/design context and inspect working tree.

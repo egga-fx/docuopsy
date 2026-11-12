@@ -785,7 +785,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
           placeholder="Type prompt or task (e.g. buatkan resep)..."
           aria-label="AI prompt"
           disabled={isStreaming}
-          className="flex-1 bg-app-canvas border border-app-border focus:border-app-accent focus:ring-1 focus:ring-app-accent/30 rounded-md px-3 py-2 text-xs text-app-primary placeholder:text-app-muted outline-none transition-all"
+          className="flex-1 bg-app-canvas border border-app-border rounded-md px-3 py-2 text-xs text-app-primary placeholder:text-app-muted transition-colors"
         />
 
         <button

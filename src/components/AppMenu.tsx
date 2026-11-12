@@ -15,9 +15,20 @@ import {
   Maximize2,
   Eye,
   SunMoon,
+  Palette,
+  Check,
   Sparkles,
 } from 'lucide-react';
 import { useTabStore } from '../store/tabStore';
+
+const ACCENT_PRESETS = [
+  { label: 'Electric Indigo', color: '#7170ff' },
+  { label: 'Verdigris', color: '#0E9F8A' },
+  { label: 'Violet', color: '#7C5CFC' },
+  { label: 'Amber', color: '#D97706' },
+  { label: 'Cyan', color: '#06B6D4' },
+  { label: 'Monochrome', color: '#e5e5e6' },
+];
 
 interface AppMenuProps {
   onNewFile: () => void;
@@ -41,7 +52,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
   onOpenAI,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<'file' | 'edit' | 'view'>('file');
+  const [activeMenu, setActiveMenu] = useState<'file' | 'edit' | 'view' | 'options'>('file');
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
@@ -49,6 +60,8 @@ export const AppMenu: React.FC<AppMenuProps> = ({
 
   const theme = useTabStore((s) => s.theme);
   const setTheme = useTabStore((s) => s.setTheme);
+  const accentColor = useTabStore((s) => s.accentColor);
+  const setAccentColor = useTabStore((s) => s.setAccentColor);
   const layoutMode = useTabStore((s) => s.layoutMode);
   const setLayoutMode = useTabStore((s) => s.setLayoutMode);
 
@@ -98,7 +111,7 @@ export const AppMenu: React.FC<AppMenuProps> = ({
             ? 'bg-app-surface text-app-primary'
             : 'text-app-muted hover:text-app-primary hover:bg-app-surface/60'
         }`}
-        title="App Menu (File, Edit, View)"
+        title="App Menu (File, Edit, View, Options)"
       >
         <Menu className="w-4 h-4" />
       </button>
@@ -144,6 +157,17 @@ export const AppMenu: React.FC<AppMenuProps> = ({
               }`}
             >
               View
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMenu('options')}
+              className={`flex-1 py-1 px-2 rounded text-center font-medium transition-colors ${
+                activeMenu === 'options'
+                  ? 'bg-app-surface-hover text-app-primary font-semibold'
+                  : 'text-app-muted hover:text-app-primary'
+              }`}
+            >
+              Options
             </button>
           </div>
 
@@ -332,18 +356,6 @@ export const AppMenu: React.FC<AppMenuProps> = ({
 
               <button
                 type="button"
-                onClick={() => handleAction(toggleTheme)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-primary transition-colors"
-              >
-                <span className="flex items-center gap-2">
-                  <SunMoon className="w-3.5 h-3.5 text-app-muted" />
-                  Toggle Theme ({theme === 'dark' ? 'Light Vellum' : 'Dark Forensics'})
-                </span>
-                <span className="font-mono text-[10px] text-app-muted">{mod}+Shift+L</span>
-              </button>
-
-              <button
-                type="button"
                 onClick={() => handleAction(onOpenAI)}
                 className="flex items-center justify-between px-3 py-1.5 hover:bg-app-surface text-app-accent hover:opacity-90 transition-colors"
               >
@@ -353,6 +365,60 @@ export const AppMenu: React.FC<AppMenuProps> = ({
                 </span>
                 <span className="font-mono text-[10px] text-app-muted">{mod}+K</span>
               </button>
+            </div>
+          )}
+
+          {activeMenu === 'options' && (
+            <div className="flex flex-col py-0.5">
+              <button
+                type="button"
+                aria-label="Toggle Theme"
+                onClick={() => handleAction(toggleTheme)}
+                className="flex items-center justify-between gap-2 px-3 py-2 hover:bg-app-surface-hover text-app-primary transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <SunMoon className="w-3.5 h-3.5 text-app-muted" aria-hidden="true" />
+                  {theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                </span>
+                <span className="font-mono text-[10px] text-app-muted">{mod}+Shift+L</span>
+              </button>
+              <div role="group" aria-label="Accent Color" className="px-3 pt-3 pb-1 border-t border-app-border mt-1">
+                <span className="flex items-center gap-2 text-app-primary mb-3">
+                  <Palette className="w-3.5 h-3.5 text-app-muted" aria-hidden="true" />
+                  Accent Color
+                </span>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  {ACCENT_PRESETS.map((preset) => {
+                    const selected = accentColor.toLowerCase() === preset.color.toLowerCase();
+                    return (
+                      <button
+                        key={preset.color}
+                        type="button"
+                        title={preset.label}
+                        aria-label={preset.label}
+                        aria-pressed={selected}
+                        onClick={() => setAccentColor(preset.color)}
+                        className="w-7 h-7 rounded-full border border-app-border hover:scale-110 transition-transform flex items-center justify-center"
+                        style={{ backgroundColor: preset.color }}
+                      >
+                        {selected && <Check className="w-3 h-3 text-neutral" aria-hidden="true" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                <label className="flex items-center gap-2 pt-2 border-t border-app-border text-app-muted">
+                  Custom:
+                  <input
+                    type="color"
+                    value={accentColor}
+                    onChange={(e) => setAccentColor(e.target.value)}
+                    className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent"
+                    title="Custom Hex Color"
+                    aria-label="Custom Hex Color"
+                  />
+                  <span className="font-mono text-[10px] ml-auto uppercase">{accentColor}</span>
+                </label>
+              </div>
             </div>
           )}
         </div>

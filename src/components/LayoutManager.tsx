@@ -4,24 +4,11 @@ import {
   Columns,
   Square,
   Eye,
-  Sun,
-  Moon,
-  Palette,
-  Check,
   MessageSquare,
   Sparkles,
 } from 'lucide-react';
 import type { EditorView } from '@codemirror/view';
 import { AIPalette } from './AIPalette';
-
-const ACCENT_PRESETS = [
-  { label: 'Electric Indigo', color: '#7170ff' },
-  { label: 'Verdigris', color: '#0E9F8A' },
-  { label: 'Violet', color: '#7C5CFC' },
-  { label: 'Amber', color: '#D97706' },
-  { label: 'Cyan', color: '#06B6D4' },
-  { label: 'Monochrome', color: '#e5e5e6' },
-];
 
 interface LayoutManagerProps {
   editor: React.ReactNode;
@@ -37,8 +24,6 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
     setSplitRatio,
     theme,
     setTheme,
-    accentColor,
-    setAccentColor,
     isAiSidebarOpen,
     toggleAiSidebar,
     setAiSidebarOpen,
@@ -47,22 +32,7 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
   } = useTabStore();
 
   const [isDragging, setIsDragging] = useState(false);
-  const [isAccentPickerOpen, setIsAccentPickerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const accentPickerRef = useRef<HTMLDivElement>(null);
-
-  // Close accent picker on click outside
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (accentPickerRef.current && !accentPickerRef.current.contains(e.target as Node)) {
-        setIsAccentPickerOpen(false);
-      }
-    }
-    if (isAccentPickerOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isAccentPickerOpen]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -180,84 +150,6 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Accent Color Customizer Popover */}
-          <div ref={accentPickerRef} className="relative">
-            <button
-              type="button"
-              aria-label="Customize Accent Color"
-              onClick={() => setIsAccentPickerOpen((p) => !p)}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] hover:text-app-primary hover:bg-app-surface/60 transition-colors border border-app-border"
-              title="Customize Accent Color"
-            >
-              <Palette className="w-3 h-3 text-app-muted" />
-              <span
-                className="w-2.5 h-2.5 rounded-full inline-block border border-app-border shadow-[0_0_4px_currentColor]"
-                style={{ backgroundColor: accentColor }}
-              />
-            </button>
-
-            {isAccentPickerOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-52 bg-app-surface border border-app-border rounded-lg shadow-2xl p-3 z-50 font-sans text-xs">
-                <span className="text-[10px] font-semibold text-app-muted uppercase tracking-wider block mb-2.5 font-mono">
-                  Accent Color
-                </span>
-                <div className="grid grid-cols-6 gap-1.5 mb-2.5">
-                  {ACCENT_PRESETS.map((preset) => (
-                    <button
-                      key={preset.color}
-                      type="button"
-                      title={preset.label}
-                      onClick={() => {
-                        setAccentColor(preset.color);
-                        setIsAccentPickerOpen(false);
-                      }}
-                      className="w-5 h-5 rounded-full border border-app-border hover:scale-110 transition-transform relative flex items-center justify-center"
-                      style={{ backgroundColor: preset.color }}
-                    >
-                      {accentColor.toLowerCase() === preset.color.toLowerCase() && (
-                        <Check className="w-2.5 h-2.5 text-white drop-shadow" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-app-border text-[11px]">
-                  <span className="text-app-muted text-[11px]">Custom:</span>
-                  <input
-                    type="color"
-                    value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value)}
-                    className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent"
-                    title="Custom Hex Color"
-                  />
-                  <span className="font-mono text-[10px] text-app-muted ml-auto uppercase">
-                    {accentColor}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Theme Mode Toggle (Light / Dark) */}
-          <button
-            type="button"
-            aria-label="Toggle Theme"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] hover:text-app-primary hover:bg-app-surface transition-colors"
-            title="Toggle Light/Dark Theme (Ctrl+Shift+L)"
-          >
-            {theme === 'dark' ? (
-              <>
-                <Sun className="w-3 h-3 text-amber-500" />
-                <span>Light</span>
-              </>
-            ) : (
-              <>
-                <Moon className="w-3 h-3 text-app-accent" />
-                <span>Dark</span>
-              </>
-            )}
-          </button>
-
           {/* AI Assistant Icon Button (Message + Sparkles) */}
           <button
             type="button"

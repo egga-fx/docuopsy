@@ -1,6 +1,22 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { AppMenu } from '../components/AppMenu';
+import { useTabStore } from '../store/tabStore';
+
+function openOptions() {
+  render(
+    <AppMenu
+      onNewFile={vi.fn()}
+      onOpenFile={vi.fn()}
+      onSave={vi.fn()}
+      onSaveAs={vi.fn()}
+      onCloseTab={vi.fn()}
+      onOpenAI={vi.fn()}
+    />
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Application Menu' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Options' }));
+}
 
 describe('AppMenu Component', () => {
   it('renders hamburger menu button and toggles menu on click', () => {
@@ -61,6 +77,42 @@ describe('AppMenu Component', () => {
     fireEvent.click(screen.getByText('AI Assistant'));
     expect(handleOpenAI).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('menu', { name: 'Main Menu' })).not.toBeInTheDocument();
+  });
+
+  it('toggles the theme from Options and removes the duplicate View action', () => {
+    useTabStore.setState({ theme: 'dark' });
+    openOptions();
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle Theme' }));
+    expect(useTabStore.getState().theme).toBe('light');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Application Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle Theme' }));
+    expect(useTabStore.getState().theme).toBe('dark');
+    fireEvent.click(screen.getByRole('button', { name: 'Application Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'View' }));
+    expect(screen.queryByRole('button', { name: /Toggle Theme/ })).not.toBeInTheDocument();
+  });
+
+  it('changes preset and custom accent colors inside Options', () => {
+    useTabStore.setState({ accentColor: '#7170ff' });
+    openOptions();
+    expect(screen.getByRole('button', { name: 'Electric Indigo' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Violet' }));
+    expect(useTabStore.getState().accentColor).toBe('#7C5CFC');
+    expect(screen.getByRole('button', { name: 'Violet' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.change(screen.getByLabelText('Custom Hex Color'), { target: { value: '#123456' } });
+    expect(useTabStore.getState().accentColor).toBe('#123456');
+    expect(screen.getByText('#123456')).toBeInTheDocument();
+  });
+
+  it('dismisses Options on Escape and outside click', () => {
+    openOptions();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Application Menu' }));
+    expect(screen.getByLabelText('Custom Hex Color')).toBeInTheDocument();
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 });
 

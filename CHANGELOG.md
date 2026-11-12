@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-13
+
+### Changed
+- **Appearance in Options:** theme switching, the six accent presets, and the custom accent color moved
+  from the workspace toolbar into Application Menu → Options. Preferences and Ctrl/Cmd+Shift+L are
+  unchanged. (`src/components/AppMenu.tsx`, `src/components/LayoutManager.tsx`)
+- **Release Tooling:** NSIS-only `tauri:build`, a static MSVC runtime guard (`verify:runtime`), and a
+  dual-distribution packager (`release:package`) producing the installer, portable ZIP, and SHA256 sums.
+  (`scripts/check-static-runtime.mjs`, `scripts/package-release.mjs`)
+
+### Fixed
+- **Tab Header Dragging:** empty tab-strip space now moves the window without breaking tab panning; drag
+  surfaces use the normal arrow cursor and the top-left grip icon sits at 50% opacity.
+  (`src/components/TabBar.tsx`)
+- **Single Focus Edge:** inputs, textareas, and selects share one inset accent outline instead of stacked
+  border, ring, and offset outline; focused controls keep their normal border radius. (`src/index.css`)
+
 ## [0.3.0] - 2026-11-12
 
 ### Added

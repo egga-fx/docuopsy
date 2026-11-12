@@ -111,7 +111,8 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon, rightAddon }) => {
   const handleStripPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = tabStripRef.current;
     if (!el || e.button !== 0 || panRef.current.stop) return;
-    if ((e.target as HTMLElement).closest('input,button')) return;
+    // Empty strip space belongs to native window dragging, not tab panning.
+    if (e.target === el || (e.target as HTMLElement).closest('input,button')) return;
 
     const pointerId = e.pointerId;
     const startX = e.clientX;
@@ -161,7 +162,7 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon, rightAddon }) => {
   return (
     <div
       data-tauri-drag-region
-      className="h-10 bg-app-shell border-b border-app-border flex items-stretch select-none font-mono text-xs relative z-30"
+      className="h-10 bg-app-shell border-b border-app-border flex items-stretch select-none cursor-default font-mono text-xs relative z-30"
     >
       {/* Window grip: the one header slot that is unmistakably draggable. */}
       <div
@@ -169,18 +170,19 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon, rightAddon }) => {
         role="img"
         aria-label="Drag to move the window"
         title="Drag to move the window"
-        className="h-full w-8 shrink-0 flex items-center justify-center border-r border-app-border text-app-muted hover:text-app-primary hover:bg-app-surface/60 cursor-grab active:cursor-grabbing"
+        className="h-full w-8 shrink-0 flex items-center justify-center border-r border-app-border text-app-muted hover:text-app-primary hover:bg-app-surface/60 cursor-default"
       >
-        <GripVertical className="w-3.5 h-3.5 pointer-events-none" aria-hidden="true" />
+        <GripVertical className="w-3.5 h-3.5 pointer-events-none opacity-50" aria-hidden="true" />
       </div>
 
       {leftAddon}
       <div
         ref={tabStripRef}
+        data-tauri-drag-region
         role="tablist"
         aria-label="Document Tabs"
         onPointerDown={handleStripPointerDown}
-        className="flex items-stretch flex-1 overflow-x-auto pan-scroller cursor-grab active:cursor-grabbing"
+        className="flex items-stretch flex-1 min-w-0 overflow-x-auto pan-scroller cursor-default"
       >
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
@@ -249,7 +251,7 @@ export const TabBar: React.FC<TabBarProps> = ({ leftAddon, rightAddon }) => {
                       cancelRename();
                     }
                   }}
-                  className="w-[150px] bg-app-surface-hover border border-app-accent rounded px-1.5 py-0.5 text-app-primary outline-none"
+                  className="w-[150px] bg-app-surface-hover border border-app-border rounded px-1.5 py-0.5 text-app-primary"
                 />
               ) : (
                 <span className="truncate max-w-[140px]">{tab.title}</span>

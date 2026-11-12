@@ -435,3 +435,26 @@ work the findings and leave manual verification to them.
 ### 8. Still outstanding (user-side)
 - Rotate OmniRoute + KIE keys and purge git history (introduced in `f705fb9`) before any push/publish.
 - Native window verification (TODOS 7.6/7.7/8.8) and installer acceptance.
+
+---
+
+## 2026-11-13 — Tab header dragging and shared input focus
+
+- `TabBar.tsx`: marked the empty tablist surface as a native drag region; bypassed panning only for that background. Existing tab-body panning, click suppression, rename, and controls remain. Drag surfaces use the default arrow cursor; the pointer-transparent grip icon uses 50% opacity.
+- `index.css`: shared input/textarea/select focus uses an inset 2px accent outline, matching border, and no shadow, eliminating separate concentric focus lines without removing keyboard focus. Rename and AI prompt inputs no longer define competing focus decorations. Non-form focus styling is unchanged.
+- Regression evidence: before implementation, grip/background tests failed on the old cursor/missing drag attribute; all three form-focus tests failed on the old +2px outline offset. After implementation, `bun run test --maxWorkers=2` passes **17 files / 87 tests**, `bun run build` passes TypeScript and Vite, `cargo test` passes **23 tests**, and Clippy with `-D warnings` passes. The first unrestricted frontend run had a file-drop wait timeout; the full two-worker rerun passes without changing that test. Existing PDF act warnings and bundle-size warning remain.
+- Scope/security: only UI, regression tests, and project-local task evidence changed; no credentials, dependencies, IPC permissions, release files, or Git history were modified. Pre-existing release-preparation changes were preserved. No commit or push.
+- Verification limits: the installed `qoder.cmd` entry reports that Qoder CLI is not installed, so cross-model implementation/audit could not run. Browser CLI was unavailable; the browser agent was blocked by an error page and could not create a verification tab. No screenshot or native window-motion acceptance is claimed.
+- Impeccable: context and one source detector pass completed. Findings concern existing typography/radius choices outside the patch; the design sidecar is stale. No design-system refresh or unrelated styling changes were made.
+
+## 2026-11-13 — Appearance settings moved into Options
+
+- Moved theme switching, all six accent presets, and custom color input into Application Menu → Options. Removed the toolbar controls and duplicate View theme action; layout and AI controls stay put. Presets remain open for quick comparison and expose accessible names/selection state; Escape/outside click use existing menu dismissal.
+- Existing store persistence and Ctrl/Cmd+Shift+L are unchanged. Tests cover toolbar absence, shortcut toggling, both theme directions in Options, preset/custom colors, and dismissal.
+- Verification: **90 frontend tests**, **23 Rust tests**, TypeScript/Vite build, and Clippy pass. The source detector reports only advisory incumbent typography/preset-color differences. Browser verification was not repeated after the earlier tool failure; no rendered acceptance is claimed. No commit, push, dependency, or backend changes.
+
+## 2026-11-13 — Preserve normal corners when focused
+
+- Removed the global `:focus-visible` 4px radius override; the AI prompt retains its normal 8px radius and other controls keep their own radii. The single inset focus indicator remains unchanged.
+- Added focus/blur regression coverage for inputs, textareas, selects, and buttons. All four tests reproduced the 8px-to-4px change before the fix and pass after it; jsdom style caches are invalidated after focus changes so the assertions actually evaluate the new pseudo-class state.
+- Verification: **94 frontend tests** and TypeScript pass. This is a one-line CSS correction; no component, backend, or dependency changes and no new browser verification.

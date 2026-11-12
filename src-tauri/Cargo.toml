@@ -1,6 +1,6 @@
 [package]
 name = "docuopsy"
-version = "0.3.0"
+version = "0.3.1"
 description = "Docuopsy - Forensic-grade multi-format document viewer and text editor"
 authors = ["Docuopsy Team"]
 edition = "2021"
