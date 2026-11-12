@@ -5,9 +5,52 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      draft:
+        description: "Publish as draft release"
+        required: false
+        type: boolean
+        default: false
+      prerelease:
+        description: "Publish as prerelease"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
+  preflight:
+    name: "Pre-Flight Quality Gate (Frontend & Probes)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Frontend Dependencies
+        run: bun install
+
+      - name: TypeScript Static Verification
+        run: bun run tsc --noEmit
+
+      - name: Vitest Suite & Probes
+        run: |
+          bun run test
+          bunx vitest run --config docs/audits/probes.config.ts
+
+      - name: Web Bundle Build Check
+        run: bun run build
+
   release:
+    name: "Build & Publish (${{ matrix.platform }} - ${{ matrix.target }})"
+    needs: preflight
     permissions:
       contents: write
     strategy:
@@ -42,7 +85,12 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev
 
       - name: Rust Cache
         uses: swatinem/rust-cache@v2
@@ -64,16 +112,12 @@ jobs:
 
             Forensic-grade desktop text editor & document studio for Windows, Linux, and macOS.
 
-            ### ✨ Key Highlights:
-            - **Forensics Dark & Light Vellum Systems:** High-contrast archival aesthetic with electric accent (`#7170ff`), Inter Variable typography, and Berkeley Mono accents.
-            - **Forensic-Grade Session Persistence:** Atomic state serialization and unsaved scratch draft crash-protection.
-            - **Format-Aware Multi-Document Previews:** Real-time Markdown (GFM), PDF viewer (PDF.js), and syntax-highlighted code viewer (`.rs`, `.ts`, `.json`, `.txt`).
-            - **Docked AI Assistant:** Context-aware writing and analysis palette with smooth typewriter token streaming, glowing caret, dynamic runtime metadata, and unconstrained user-driven format adaptation.
-            - **Universal Cross-Platform Shortcuts:** Native modifier keys (`Ctrl` on Windows/Linux, `Cmd ⌘` on macOS) across all editor and layout operations.
-
-            ### 📦 Binaries & Installers:
-            - **Windows (x64):** `Docuopsy_${{ github.ref_name }}_x64-setup.exe` & `.msi`
-            - **Linux (x64):** `.deb` & `.AppImage`
-            - **macOS (Apple Silicon & Intel):** `.dmg` & `.app.tar.gz`
-          releaseDraft: false
-          prerelease: false
+            ### ✨ Key Capabilities & Hardening:
+            - **Forensic Themes:** High-contrast archival dark & light vellum palette with WCAG AA compliance
+            - **Persistence Engine:** Per-tab atomic disk flush, dirty-tab close guard dialog, and monotonic revision tracking
+            - **Document Viewers:** Binary IPC streaming PDF viewer with offline bundled PDF.js worker engine
+            - **Dynamic AI Copilot:** Context-aware forensics streaming engine with multi-turn conversation and stream isolation
+            - **Native Window Chrome:** Frameless undecorated window with drag grips, inline tab rename, and fluid tab panning
+            - **Multi-Platform Support:** Native bundles for Windows (.msi / .exe), Linux (.deb / .AppImage), and macOS (.dmg / .app)
+          releaseDraft: ${{ github.event.inputs.draft || false }}
+          prerelease: ${{ github.event.inputs.prerelease || false }}
