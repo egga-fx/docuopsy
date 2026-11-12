@@ -2,6 +2,9 @@ export type LayoutMode = 'Split' | 'FullEditor' | 'FullPreview';
 
 export type AppTheme = 'dark' | 'light';
 
+/** Lifecycle of an explicit save (Ctrl+S / Save & Close), per tab. */
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export interface TabState {
   id: string;
   filePath: string | null;
@@ -12,7 +15,20 @@ export interface TabState {
   scrollTop: number;
   draftPath: string | null;
   content: string; // buffer content in memory
+  // Ephemeral save/draft bookkeeping — never persisted to session.json.
+  saveStatus?: SaveStatus;
+  saveError?: string | null;
+  /** Bumped on every edit so a slow save cannot mark newer changes clean. */
+  revision?: number;
+  /** True only after the debounced draft write was acknowledged. */
+  draftSaved?: boolean;
 }
+
+/** Tab fields that survive a restart; content and save bookkeeping are ephemeral. */
+export type PersistedTab = Omit<
+  TabState,
+  'content' | 'saveStatus' | 'saveError' | 'revision' | 'draftSaved'
+>;
 
 export interface AppSession {
   version: number;
@@ -23,7 +39,7 @@ export interface AppSession {
   accentColor?: string;
   isAiSidebarOpen?: boolean;
   aiSidebarWidth?: number;
-  tabs: Omit<TabState, 'content'>[];
+  tabs: PersistedTab[];
 }
 
 export interface AIStreamChunk {

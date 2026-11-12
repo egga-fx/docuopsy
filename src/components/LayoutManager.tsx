@@ -265,14 +265,14 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
             onClick={toggleAiSidebar}
             className={`p-1 rounded transition-colors relative flex items-center justify-center ${
               isAiSidebarOpen
-                ? 'bg-app-surface text-app-accent border border-app-accent shadow-sm'
-                : 'text-app-muted hover:text-app-primary hover:bg-app-surface border border-transparent'
+                ? 'text-app-accent'
+                : 'text-app-muted hover:text-app-primary hover:bg-app-surface'
             }`}
             title="AI Assistant (Ctrl+K)"
           >
             <div className="relative flex items-center justify-center">
-              <MessageSquare className="w-3.5 h-3.5" />
-              <Sparkles className="w-2 h-2 text-app-accent absolute -top-1 -right-1" />
+              <MessageSquare className={`w-3.5 h-3.5 ${isAiSidebarOpen ? 'fill-app-accent' : ''}`} />
+              <Sparkles className={`w-2 h-2 absolute -top-1 -right-1 ${isAiSidebarOpen ? 'text-app-accent fill-app-accent' : 'text-app-accent'}`} />
             </div>
           </button>
         </div>
@@ -297,14 +297,35 @@ export const LayoutManager: React.FC<LayoutManagerProps> = ({ editor, preview, e
             </div>
           )}
 
-          {/* Draggable Divider */}
+          {/* Draggable Divider (pointer + keyboard resizable, audit #11) */}
           {layoutMode === 'Split' && (
             <div
               onMouseDown={handleMouseDown}
-              className="w-1 bg-app-border hover:bg-app-accent cursor-col-resize transition-colors duration-150 z-10 flex-shrink-0"
+              onKeyDown={(e) => {
+                const step = e.shiftKey ? 0.1 : 0.02;
+                if (e.key === 'ArrowLeft') {
+                  e.preventDefault();
+                  setSplitRatio(Math.max(0.15, splitRatio - step));
+                } else if (e.key === 'ArrowRight') {
+                  e.preventDefault();
+                  setSplitRatio(Math.min(0.85, splitRatio + step));
+                } else if (e.key === 'Home') {
+                  e.preventDefault();
+                  setSplitRatio(0.15);
+                } else if (e.key === 'End') {
+                  e.preventDefault();
+                  setSplitRatio(0.85);
+                }
+              }}
+              tabIndex={0}
+              className="w-1 bg-app-border hover:bg-app-accent focus-visible:bg-app-accent cursor-col-resize transition-colors duration-150 z-10 flex-shrink-0"
               role="separator"
               aria-orientation="vertical"
-              title="Drag to resize split ratio"
+              aria-label="Resize editor and preview panes"
+              aria-valuemin={15}
+              aria-valuemax={85}
+              aria-valuenow={Math.round(splitRatio * 100)}
+              title="Drag or use arrow keys to resize split ratio"
             />
           )}
 

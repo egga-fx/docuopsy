@@ -20,8 +20,14 @@ Create a `.env` file in the root workspace directory for local development:
 ```bash
 # KIE AI Gateway Configuration
 KIE_AI_BASE_URL="https://api.kie.ai/v1"
-KIE_AI_API_KEY="e003b0c015d233ea848997456242e97b"
+KIE_AI_API_KEY="your_kie_ai_key_here"
 KIE_AI_DEFAULT_MODEL="claude-haiku-5-5"
+
+# Debug-build Rust fallback (also readable from src-tauri/.env.dev)
+KIE_AI_API_KEY_DEV="your_debug_only_kie_ai_key_here"
+
+# Browser-dev AI gateway key (read by the Vite proxy, never bundled)
+OMNIROUTE_API_KEY="your_omniroute_key_here"
 
 # Observability & Logging Flags
 DOCUOPSY_LOG_LEVEL="info"          # trace | debug | info | warn | error

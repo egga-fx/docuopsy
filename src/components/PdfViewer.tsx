@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { readDocumentBytes } from '../api/ipc';
 import { ZoomIn, ZoomOut, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 
-// Configure pdfjs worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+// Bundle the worker locally instead of pulling it from a CDN: keeps PDF parsing
+// fully offline and inside the app's CSP (no external connect-src needed).
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 interface PdfViewerProps {
   filePath?: string | null;
@@ -21,32 +24,36 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ filePath }) => {
 
   useEffect(() => {
     let isCancelled = false;
+    let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
 
     async function loadPdf() {
       setLoading(true);
       setError(null);
 
+      if (!filePath) {
+        setError('No PDF file path provided.');
+        setLoading(false);
+        return;
+      }
+
       try {
-        if (!filePath) {
-          setError('No PDF file path provided.');
-          setLoading(false);
+        // Desktop: read raw bytes through the authorized IPC command.
+        // Browser dev: readDocumentBytes falls back to fetch() for blob:/http URLs.
+        const bytes = await readDocumentBytes(filePath);
+        if (isCancelled) return;
+
+        loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(bytes) });
+        const pdf = await loadingTask.promise;
+
+        if (isCancelled) {
+          await pdf.destroy().catch(() => {});
           return;
         }
 
-        // In desktop environment, convert path to file:// URL or fetch byte array
-        const url = filePath.startsWith('http') || filePath.startsWith('blob:')
-          ? filePath
-          : `file://${filePath.replace(/\\/g, '/')}`;
-
-        const loadingTask = pdfjsLib.getDocument(url);
-        const pdf = await loadingTask.promise;
-
-        if (!isCancelled) {
-          pdfDocRef.current = pdf;
-          setNumPages(pdf.numPages);
-          setCurrentPage(1);
-          setLoading(false);
-        }
+        pdfDocRef.current = pdf;
+        setNumPages(pdf.numPages);
+        setCurrentPage(1);
+        setLoading(false);
       } catch (err: unknown) {
         if (!isCancelled) {
           const errMsg = err instanceof Error ? err.message : String(err);
@@ -56,10 +63,17 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ filePath }) => {
       }
     }
 
-    loadPdf();
+    void loadPdf();
 
     return () => {
       isCancelled = true;
+      // Release the worker/document so switching tabs does not leak memory.
+      if (pdfDocRef.current) {
+        void pdfDocRef.current.destroy().catch(() => {});
+        pdfDocRef.current = null;
+      } else if (loadingTask) {
+        void loadingTask.destroy().catch(() => {});
+      }
     };
   }, [filePath]);
 

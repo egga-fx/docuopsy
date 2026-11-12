@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { MarkdownPreview } from './MarkdownPreview';
-import { PdfViewer } from './PdfViewer';
 import { CodePreview } from './CodePreview';
 import type { TabState } from '../types';
+
+// PDF.js is ~1MB; split it into an async chunk that only loads when a PDF opens.
+const PdfViewer = lazy(() => import('./PdfViewer').then((m) => ({ default: m.PdfViewer })));
 
 interface PreviewContainerProps {
   tab?: TabState;
@@ -17,7 +19,17 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({ tab }) => {
 
   // 1. PDF Documents
   if (titleLower.endsWith('.pdf')) {
-    return <PdfViewer filePath={tab.filePath} />;
+    return (
+      <Suspense
+        fallback={
+          <div className="h-full w-full flex items-center justify-center bg-app-canvas font-mono text-xs text-app-muted animate-pulse">
+            Loading PDF engine…
+          </div>
+        }
+      >
+        <PdfViewer filePath={tab.filePath} />
+      </Suspense>
+    );
   }
 
   // 2. Default initial format is Markdown (.md, .markdown, or untitled documents)

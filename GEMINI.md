@@ -41,8 +41,8 @@ To prevent context fragmentation and ensure seamless handoffs between agents:
 - **API Protocol:** Standard streaming completions / chat completions endpoint (Server-Sent Events / SSE) over HTTP via Rust's `reqwest` async client.
 - **Credential Handling:**
   - Do NOT hardcode the API key in client-side bundles or repository commits.
-  - Default API Key for dev: `e003b0c015d233ea848997456242e97b` (configured via local `.env` or AppData config file).
-  - The Rust backend is the sole proxy that talks to KIE AI; the frontend never contacts external AI endpoints directly.
+  - Dev key: supplied at runtime via `.env`, `src-tauri/.env.dev`, or the `KIE_AI_API_KEY_DEV` environment variable — never committed.
+  - The Rust backend proxies KIE AI; in browser-dev the request goes through the Vite proxy, which injects `OMNIROUTE_API_KEY` server-side.
 
 ---
 

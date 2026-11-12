@@ -115,9 +115,9 @@ mod tests {
 
     #[test]
     fn test_redact_api_key() {
-        let raw = "Authorization: Bearer e003b0c015d233ea848997456242e97b";
+        let raw = "Authorization: Bearer <KIE_AI_API_KEY from gitignored .env>";
         let scrubbed = redact_secrets(raw);
-        assert!(!scrubbed.contains("e003b0c015d233ea848997456242e97b"));
+        assert!(!scrubbed.contains("<KIE_AI_API_KEY from gitignored .env>"));
         assert!(scrubbed.contains("e003...97b") || scrubbed.contains("[REDACTED]"));
     }
 }
@@ -256,7 +256,7 @@ git commit -m "feat(backend): implement forensic session persistence and draft c
 - Test: `src-tauri/src/tests/ai_stream_test.rs`
 
 **Interfaces:**
-- Consumes: User prompt, document context string, API key (`e003b0c015d233ea848997456242e97b`).
+- Consumes: User prompt, document context string, API key (`<KIE_AI_API_KEY from gitignored .env>`).
 - Produces: `stream_chat_completion(prompt: &str, context: &str, app_handle: &AppHandle) -> Result<(), AppError>`. Emits `ai:stream:chunk` events with `{ streamId, delta, isDone, error }`.
 
 - [ ] **Step 1: Write failing mock test for SSE stream parsing in `src-tauri/src/tests/ai_stream_test.rs`**

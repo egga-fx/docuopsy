@@ -7,7 +7,6 @@ dist-ssr/
 # Rust & Tauri
 src-tauri/target/
 target/
-Cargo.lock
 
 # Environment & Logs
 .env

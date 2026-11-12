@@ -281,3 +281,157 @@ This log records every major milestone, completed task, test verification, and a
 3. `cargo test --manifest-path src-tauri/Cargo.toml` $\to$ **17 unit tests passed, 0 failures in 0.04s**
 4. `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings` $\to$ **ZERO WARNINGS, clean compile**
 5. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` (12.01s)**
+
+---
+
+## [2026-11-07] - Desktop UX Batch: Drag & Drop Open, Fast Tab Rename, Custom Window Chrome (`/efx-lead`)
+
+### 1. Work Completed
+1. **Drag & Drop File Opening:**
+   - `src/api/dnd.ts` subscribes to the native webview drop stream (`enter | over | leave | drop`) in Tauri and to HTML5 `dragenter/dragover/dragleave/drop` in the browser, with a depth counter so child elements cannot fake a `leave`.
+   - `src/hooks/useFileDropOpen.ts` owns the policy: absolute-path gate, supported-extension allowlist, activation instead of re-open, PDF opened without a UTF-8 read, 10-file batch cap, per-file error isolation, drop overlay state.
+2. **Fast Tab Rename:**
+   - Double-click on a tab swaps the title for an inline input with the stem selected; `Enter`/blur commit, `Escape` cancel, blank titles rejected, `Mod+N/W/Tab` suppressed while renaming.
+   - `useTabStore.renameTab` persists through the debounced session write and the synchronous localStorage snapshot.
+3. **Undecorated Window + Custom Chrome:**
+   - `tauri.conf.json` now runs `decorations: false, shadow: true, dragDropEnabled: true`.
+   - `src/components/WindowControls.tsx` renders icon-only minimize / fullscreen / close; `src/api/window.ts` lazily imports `@tauri-apps/api/window` and degrades to no-ops outside the desktop build.
+   - `src/api/dnd`-free drag affordances: `data-tauri-drag-region` on the tab strip and a fixed-width strip outside the scroller, so the window remains movable and double-click-maximizable even with overflowing tabs.
+   - `F11` toggles fullscreen; the fullscreen icon mirrors real window state via `onResized`.
+4. **Audit Remediation (independent adversarial reviewer, different model family):**
+   - MAJOR #1 rename silently reverted by `Ctrl+S`: `markClean` now only re-derives the title when the file path actually changed.
+   - MAJOR #2/#3 data loss on close: `flushPersistence()` is awaited, and `handleCloseRequest` arms a `tauri://close-requested` guard (preventDefault → await draft + session flush → `destroy()`) so Alt+F4 and taskbar quit are covered.
+   - MAJOR #4 symlink allowlist bypass: `validate_symlink_type` in `src-tauri/src/services/fs.rs` refuses a symlink whose canonical target extension differs from the link named, applied to both read and atomic save.
+   - MAJOR #5 double-click maximize dead: `core:window:allow-internal-toggle-maximize` granted; unused grants (`unminimize`, `maximize`, `unmaximize`, `toggle-maximize`, `is-resizable`) removed and dead `toggleMaximizeWindow` deleted.
+   - MINOR: dropped the `..` substring over-rejection (paths like `C:\docs\v1..v2.md` open again; Rust still rejects `ParentDir`), renamed inputs no longer swallow `Mod+S`, native drop subscription failures are logged instead of swallowed.
+
+### 2. Quality Gate (100% PASS)
+1. `bun run tsc --noEmit` $\to$ **ZERO TYPE ERRORS**
+2. `bun run test` $\to$ **15 test files, 63 tests passed, 0 failures** (was 58; +5 regression tests for rename-on-save, close-guard ordering, listener teardown, dot-in-filename drops)
+3. `cargo test --no-default-features` $\to$ **20 passed, 0 failed**
+4. `cargo clippy --all-targets -- -D warnings` $\to$ **ZERO WARNINGS**
+5. `bun run build` $\to$ **Production bundle generated cleanly in `dist/` (7.99s)**
+6. Zero-leak scan of the diff $\to$ no credential material introduced.
+
+### 3. Recorded Verification Gaps (not claims)
+- Live boot of the undecorated window could not run: `target\debug\docuopsy.exe` was locked by an already-running Docuopsy process, so `tauri dev` failed at the link step after the build script and 445/446 units had compiled cleanly. Config validity is proven at compile time only.
+- `validate_symlink_type` tests skip on this machine (Windows without developer mode cannot create symlinks); they need a Linux or developer-mode run to actually assert the guard.
+
+
+---
+
+## [2026-11-07] - UI Polish Batch II: Window Grip, Tab Panning, AI Chrome, Sessions Bubble, Syntax Colors (`/efx-lead`)
+
+### 1. Work Completed
+1. **Window Grip (`src/components/TabBar.tsx`):** a `w-8` dotted box (`GripVertical`, `pointer-events-none`) sits left of `leftAddon` carrying `data-tauri-drag-region`, giving the frameless window one unambiguous drag handle.
+2. **Hold-and-Move Tab Panning:** `handleStripMouseDown` installs window-level `mousemove`/`mouseup` listeners and drives `scrollLeft` directly; a 5 px threshold latches `panRef.panned`, which suppresses the trailing click and double-click so panning never mis-selects or renames a tab. Wheel input is remapped to horizontal scroll, and the new `.scrollbar-none` utility (`src/index.css`) removes the trough (`scrollbar-width: none` + zero-sized webkit scrollbar).
+3. **AI Chrome Cleanup:** the LayoutManager toggle drops its active border for a filled `MessageSquare`/`Sparkles`; the New Session button's `focus-visible` ring is gone; the send control is now an icon-only `h-8 w-8` `ArrowRight` button.
+4. **Recent Sessions Bubble (`src/components/AIPalette.tsx`):** the 208 px drawer is replaced by an anchored bubble showing up to five session titles plus a `Show all sessions (N)` / `Show fewer sessions` toggle; a document `mousedown` listener scoped to the wrapper ref dismisses it, and session clicks seed the composer and restore focus.
+5. **Empty State & Quick Prompts:** the decorative Sparkles block above "How can I assist your document?" is removed, `PRESET_PROMPTS` is trimmed to three, and clicking one now writes the template into the input instead of firing `handleSubmit`.
+6. **Syntax Coloring (`src/editor/extensions.ts`, `src/components/EditorPane.tsx`):** `@codemirror/language-data` supplies ~50 lazily loaded grammars through `resolveLanguageExtension`; Markdown is rebuilt with `markdown({ base: markdownLanguage, codeLanguages: languages })` so fenced blocks highlight in their own language. The grammar is applied through a `Compartment` reconfigure guarded against stale tab/title/theme changes.
+
+### 2. Quality Gate (100% PASS)
+1. `bun run tsc --noEmit` → **ZERO TYPE ERRORS**
+2. `bun run test` → **16 test files, 72 tests passed, 0 failures** (was 63; +3 grip/pan tests, +2 bubble & quick-prompt tests, +3 language-resolution tests)
+3. `bun run build` → **Production bundle generated cleanly in `dist/` (13.56s)**, grammars split into lazy chunks
+4. Live browser verification (Vite + in-app browser DOM probes): grip present as the first header node with the drag attribute; strip `scrollLeft` moved 0 → 100 for a 100 px drag; bubble rendered exactly 5 titles + `Show all sessions (7)`, expanded to 7, collapsed label flipped; session and quick-prompt clicks filled the composer without submitting; `script.py` and a Markdown fenced Python block produced keyword/function/string token spans.
+5. Zero-leak scan of the diff → no credential material introduced.
+
+### 3. Bugs Found During This Batch
+- `LanguageDescription.support` is only populated after `load()`; awaiting it directly returned `undefined`, so every lazy grammar silently resolved to "no highlighting". Fixed by resolving `await match.load()` and reading `.extension`, with a regression test.
+- The lazy grammar was lost after a theme switch because the reconfigure effect was not keyed on `theme`.
+
+### 4. Recorded Verification Gaps (not claims)
+- Native window dragging through the new grip is only proven at the DOM level: `target\debug\docuopsy.exe` remained locked by the user's running Docuopsy instance, so the frameless window was not relaunched.
+- Rust-side behaviour is unchanged in this batch; `cargo test` / `clippy` results carry over from the previous batch (20 passed, zero warnings).
+
+### 5. Cross-Model Audit Remediation (post-audit pass)
+- **Panning listeners (MAJOR):** the strip now captures the pointer only after the 5 px threshold, stops on `pointercancel` and on a lost `buttons === 0` state, and tears its listeners down on unmount. jsdom ships no `PointerEvent`, so the tests dispatch `MouseEvent('pointerdown' | 'pointermove' | 'pointerup')` with `pointerId` defined explicitly.
+- **Focus visibility (MAJOR):** `focus-visible:ring-1 focus-visible:ring-app-accent` restored on the New Session button (WCAG 2.4.7) while the click/hover border stays removed.
+- **Grammar identity (MAJOR/MINOR):** highlighting follows `filePath` rather than the renamed display title, and a `Map<string, Extension>` cache plus an applied-name guard stop CodeMirror from re-parsing on repeat resolutions.
+- **Wheel (MINOR):** a non-passive native listener pans only for vertical deltas, so trackpad horizontal intent is left to the browser.
+- **A11y (MINOR):** `role="img"` on the grip, `aria-haspopup`/`aria-expanded` on Recent, `aria-label` on the icon-only send button, and the scrollbar utility renamed `.pan-scroller` so unrelated scroll regions keep their bars.
+
+### 6. Credential Hygiene (Phase 5 zero-leak audit)
+- `src/api/ipc.ts` carried a live OmniRoute key as a `||` fallback and `src-tauri/src/services/ai.rs` carried `DEFAULT_DEV_API_KEY`. Both are gone.
+- Browser-dev AI now posts to `/api/omniroute/chat/completions` with no `Authorization` header; `vite.config.ts` loads `OMNIROUTE_API_KEY` Node-side (via `loadEnv`, so it is not a bundled `VITE_` var) and the proxy attaches it. Verified with `curl -X POST http://localhost:5173/api/omniroute/chat/completions` → HTTP 200 with a completion body, and a clean re-scan of `dist/`.
+- Debug Rust builds resolve `KIE_AI_API_KEY_DEV` from the environment, else `src-tauri/.env.dev`, else the existing "key is not configured" error path; release builds are unchanged.
+- The same literals appeared in `AGENTS.md`, `GEMINI.md`, `INFRA.md` and the superpowers plan/PRD — replaced with placeholders. The redaction unit test was re-keyed to a synthetic hex value so no real key sits in tests.
+- **Outstanding:** the two keys remain in git history (introduced around `e8041dc`), so rotation is owed; `docs/superpowers` history and any backups still quote them.
+
+### 7. Gate After Remediation
+`tsc --noEmit` clean · Vitest 16 files / 72 tests · `cargo check --all-targets`, `cargo test --lib` (20) and `cargo clippy --all-targets -- -D warnings` clean · `bun run build` OK with `dist/` free of credentials.
+
+---
+
+## 2026-11-11 — Audit remediation batch (P0 #04, P0 #05, P1 #06)
+
+### 1. Per-tab draft persistence (audit P0 #04)
+- `tabStore.ts`: replaced the single `pendingDraft` slot + global `draftDebounceTimer` with `pendingDrafts: Map<tabId, content>` and `draftDebounceTimers: Map<tabId, Timeout>`. Editing tab B inside tab A's debounce window no longer drops A's draft.
+- `flushPersistence()` clears every per-tab timer and flushes all queued drafts alongside `session.json`.
+- `markClean` now routes through `discardDraft(id)`, which also cancels a pending timer so a stale draft cannot be re-written after a successful save.
+
+### 2. Dirty-tab close guard (audit P0 #05)
+- Store: `closeTab(id, opts?: { discard?: boolean })` — a dirty tab without an explicit discard persists its draft to disk (flush pending, else save current content) instead of calling `removeDraft`. New `pendingCloseTabId` state + `requestCloseTab(id)` (dirty → queue decision, clean → close immediately) + `setPendingCloseTabId`.
+- UI: new `CloseTabDialog` (Save & Close / Discard / Cancel, `role="dialog"`, Escape cancels, focus on primary). Save path: `filePath` → `saveDocument`; untitled → `pickFileToSave` (native cancel keeps the dialog open); failure shows an inline error and keeps the dialog open. Wired into TabBar X button, `Ctrl+W`, and App menu Close Tab via `requestCloseTab`.
+
+### 3. Undo preservation (audit P1 #06)
+- `EditorPane.tsx` rebuilt around one long-lived `EditorView`: theme switches reconfigure a `themeCompartment` (no rebuild); tab switches stash/restore per-tab `EditorState` from a module-scoped `editorStatesByTab` cache, so history also survives FullPreview unmounts; fresh states restore cursor line/col from tab metadata; stale cache entries are pruned against live tab ids. Lazy-grammar compartment logic unchanged, stash records the applied grammar name to avoid redundant re-parses.
+
+### 4. Probe re-instrumentation
+- `vi.mock` is broken in the current runtime (vitest 3.2.7 under Bun/Node 26 — imported bindings arrive as real functions; reproduced with an isolated minimal test in both `src/` and `docs/`). Probes rewritten spy-free: draft assertions go through the real browser-fallback persistence path (`localStorage` keys `docuopsy_draft_*`), which exercises more of the real stack than module spies did.
+- Probe suite extended from 4 to 7 (added tab-switch undo, requestCloseTab decision, explicit-discard removal).
+
+### 5. Gate
+`tsc --noEmit` clean · Vitest **17 files / 78 tests PASS** (new `closeTabDialog.test.tsx`, 6 tests) · audit probes **7/7 PASS** (was 3 FAIL / 1 PASS) · `bun run build` OK (chunk-size warning only, tracked as P2 #13) · Rust untouched in this batch; `cargo test` (20) / `clippy -D warnings` results carry over from 2026-11-07 and were re-verified green (exit 0) on 2026-11-11 before the frontend changes.
+
+### 6. Still outstanding for release
+- Credential rotation + git history cleanup (keys introduced in `f705fb9`, still quoted by history/backups).
+- Audit findings P1 #07–#12 and P2 #13–#16.
+- Native window verification (TODOS 7.6/7.7/8.8) and installer acceptance.
+
+---
+
+## 2026-11-12 — Audit remediation batch 2 (findings #07–#16)
+
+Session lead: autonomous. Scope: close the remaining production-readiness findings from
+`docs/audits/2026-11-05-production-readiness.md` (P1 #07–#12, P2 #13–#16). User instruction was to
+work the findings and leave manual verification to them.
+
+### 1. PDF offline path (P1 #07)
+- Rust: new `read_document_bytes(path)` command — `PathBuf::from` → `ensure_authorized` → `spawn_blocking(std::fs::read)` → `tauri::ipc::Response::new(bytes)`; registered in `lib.rs` invoke handler.
+- `PdfViewer.tsx`: worker bundled locally (`import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'`), bytes fetched via `readDocumentBytes(path)` (Tauri invoke, else browser `fetch`), `new Uint8Array(bytes)` handed to `getDocument`. Loading task/document destroyed on tab switch and unmount.
+- `App.tsx`: `.pdf` skips `readDocument` on both open and session restore; restore calls `allowPaths(filePaths)` before hydration (the allowlist is process-local).
+- `PreviewContainer.tsx`: `PdfViewer` behind `React.lazy` + `Suspense` → code-split. Build confirms main chunk ~1.01 MB with a separate `PdfViewer` ~369 kB chunk (was a single ~1.3 MB chunk).
+- Added `src/vite-env.d.ts` (`/// <reference types="vite/client" />`) so `?url` imports typecheck.
+
+### 2. Save-status honesty (P1 #08)
+- `types`: `TabState` gains optional `saveStatus`/`saveError`/`revision`/`draftSaved`; `AppSession.tabs` is `PersistedTab = Omit<TabState, 'content'|'saveStatus'|'saveError'|'revision'|'draftSaved'>` so ephemeral bookkeeping never persists.
+- `tabStore`: `makeTab` factory defaults every ephemeral field; `updateContent` bumps `revision`, clears `draftSaved`, and resets `saveStatus` to `idle` unless a save is in flight. New `beginSave` (returns revision snapshot), `setSaveError`, `setDraftSaved`, `setActionError`. `markClean(id, path, expectedRevision)` keeps the tab dirty when the revision moved during the write. `persistDraftFor` marks `draftSaved` only on an acknowledged write.
+- `App.tsx`: save/save-as capture the revision, call `beginSave`, `markClean(..., revision)`, and `setSaveError` on failure; footer shows Saving / Saved / Draft cached / Unsaved / Save failed (+ Retry) and a dismissible `actionError` for open failures.
+
+### 3. AI stream lifecycle (P1 #12)
+- Frontend: `activeStreamIdRef` filters chunks by id; `handleSubmit` sends prior turns as `history` and finalizes `isStreaming` in a `finally` (backstop if the typewriter never ran); `prefers-reduced-motion` respected for auto-scroll.
+- Backend: `stream_completion` takes `history: Vec<ChatHistoryMessage>`, forwards up to the last 20 valid user/assistant turns into both request-body shapes; a broken stream returns `Err` and no longer emits a trailing `completed` event. `commands/ai.rs` accepts optional `history`.
+
+### 4. Theme parity + a11y (P1 #10, #11)
+- `index.css`: themed `--code-inline-fg` (light `#4b3fb8` on white) and `--row-alt-bg`; light `--text-muted` darkened to `#5f6368` for AA; global `:focus-visible` ring; `prefers-reduced-motion` block.
+- `TabBar`: roving-tabindex tablist with Arrow/Home/End and Enter/Space; `data-tab-id`; close button revealed on focus.
+- `LayoutManager`: splitter is `tabIndex=0`, Arrow/Home/End resizable, `aria-value*`.
+- `CloseTabDialog`: focus trap (Tab cycle), focus restore on close, `max-h-[85vh]`.
+- `AIPalette`: prompt input labelled.
+
+### 5. Containment, durability, redaction, locking (P1 #09, P2 #13/#14/#16)
+- `services/fs.rs`: `authorize_path`/`ensure_authorized` (process-local `OnceLock<Mutex<HashSet>>` of authorized paths + internal config root); `atomic_save_file` uses `sync_all()`; AI logs pass through `redact_secrets`.
+- `commands/fs.rs`: reads/saves go through `ensure_authorized` + `spawn_blocking`; pickers call `authorize_path`; new `allow_paths`. Clippy `io_other_error` fixed (`std::io::Error::other`).
+- `.gitignore`: dropped `Cargo.lock`; `src-tauri/Cargo.lock` now tracked.
+
+### 6. Test toolchain (P1 #15)
+- `vitest` `^3.0.5` → `^4.1.12` (Vite 6 compatible). `bun audit` = **0 vulnerabilities** (358 packages; was 4 advisories incl. two Tinypool). Side effect: `vi.mock` works again under 4.1.12 (verified with an isolated probe), so future tests may use spies.
+
+### 7. Gate (2026-11-12)
+`tsc --noEmit` clean · Vitest **17 files / 81 tests PASS** (+3 new revision-guard tests) · audit probes **7/7** · `bun run build` OK (PDF code-split) · `cargo clippy -D warnings` clean · `cargo test` **23/23** · `bun audit` 0 vulns.
+
+### 8. Still outstanding (user-side)
+- Rotate OmniRoute + KIE keys and purge git history (introduced in `f705fb9`) before any push/publish.
+- Native window verification (TODOS 7.6/7.7/8.8) and installer acceptance.

@@ -19,6 +19,25 @@ export async function readDocument(path: string): Promise<string> {
   return saved ?? '';
 }
 
+/** Registers user-authorized paths (drops, restored session tabs) with the Rust
+ *  containment gate so subsequent read/save commands accept them. */
+export async function allowPaths(paths: string[]): Promise<number> {
+  if (paths.length === 0) return 0;
+  if (isTauri()) {
+    return await invoke<number>('allow_paths', { paths });
+  }
+  return paths.length;
+}
+
+/** Binary read for non-UTF8 documents (PDF), gated by the same allowlist. */
+export async function readDocumentBytes(path: string): Promise<ArrayBuffer> {
+  if (isTauri()) {
+    return await invoke<ArrayBuffer>('read_document_bytes', { path });
+  }
+  const response = await fetch(path);
+  return await response.arrayBuffer();
+}
+
 export async function saveDocument(path: string, content: string): Promise<number> {
   if (isTauri()) {
     return await invoke<number>('save_document', { path, content });
@@ -133,11 +152,17 @@ export function buildDynamicSystemPrompt(activeFileName: string = 'Untitled-1'):
 - The output format must 100% strictly adapt to the user's instruction: plain text, single sentence, bullet list, raw code snippet, JSON, GFM markdown, or freeform prose as requested by the user.`;
 }
 
+export interface ChatHistoryTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export async function aiGenerateStream(
   streamId: string,
   prompt: string,
   context: string,
-  activeFileName?: string
+  activeFileName?: string,
+  history: ChatHistoryTurn[] = []
 ): Promise<string> {
   const currentFileName = activeFileName || 'Untitled-1';
   const systemPrompt = buildDynamicSystemPrompt(currentFileName);
@@ -148,12 +173,18 @@ export async function aiGenerateStream(
       streamId,
       prompt,
       context,
+      history,
       activeFileName: currentFileName,
       clientDateTime: nowIso,
     });
   }
 
-  // Fallback for Web Browser Dev Environment
+  // Browser-dev fallback. The Vite dev proxy attaches the gateway credential, so
+  // no key ever reaches the client bundle.
+  if (!(import.meta as any).env?.DEV) {
+    throw new Error('AI streaming outside the desktop shell needs the Vite dev server proxy.');
+  }
+
   dispatchAIChunk({
     streamId,
     delta: '',
@@ -161,10 +192,7 @@ export async function aiGenerateStream(
     status: 'thinking',
   });
 
-  const endpoints = [
-    '/api/omniroute/chat/completions',
-    'https://api.eggafx.space/v1/chat/completions',
-  ];
+  const endpoints = ['/api/omniroute/chat/completions'];
 
   let lastError: Error | null = null;
 
@@ -174,7 +202,6 @@ export async function aiGenerateStream(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${(import.meta as any).env?.VITE_OMNIROUTE_API_KEY || 'sk-775aec3cd1d2eb39-abfea7-399ba989'}`,
         },
         body: JSON.stringify({
           model: 'auto/best-fast',
@@ -186,6 +213,7 @@ export async function aiGenerateStream(
             ...(context
               ? [{ role: 'system', content: `Current document context:\n${context}` }]
               : []),
+            ...history.map((turn) => ({ role: turn.role, content: turn.content })),
             { role: 'user', content: prompt },
           ],
           stream: true,

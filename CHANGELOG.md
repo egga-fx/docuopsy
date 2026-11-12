@@ -9,6 +9,130 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-12
+
+### Added
+- **Drag & Drop File Opening:** files dropped from the OS file manager open directly in a new tab.
+  Native Tauri webview drop events supply absolute paths in the desktop build; the browser dev server
+  falls back to HTML5 `DataTransfer` files. Duplicate drops activate the already-open tab, batch drops
+  are capped at 10 files, and a per-file failure never aborts the rest of the batch.
+  (`src/api/dnd.ts`, `src/hooks/useFileDropOpen.ts`)
+- **Fast Tab Rename:** double-clicking a tab turns its title into an inline input with the filename
+  stem pre-selected; `Enter` or blur commits, `Escape` cancels, and tab shortcuts stay suppressed
+  while renaming. Renames persist through the session store and survive a save back to the same file.
+  (`src/components/TabBar.tsx`, `useTabStore.renameTab`)
+- **Custom Window Chrome for the Undecorated Window:** the native title bar is removed
+  (`decorations: false`) and replaced by an icon-only minimize / fullscreen / close cluster at the
+  right end of the tab strip, plus `data-tauri-drag-region` strips so the window stays movable and
+  double-click-maximizable. `F11` toggles fullscreen. (`src/components/WindowControls.tsx`, `src/api/window.ts`)
+- **Window Grip:** a dotted grip box sits left of the app menu as the unmistakable drag handle.
+  (`src/components/TabBar.tsx`)
+- **Hold-and-Move Tab Panning:** the tab strip scrolls by dragging sideways (or with the wheel)
+  instead of showing a scrollbar trough; a pan suppresses the click that would otherwise switch tabs.
+  (`src/components/TabBar.tsx`, `.pan-scroller` in `src/index.css`)
+- **Recent Sessions Bubble:** the Recent control opens a bubble listing up to five session titles with a
+  Show all sessions toggle, replacing the drawer that used to squeeze the chat thread.
+  (`src/components/AIPalette.tsx`)
+- **Broad Syntax Highlighting:** the editor resolves ~50 additional grammars lazily through
+  `@codemirror/language-data`, and fenced code inside Markdown is now highlighted in its own language.
+  (`src/editor/extensions.ts`, `src/components/EditorPane.tsx`)
+
+### Changed
+- The AI sidebar toggle signals its active state through a filled icon rather than a border, the
+  New Session button no longer paints a focus ring on click, the send control is a plain arrow-right
+  icon button, and the empty state drops its decorative icon and keeps three quick prompts that
+  fill the input instead of firing the request.
+
+### Changed
+- `flushPersistence()` is now awaited and covers both the atomic draft and `session.json`, so a quit
+  inside the 500 ms debounce window cannot drop the last keystrokes.
+- Closing the window via Alt+F4 or the taskbar now also runs the flush, through a `tauri://close-requested`
+  guard that prevents the close, awaits the writes, then force-destroys the window.
+
+### Fixed
+- **Per-tab draft persistence (audit P0 #04):** the draft debounce queue is now keyed per tab instead of
+  a single global slot, so editing tab B within the debounce window no longer drops tab A's pending
+  draft. `flushPersistence()` flushes every queued tab. (`src/store/tabStore.ts`)
+- **Dirty-tab close guard (audit P0 #05):** closing a tab with unsaved changes opens a
+  Save & Close / Discard / Cancel dialog (`src/components/CloseTabDialog.tsx`) wired through
+  `requestCloseTab` for the tab X button, `Ctrl+W`, and the App menu. A dirty close without an explicit
+  discard decision now persists the draft to disk instead of deleting it; the draft is removed only on
+  Discard or after a successful save.
+- **Undo history preservation (audit P1 #06):** `EditorPane` keeps one CodeMirror view for its lifetime —
+  theme switches reconfigure through a `Compartment`, tab switches swap cached per-tab `EditorState`
+  objects (including undo history and restored cursor position), and the cache lives above the component
+  so FullPreview unmounts no longer destroy the edit history. (`src/components/EditorPane.tsx`)
+
+### Tests
+- Audit production probes re-instrumented without `vi.mock` (module mocking regressed under the current
+  vitest 3.2.7 runtime; draft probes now assert on the real browser-fallback persistence path) and
+  extended to 7 probes covering the fixes above — all passing.
+- New `CloseTabDialog` component suite (6 tests) covering request/discard/cancel/save-and-close flows.
+
+### Security
+- **Credentials removed from tracked source and docs.** The OmniRoute key hardcoded as a fallback in
+  `src/api/ipc.ts` and the KIE debug key in `src-tauri/src/services/ai.rs` are gone; AGENTS.md, GEMINI.md,
+  INFRA.md and the superpowers specs/plans no longer quote them. The browser-dev request now goes through
+  the Vite `/api/omniroute` proxy, which attaches `OMNIROUTE_API_KEY` (read Node-side from the gitignored
+  `.env`) so nothing secret is inlined into `dist/`; debug Rust builds read `KIE_AI_API_KEY_DEV` from the
+  environment or the gitignored `src-tauri/.env.dev`. Both keys still exist in git history and should be
+  rotated.
+- Dropped paths are rejected unless absolute, and `read_document` / `save_document` refuse a symlink
+  whose resolved target carries a different extension than the link that was named (e.g. `notes.md`
+  pointing at `secret.key`).
+- Tauri capabilities are trimmed to the window commands the UI actually calls, with
+  `core:window:allow-destroy` and `core:window:allow-internal-toggle-maximize` added for the new chrome.
+
+### Audit remediation — batch 2 (findings #07–#16)
+
+#### Fixed
+- **Offline PDF rendering (audit #07).** PDFs now load through a new authorized `read_document_bytes`
+  IPC command (binary `tauri::ipc::Response`, gated by `ensure_authorized`, read on a blocking thread)
+  instead of a `file://` URL, and PDF.js ships its worker from the local bundle (`?url` import) rather
+  than a CDN — so parsing works with no network and under the app CSP. The viewer destroys its loading
+  task / document on tab switch and unmount so large PDFs no longer leak memory. Opening or restoring a
+  `.pdf` skips the UTF-8 text read. (`src-tauri/src/commands/fs.rs`, `src/components/PdfViewer.tsx`,
+  `src/App.tsx`)
+- **Honest save status (audit #08).** Tabs carry a per-tab save status (`idle`/`saving`/`saved`/`error`)
+  and an edit `revision`; `markClean` refuses to clear the dirty flag when the buffer changed while the
+  write was in flight, and save failures are surfaced in the footer with a Retry button instead of only
+  a console line. Draft drafts show "Draft cached" only after the write is acknowledged, and open-picker
+  failures surface an inline dismissible message. (`src/store/tabStore.ts`, `src/App.tsx`,
+  `src/types/index.ts`)
+- **AI stream lifecycle (audit #12).** Chunks are filtered by `streamId` so a late event from a prior
+  session cannot bleed into a new one; `isStreaming` is finalized in a `finally` block so a dropped
+  terminal event can never leave the input disabled; the backend no longer emits a `completed` event
+  after a stream error; and prior chat turns are forwarded to the gateway so follow-up prompts keep
+  their conversation context. (`src/components/AIPalette.tsx`, `src/api/ipc.ts`,
+  `src-tauri/src/services/ai.rs`)
+- **Light-theme contrast leaks (audit #10).** Inline code uses a themed `--code-inline-fg`
+  (dark violet on white in light mode, ~7:1) instead of a pale lavender tuned only for dark panels, and
+  table striping uses a themed overlay. Light-mode `--text-muted` was darkened to pass AA.
+  (`src/index.css`)
+- **Keyboard & motion accessibility (audit #11).** Tabs are a roving-tabindex tablist with Arrow/Home/End
+  selection; the splitter is focusable and keyboard-resizable with `aria-value*`; the close-tab dialog
+  traps Tab, restores focus on close, and caps its height to the viewport; the AI prompt has an explicit
+  label; a global `:focus-visible` ring and a `prefers-reduced-motion` block were added.
+  (`src/components/TabBar.tsx`, `LayoutManager.tsx`, `CloseTabDialog.tsx`, `AIPalette.tsx`, `index.css`)
+
+#### Changed
+- **Rust filesystem containment boundary (audit #09).** A new in-memory allowlist (`authorize_path` /
+  `ensure_authorized`) admits only user-authorized paths (native pickers, drops, restored session tabs)
+  and the app's internal config root; text and byte reads plus atomic saves run through it. Restored
+  session paths are re-authorized on boot before hydration.
+- **Durability (audit #13).** `atomic_save_file` now calls `sync_all()` before the atomic rename so a
+  power loss cannot leave a truncated file.
+- **Log redaction (audit #14).** AI service log lines pass through `redact_secrets` so bearer tokens and
+  raw 32-hex keys never reach the log sink.
+- **Reproducible builds (audit #16).** `src-tauri/Cargo.lock` is now tracked (removed from `.gitignore`).
+- **Smaller initial bundle (audit #13).** PDF.js is code-split behind `React.lazy`, shrinking the main
+  chunk from ~1.3 MB to ~1.01 MB with a 369 kB `PdfViewer` chunk loaded only when a PDF opens.
+
+#### Security
+- **Test-toolchain advisories (audit #15).** Vitest upgraded 3.2.7 → 4.1.12 (Vite 6 compatible); the
+  Tinypool prototype-pollution and Vitest mock-redirect advisories are gone — `bun audit` reports 0
+  vulnerabilities across 358 packages. As a side benefit, `vi.mock` works again under the new runner.
+
 ## [0.2.0] - 2026-11-06
 
 ### Added

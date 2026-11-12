@@ -78,5 +78,49 @@ describe('Tab Store Unit Tests', () => {
     setAiSidebarWidth(420);
     expect(useTabStore.getState().aiSidebarWidth).toBe(420);
   });
+
+  it('keeps the tab dirty when the buffer changes during an in-flight save (audit #08)', () => {
+    const s = () => useTabStore.getState();
+    s().updateContent('initial', 'v1');
+    const revision = s().beginSave('initial');
+    expect(s().getActiveTab()?.saveStatus).toBe('saving');
+
+    // User keeps typing while the save is still writing the older snapshot.
+    s().updateContent('initial', 'v2 typed during save');
+
+    s().markClean('initial', 'C:/docs/notes.md', revision);
+
+    const tab = s().getActiveTab();
+    expect(tab?.isDirty).toBe(true);
+    expect(tab?.saveStatus).toBe('idle');
+    expect(tab?.content).toBe('v2 typed during save');
+  });
+
+  it('marks the tab clean and "saved" when the revision is unchanged', () => {
+    const s = () => useTabStore.getState();
+    s().updateContent('initial', 'v1');
+    const revision = s().beginSave('initial');
+
+    s().markClean('initial', 'C:/docs/notes.md', revision);
+
+    const tab = s().getActiveTab();
+    expect(tab?.isDirty).toBe(false);
+    expect(tab?.saveStatus).toBe('saved');
+    expect(tab?.filePath).toBe('C:/docs/notes.md');
+  });
+
+  it('reports saving then error without clearing dirty (audit #08)', () => {
+    const s = () => useTabStore.getState();
+    s().updateContent('initial', 'v1');
+    s().beginSave('initial');
+    expect(s().getActiveTab()?.saveStatus).toBe('saving');
+
+    s().setSaveError('initial', 'disk full');
+
+    const tab = s().getActiveTab();
+    expect(tab?.saveStatus).toBe('error');
+    expect(tab?.saveError).toBe('disk full');
+    expect(tab?.isDirty).toBe(true);
+  });
 });
 

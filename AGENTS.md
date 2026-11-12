@@ -84,7 +84,7 @@ pub fn log_event(level: String, message: String, context: Option<String>) {
 ---
 
 ## 4. Security & Secret Handling
-- **API Keys:** The KIE AI key (`e003b0c015d233ea848997456242e97b`) and any other credentials must be sourced from runtime configuration or environment files (`.env`), NEVER hardcoded in production source files.
+- **API Keys:** No credential ever appears in source, docs, or tests. Keys are read at runtime from the gitignored `.env` (frontend) and `src-tauri/.env.dev` or `KIE_AI_API_KEY_DEV` (Rust debug builds).
 - **Markdown Rendering:** Preview pane MUST use a sanitizer (`DOMPurify`) to prevent script injection via opened documents.
 - **File System Boundary:** File operations must verify that target paths exist within permitted system bounds and do not escape via symlink tricks or malicious relative paths.
 

@@ -4,7 +4,7 @@ import { aiGenerateStream } from '../api/ipc';
 import {
   Sparkles,
   X,
-  CornerDownLeft,
+  ArrowRight,
   Loader2,
   Clock,
   Trash2,
@@ -54,7 +54,6 @@ const PRESET_PROMPTS = [
   { label: 'Continue Writing', prompt: 'Continue writing seamlessly from the current point, matching style and tone.' },
   { label: 'Summarize', prompt: 'Summarize the document key points into a structured GFM Markdown outline.' },
   { label: 'Fix Grammar & Polish', prompt: 'Improve clarity, fix grammar, and elevate readability while preserving technical precision.' },
-  { label: 'Explain Code / Text', prompt: 'Explain the core logic and structural concepts in this section.' },
 ];
 
 const RECENT_TASKS_KEY = 'docuopsy_recent_tasks';
@@ -117,6 +116,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
   const [streamStatus, setStreamStatus] = useState<string>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showRecentTasks, setShowRecentTasks] = useState(false);
+  const [showAllSessions, setShowAllSessions] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -126,12 +126,16 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
   const chatEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recentBubbleRef = useRef<HTMLDivElement>(null);
 
   // Typewriter streaming animation refs
   const streamTargetRef = useRef<string>('');
   const streamDisplayRef = useRef<string>('');
   const activeMsgIdRef = useRef<string | null>(null);
   const isDoneReceivedRef = useRef<boolean>(false);
+  // Only accept chunks bearing the id of the stream we are currently driving, so
+  // a late/leftover event from a previous session cannot bleed into this one (#12).
+  const activeStreamIdRef = useRef<string | null>(null);
 
   // Resize handler for the left edge of the sidebar
   const handleResizeStart = (e: React.MouseEvent) => {
@@ -173,6 +177,19 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
     }
   }, []);
 
+  // Dismiss the sessions bubble on any click outside it.
+  useEffect(() => {
+    if (!showRecentTasks) return;
+    const handlePointerDown = (e: MouseEvent) => {
+      if (recentBubbleRef.current && !recentBubbleRef.current.contains(e.target as Node)) {
+        setShowRecentTasks(false);
+        setShowAllSessions(false);
+      }
+    };
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [showRecentTasks]);
+
   // Save recent tasks
   const saveRecentTask = (taskPrompt: string) => {
     try {
@@ -200,7 +217,10 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
   // Auto-scroll chat when idle or when new messages arrive
   useEffect(() => {
     if (!isStreaming) {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const reduce =
+        typeof window !== 'undefined' &&
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      chatEndRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
     }
   }, [messages, isStreaming]);
 
@@ -276,6 +296,11 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
     let unlistenFn: (() => void) | null = null;
 
     const handleChunk = (chunk: AIStreamChunk) => {
+      // Drop events that belong to a different (past) stream.
+      if (!activeStreamIdRef.current || chunk.streamId !== activeStreamIdRef.current) {
+        return;
+      }
+
       if (chunk.status) {
         setStreamStatus(chunk.status);
       }
@@ -377,19 +402,31 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
     const activeTab = useTabStore.getState().getActiveTab();
     const activeFileName = activeTab?.title || 'Untitled-1';
     const streamId = `stream-${Date.now()}`;
+    activeStreamIdRef.current = streamId;
 
+    // Send prior turns so follow-up questions keep the conversation context.
+    const history = messages
+      .filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content.trim().length > 0)
+      .slice(-20)
+      .map((m) => ({ role: m.role, content: m.content }));
+
+    let failed = false;
     try {
-      const fullResult = await aiGenerateStream(streamId, finalPrompt, editorContext, activeFileName);
+      const fullResult = await aiGenerateStream(
+        streamId,
+        finalPrompt,
+        editorContext,
+        activeFileName,
+        history
+      );
       if (fullResult && streamTargetRef.current.length < fullResult.length) {
         streamTargetRef.current = fullResult;
       }
       isDoneReceivedRef.current = true;
     } catch (err: unknown) {
+      failed = true;
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
-      setIsStreaming(false);
-      setStreamStatus('idle');
-      activeMsgIdRef.current = null;
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last && last.role === 'assistant' && !last.content) {
@@ -397,6 +434,21 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
         }
         return prev;
       });
+    } finally {
+      // Guaranteed finalization: never leave the input disabled because a
+      // terminal event was dropped, even if the typewriter never ran (#12).
+      if (failed) {
+        setIsStreaming(false);
+        setStreamStatus('idle');
+        activeMsgIdRef.current = null;
+      } else if (
+        activeMsgIdRef.current &&
+        streamDisplayRef.current.length >= streamTargetRef.current.length
+      ) {
+        setIsStreaming(false);
+        setStreamStatus('idle');
+        activeMsgIdRef.current = null;
+      }
     }
   };
 
@@ -455,7 +507,7 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
         <button
           type="button"
           onClick={handleNewSession}
-          className="flex items-center gap-2 group hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer p-1 -ml-1 rounded-md focus:outline-none focus-visible:ring-1 focus-visible:ring-app-accent"
+          className="flex items-center gap-2 group hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer p-1 -ml-1 rounded-md outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-app-accent"
           title="New Session (Click icon or text to start new session)"
           aria-label="New Session"
         >
@@ -466,24 +518,87 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
         </button>
 
         <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setShowRecentTasks((p) => !p)}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] transition-colors border ${
-              showRecentTasks
-                ? 'bg-app-surface-hover border-app-border text-app-primary font-medium'
-                : 'border-transparent text-app-muted hover:text-app-primary hover:bg-app-surface-hover'
-            }`}
-            title="Recent Tasks"
-          >
-            <Clock className="w-3 h-3" />
-            <span>Recent</span>
-            {recentTasks.length > 0 && (
-              <span className="ml-0.5 text-[9px] px-1.5 rounded-full bg-app-surface-hover border border-app-border text-app-muted font-mono">
-                {recentTasks.length}
-              </span>
+          <div ref={recentBubbleRef} className="relative flex items-center">
+            <button
+              type="button"
+              onClick={() => {
+                if (showRecentTasks) setShowAllSessions(false);
+                setShowRecentTasks(!showRecentTasks);
+              }}
+              aria-expanded={showRecentTasks}
+              aria-haspopup="dialog"
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] transition-colors ${
+                showRecentTasks
+                  ? 'bg-app-surface-hover text-app-primary font-medium'
+                  : 'text-app-muted hover:text-app-primary hover:bg-app-surface-hover'
+              }`}
+              title="Recent Sessions"
+            >
+              <Clock className="w-3 h-3" />
+              <span>Recent</span>
+              {recentTasks.length > 0 && (
+                <span className="ml-0.5 text-[9px] px-1.5 rounded-full bg-app-surface-hover text-app-muted font-mono">
+                  {recentTasks.length}
+                </span>
+              )}
+            </button>
+
+            {showRecentTasks && (
+              <div
+                role="dialog"
+                aria-label="Recent Sessions"
+                className="absolute right-0 top-full mt-1.5 w-64 bg-app-surface border border-app-border rounded-lg shadow-2xl py-1.5 z-40"
+              >
+                {recentTasks.length === 0 ? (
+                  <p className="px-3 py-2 text-[11px] text-app-muted">No previous sessions yet.</p>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between px-2.5 pb-1">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-app-muted">
+                        Sessions
+                      </span>
+                      <button
+                        type="button"
+                        onClick={clearRecentTasks}
+                        className="p-1 rounded text-app-muted hover:text-rose-500 transition-colors"
+                        title="Clear history"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    <div className="max-h-60 overflow-y-auto px-1">
+                      {(showAllSessions ? recentTasks : recentTasks.slice(0, 5)).map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => {
+                            setPrompt(t.prompt);
+                            setShowRecentTasks(false);
+                            setShowAllSessions(false);
+                            inputRef.current?.focus();
+                          }}
+                          className="w-full text-left px-2 py-1.5 rounded hover:bg-app-surface-hover transition-colors"
+                        >
+                          <span className="block truncate text-xs text-app-primary/90">{t.prompt}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {recentTasks.length > 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllSessions((p) => !p)}
+                        className="w-full text-left px-2.5 py-1.5 mt-1 border-t border-app-border text-[11px] font-medium text-app-accent hover:bg-app-surface-hover transition-colors"
+                      >
+                        {showAllSessions ? 'Show fewer sessions' : `Show all sessions (${recentTasks.length})`}
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             )}
-          </button>
+          </div>
 
           <button
             type="button"
@@ -496,64 +611,13 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
         </div>
       </div>
 
-      {/* Main Body Area: Recent Tasks Drawer + Chat Thread */}
+      {/* Main Body Area: Chat Thread */}
       <div className="flex-1 min-h-0 flex overflow-hidden relative">
-        {/* Collapsible Recent Tasks Drawer */}
-        {showRecentTasks && (
-          <div className="w-52 flex-shrink-0 border-r border-app-border bg-app-surface/60 flex flex-col overflow-hidden animate-in slide-in-from-left duration-150 z-20">
-            <div className="p-2 border-b border-app-border flex items-center justify-between text-xs font-mono text-app-muted">
-              <span className="flex items-center gap-1.5 font-semibold text-[11px]">
-                <Clock className="w-3 h-3" />
-                Recent Tasks
-              </span>
-              {recentTasks.length > 0 && (
-                <button
-                  type="button"
-                  onClick={clearRecentTasks}
-                  className="p-1 hover:text-rose-500 rounded transition-colors"
-                  title="Clear history"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-1.5 space-y-1 scrollbar-none">
-              {recentTasks.length === 0 ? (
-                <div className="text-[11px] text-app-muted p-3 text-center">
-                  No recent tasks yet.
-                </div>
-              ) : (
-                recentTasks.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => {
-                      setPrompt(t.prompt);
-                      setShowRecentTasks(false);
-                      inputRef.current?.focus();
-                    }}
-                    className="w-full text-left p-2 rounded hover:bg-app-surface text-app-muted hover:text-app-primary transition-colors group"
-                  >
-                    <p className="text-xs truncate font-medium text-app-primary/90">{t.prompt}</p>
-                    <span className="text-[10px] text-app-muted/60 font-mono">
-                      {new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Chat Stream Thread */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-app-canvas/40">
           {messages.length === 0 ? (
             // Empty State & Presets
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-4 text-center select-none scrollbar-none">
-              <div className="mb-2.5 flex-shrink-0">
-                <Sparkles className="w-6 h-6 text-app-accent fill-app-accent" />
-              </div>
               <h3 className="text-xs font-semibold text-app-primary mb-1">How can I assist your document?</h3>
               <p className="text-[11px] text-app-muted max-w-xs mb-4 leading-relaxed">
                 Contextual writing assistant. Ask questions, draft recipes, generate code, or analyze text.
@@ -564,7 +628,10 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
                   <button
                     key={item.label}
                     type="button"
-                    onClick={() => handleSubmit(item.prompt)}
+                    onClick={() => {
+                      setPrompt(item.prompt);
+                      inputRef.current?.focus();
+                    }}
                     className="text-left p-2 rounded-lg bg-app-surface/60 border border-app-border hover:border-app-accent/40 hover:bg-app-surface text-xs text-app-muted hover:text-app-primary transition-all flex flex-col gap-0.5"
                   >
                     <span className="font-semibold text-app-primary text-[11px]">{item.label}</span>
@@ -707,10 +774,16 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
               e.preventDefault();
               handleSubmit();
             } else if (e.key === 'Escape') {
-              onClose();
+              if (showRecentTasks) {
+                setShowRecentTasks(false);
+                setShowAllSessions(false);
+              } else {
+                onClose();
+              }
             }
           }}
           placeholder="Type prompt or task (e.g. buatkan resep)..."
+          aria-label="AI prompt"
           disabled={isStreaming}
           className="flex-1 bg-app-canvas border border-app-border focus:border-app-accent focus:ring-1 focus:ring-app-accent/30 rounded-md px-3 py-2 text-xs text-app-primary placeholder:text-app-muted outline-none transition-all"
         />
@@ -719,13 +792,14 @@ export const AIPalette: React.FC<AIPaletteProps> = ({
           type="button"
           onClick={() => handleSubmit()}
           disabled={isStreaming || !prompt.trim()}
-          className="h-8 px-3.5 rounded-full bg-app-accent hover:opacity-90 disabled:opacity-40 text-white font-medium transition-all flex items-center justify-center shadow-sm"
+          className="h-8 w-8 rounded-full bg-app-accent hover:opacity-90 disabled:opacity-40 text-white transition-all flex items-center justify-center"
+          aria-label="Send task to AI"
           title="Send task to AI (Enter)"
         >
           {isStreaming ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <CornerDownLeft className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           )}
         </button>
       </div>

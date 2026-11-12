@@ -42,14 +42,22 @@
 
 1. **Priority Rule:** Speed > Security > Features.
 2. **AI Model Boundary:** Menggunakan provider **KIE AI** dengan model **`deepseek-v4-1-flash`** (`https://kie.ai/deepseek-v4-1-Flash`, endpoint `/openai/v1/responses`). Sama sekali TIDAK menggunakan provider di luar KIE AI.
-3. **Crash-Resilience Rule:** A buffer marked `is_dirty = true` must have an atomic draft snapshot persisted to `%APPDATA%\Docuopsy\drafts\` within 500ms debounce.
+3. **Crash-Resilience Rule:** A buffer marked `is_dirty = true` must have an atomic draft snapshot persisted to `%APPDATA%\Docuopsy\drafts\` within 500ms debounce. The draft queue is **per tab** (`pendingDrafts`/`draftDebounceTimers` maps) — a shared timer that lets one tab's edit cancel another tab's draft write violates this rule. A dirty tab is never closed through a draft-deleting path: `closeTab` persists the draft unless the caller passes `{ discard: true }`, and UI close paths route through `requestCloseTab` → `CloseTabDialog` (Save & Close / Discard / Cancel). A save is acknowledged per **revision**: `markClean(id, path, expectedRevision)` must keep the tab dirty if `revision` advanced while the write was in flight, and a failed save keeps the tab dirty with a visible Retry (audit #08).
 4. **Log Sanitization Rule:** No raw document text or plaintext API keys may ever appear in logs.
-5. **Sandboxing Rule:** Paths must be canonicalized and checked for path traversal (`..`) before any filesystem read or write.
+5. **Sandboxing Rule:** Paths must be canonicalized and checked for path traversal (`..`) before any filesystem read or write, and every read/save/byte-read must pass `ensure_authorized` — an in-memory allowlist populated only by native pickers, drag-drops, and restored session tabs, plus the app's internal config root. The allowlist is process-local, so restored session paths are re-authorized (`allow_paths`) on boot before hydration (audit #09).
 6. **Preview Safety Rule:** All rendered HTML in markdown preview must be sanitized via `DOMPurify`.
 7. **Open Source Rule:** 100% of dependencies must use permissive licenses (MIT, Apache-2.0, BSD, ISC).
 8. **Package Manager & Runtime Rule:** Frontend dependencies and dev scripts strictly use **`bun`** (`bun install`, `bun run dev`, `bun run build`, `bun run test`, `bun run tsc --noEmit`).
 9. **Impeccable Design & Dual-Theme Rule:** Must enforce *The Archival Forensics Studio* design system (`PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`) with day-one semantic parity between **Dark Forensics** (`#0B0F14`) and **High-Contrast Light** (`#FAF7F0`), `tabular-nums` on all numeric telemetry, 65ch–72ch scholarly reading measure, and WCAG 2.1 AA/AAA contrast.
 10. **Dynamic Window Size Rule:** On startup, the desktop window size must dynamically calculate and adjust to 70% of the active display monitor's physical resolution (`0.70x width`, `0.70x height`) and center itself cleanly.
+11. **Custom Chrome Rule:** The window runs with `decorations: false`, so minimize / fullscreen / close and the `data-tauri-drag-region` strips in `TabBar` are the only window affordances. Any new window or webview IPC call must be granted explicitly in `src-tauri/capabilities/default.json`, and every close path (button, Alt+F4, taskbar) must pass through the awaited persistence flush.
+12. **Drop Trust Rule:** Dropped paths are checked in TypeScript for usability only (absolute path, allow-listed extension, batch cap); the authoritative gates (traversal, symlink type-swap, allowlist membership, atomic writes) live in `src-tauri/src/services/fs.rs`. A dropped path is registered via `allow_paths` before it is opened.
+13. **Frameless Drag Rule:** The grip box in `TabBar` (left of `leftAddon`) is the designated window drag handle; any element added to the header must not cover it, and child icons inside a drag region need `pointer-events-none` or Tauri will not start the drag.
+14. **Lazy Grammar Rule:** Editor grammars resolve through a `Compartment` fed by `resolveLanguageExtension`, which must `await description.load()` before reading `.extension` — `description.support` is `undefined` until then. The name handed to the resolver is `filePath` when the tab is backed by a file (a renamed tab title is a display label, not a grammar), and resolutions are cached per name behind an applied-name guard so re-configuring an identical extension never forces a full re-parse.
+15. **No Credential in Source Rule:** Keys exist only in gitignored `.env` / `src-tauri/.env.dev` / `.secret/`. Browser-dev AI goes through the Vite `/api/omniroute` proxy (`OMNIROUTE_API_KEY`, loaded Node-side, never a `VITE_` var) so nothing secret is inlined into `dist/`; release Rust builds take `KIE_AI_API_KEY` from the environment.
+16. **Editor Longevity Rule:** `EditorPane` owns exactly one `EditorView` for its lifetime. Theme changes go through a `themeCompartment.reconfigure` dispatch; tab changes swap per-tab `EditorState` objects cached in the module-scoped `editorStatesByTab` map (which also survives FullPreview unmounts). Never destroy/recreate the view on theme or tab change — that throws away the undo history (audit P1 #06).
+17. **PDF Byte Rule:** PDFs are parsed from raw bytes (`read_document_bytes` → `tauri::ipc::Response`) by a locally bundled PDF.js worker (`?url`, no CDN), never from a `file://` URL, so rendering works offline and under the app CSP. `PreviewContainer` lazy-loads `PdfViewer` (code-split); the viewer destroys its loading task/document on tab switch and unmount (audit #07).
+18. **AI Stream Lifecycle Rule:** Every stream chunk is filtered by `streamId`; `isStreaming` is finalized in a `finally` so a dropped terminal event can never wedge the input; the backend never emits `completed` after an `error`; prior turns are forwarded so multi-turn context survives (audit #12).
 
 ---
 
@@ -76,7 +84,16 @@
 | **Code/Text Preview** | `src/components/CodePreview.tsx` | Completed & Tested | Frontend UI Agent |
 | **AI Stream Chat & Recent Tasks** | `src/components/AIPalette.tsx` | Completed & Tested | Frontend UI Agent |
 | **Root Assembly** | `src/App.tsx`, `src-tauri/src/lib.rs` | Completed & Verified | Frontend / Rust Core |
-| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (12 Vitest + 15 Cargo) | QA / Reviewer Agent |
+| **File Drop Open (DnD)** | `src/api/dnd.ts`, `src/hooks/useFileDropOpen.ts` | Completed & Tested (native + browser paths) | Frontend UI Agent |
+| **Tab Fast Rename** | `src/components/TabBar.tsx`, `useTabStore.renameTab` | Completed & Tested | Frontend UI Agent |
+| **Custom Window Chrome** | `src/components/WindowControls.tsx`, `src/api/window.ts` | Completed & Tested (fake `__TAURI_INTERNALS__`); live undecorated boot not yet verified | Frontend UI Agent |
+| **Close-Flush Guard** | `handleCloseRequest` (`src/api/window.ts`), `flushPersistence` (`src/store/tabStore.ts`) | Completed & Tested | Frontend / Rust Core |
+| **Symlink Type-Swap Guard** | `src-tauri/src/services/fs.rs` (`validate_symlink_type`) | Implemented; tests skip on Windows without developer mode | Rust Core Agent |
+| **Window Grip & Tab Panning** | `src/components/TabBar.tsx`, `.scrollbar-none` (`src/index.css`) | Completed & Tested (DOM-level; native drag unverified) | Frontend UI Agent |
+| **Lazy Syntax Grammars** | `src/editor/extensions.ts` (`resolveLanguageExtension`), `@codemirror/language-data` | Completed & Tested; verified live for Python and fenced Markdown | Frontend UI Agent |
+| **Recent Sessions Bubble** | `src/components/AIPalette.tsx` | Completed & Tested | Frontend UI Agent |
+| **Dirty-Close Guard Dialog** | `src/components/CloseTabDialog.tsx`, `useTabStore.requestCloseTab` | Completed & Tested (6 component tests + probes) | Frontend UI Agent |
+| **E2E & Quality Gate** | `src/__tests__/`, `src-tauri/src/tests/` | 100% Passed (17 Vitest files / 81 tests + 23 Cargo tests + 7 audit probes; `bun audit` 0 vulns) | QA / Reviewer Agent |
 
 ---
 

@@ -56,7 +56,7 @@ $$\mathbf{Kecepatan\ (Speed\ /\ Performance)} \longrightarrow \mathbf{Keamanan\ 
 5. **Generative AI Assistant (KIE AI):**
    - Provider: **KIE AI** (`https://kie.ai`).
    - Model: **`claude-haiku-5-5`** (ekstra cepat, efisien, dan cerdas).
-   - API Key: `e003b0c015d233ea848997456242e97b` (disimpan aman di env/config lokal).
+   - API Key: `<KIE_AI_API_KEY from gitignored .env>` (disimpan aman di env/config lokal).
    - Fitur: *Continue Writing*, *Summarize*, *Rewrite / Fix Grammar*, *Custom Prompt* dengan streaming response langsung ke buffer editor.
 6. **Unified Observability & Forensic Logging:**
    - Pencatatan log sistem otomatis berbasis rotasi file lokal.

@@ -4,17 +4,17 @@ mod tests {
 
     #[test]
     fn test_redact_api_key_bearer() {
-        let raw = "Authorization: Bearer e003b0c015d233ea848997456242e97b";
+        let raw = "Authorization: Bearer a1b2c3d4e5f60718293a4b5c6d7e8f90";
         let scrubbed = redact_secrets(raw);
-        assert!(!scrubbed.contains("e003b0c015d233ea848997456242e97b"));
-        assert!(scrubbed.contains("[REDACTED]") || scrubbed.contains("e003...97b"));
+        assert!(!scrubbed.contains("a1b2c3d4e5f60718293a4b5c6d7e8f90"));
+        assert!(scrubbed.contains("[REDACTED]") || scrubbed.contains("a1b2...f90"));
     }
 
     #[test]
     fn test_redact_hex_key_standalone() {
-        let raw = "Sending request with key=e003b0c015d233ea848997456242e97b to KIE AI";
+        let raw = "Sending request with key=a1b2c3d4e5f60718293a4b5c6d7e8f90 to KIE AI";
         let scrubbed = redact_secrets(raw);
-        assert!(!scrubbed.contains("e003b0c015d233ea848997456242e97b"));
+        assert!(!scrubbed.contains("a1b2c3d4e5f60718293a4b5c6d7e8f90"));
     }
 
     #[test]

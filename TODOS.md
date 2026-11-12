@@ -6,7 +6,7 @@
 
 ## 📊 Overall Progress Summary
 
-- **Current Active Phase:** Pre-production audit (2026-11-05); release blocked pending remediation.
+- **Current Active Phase:** Audit remediation complete (2026-11-11 P0/P1 batch + 2026-11-12 #07–#16 batch). Code-side blockers resolved and all quality gates green; release still blocked only on credential rotation/history cleanup and native window verification.
 - **Milestone:** Core implementation exists; historical completion claims below are not production acceptance.
 - **Priority Hierarchy:** `Speed (Performance) > Security > Features`
 - **AI Provider:** KIE AI (`claude-haiku-5-5`) via Streaming SSE in Rust Backend
@@ -20,8 +20,64 @@
 - [x] Identify credential exposure, persistence/editor defects, PDF and theme issues.
 - [x] Finish independent defect reproductions (initially 4 failures; latest 05e0937: 3 failures / 1 pass after concurrent Undo fix) and backend quality gates (15/15 Rust; Clippy passes).
 - [x] Complete audit report and rendered detector at 1280×800 / 800×600; record native/screenshot/light-theme verification limits.
-- [ ] Remove exposed credentials from source/history and rotate the key before push.
-- [ ] Remediate production blockers and re-run release acceptance.
+- [ ] Remove exposed credentials from source/history and rotate the key before push. **(source & docs scrubbed in batch 8.10; history rewrite + key rotation still owed)**
+- [ ] Remediate production blockers and re-run release acceptance. **(P0 #04, P0 #05, P1 #06 fixed in the 2026-11-11 batch below; remaining audit findings P1 #07–#12, P2 #13–#16 still open)**
+
+---
+
+## 🧯 Audit remediation batch — 2026-11-11
+
+- [x] **R.1.** P0 #04 per-tab draft debounce queue (`pendingDrafts`/`draftDebounceTimers` maps in `tabStore.ts`); `flushPersistence` flushes every queued tab.
+- [x] **R.2.** P0 #05 dirty-close guard: `requestCloseTab` + `pendingCloseTabId` in the store, `CloseTabDialog` (Save & Close / Discard / Cancel) wired to tab X, `Ctrl+W`, and App menu; draft is persisted — never deleted — without an explicit discard.
+- [x] **R.3.** P1 #06 undo preservation: single long-lived `EditorView`, theme via `Compartment` reconfigure, per-tab `EditorState` cache at module scope (survives tab switch and FullPreview unmount), cursor position restored on fresh builds.
+- [x] **R.4.** Audit probes re-instrumented without `vi.mock` (broken under current vitest 3.2.7 runtime — imported bindings arrive as real functions); draft probes assert via the real localStorage fallback path. Probe suite: **7/7 PASS** (was 3 FAIL / 1 PASS).
+- [x] **R.5.** New `closeTabDialog.test.tsx` component suite (6 tests). Quality gate: `tsc --noEmit` clean, Vitest **17 files / 78 tests PASS**, `bun run build` OK.
+- [x] **R.6.** Remaining audit findings remediated in the 2026-11-12 batch below: P1 #07 (PDF byte path/CSP), #08 (save status honesty), #09 (fs canonicalization boundary), #10–#11 (theme parity/contrast/a11y), #12 (AI stream lifecycle), P2 #13–#16.
+- [ ] **R.7.** Credential rotation + git history cleanup (blocks any push/publish).
+- [ ] **R.8.** Native window verification still owed (7.6/7.7/8.8) before installer acceptance.
+
+## 🧯 Audit remediation batch — 2026-11-12 (findings #07–#16)
+
+- [x] **R.9.** #07 PDF: new authorized `read_document_bytes` IPC (binary `tauri::ipc::Response`, `spawn_blocking`), local bundled PDF.js worker (`?url`), destroy loading task/doc on switch/unmount, `.pdf` skips text read on open + session restore. PDF engine code-split via `React.lazy` (main chunk 1.3 MB → 1.01 MB, `PdfViewer` 369 kB chunk).
+- [x] **R.10.** #08 save status: per-tab `saveStatus` + `revision`; `markClean` revision guard keeps dirty when the buffer changed mid-write; footer shows Saving/Saved/Draft cached/Unsaved + Retry on error; open-picker errors surfaced inline. New `tabStore` guard tests (3).
+- [x] **R.11.** #12 AI lifecycle: `streamId` chunk filter, guaranteed `isStreaming` finalization in `finally`, backend no longer emits `completed` after a stream error, multi-turn history forwarded to the gateway.
+- [x] **R.12.** #10/#11 theme + a11y: themed `--code-inline-fg`/`--row-alt-bg`, AA light-mode `--text-muted`, roving-tabindex tabs, focusable keyboard splitter, modal focus trap + restore, prompt label, global `:focus-visible`, `prefers-reduced-motion`.
+- [x] **R.13.** #09 fs allowlist: `authorize_path`/`ensure_authorized` (pickers, drops, restored session, internal root); `sync_all` durability (#13); `redact_secrets` on AI logs (#14); `Cargo.lock` tracked (#16).
+- [x] **R.14.** #15 vitest 3.2.7 → 4.1.12 (Vite 6 compatible); `bun audit` = 0 vulns across 358 packages; `vi.mock` works again.
+- [x] **R.15.** Quality gate (2026-11-12): `tsc --noEmit` clean · Vitest **17 files / 81 tests** · probes **7/7** · `bun run build` OK · `cargo clippy -D warnings` clean · `cargo test` **23/23** · `bun audit` 0 vulns.
+- [ ] **R.16.** Still user-side: rotate OmniRoute + KIE keys and purge git history (commit `f705fb9`) before any push/publish; native window verification (7.6/7.7/8.8).
+
+---
+
+## 🖱️ Desktop UX batch — 2026-11-07 (`/efx-lead`)
+
+- [x] **7.1.** Drag & drop a file onto the window → opens directly (native paths in Tauri, `DataTransfer` fallback in dev).
+  - [x] Type allowlist, absolute-path gate, dedupe of already-open tabs, 10-file batch cap, per-file error isolation.
+  - [x] PDFs open without a UTF-8 text read.
+- [x] **7.2.** Double-click a tab → title becomes an inline input (stem pre-selected, Enter/blur commits, Escape cancels).
+  - [x] `renameTab` in the store; rename survives save-back-to-same-path and session restart.
+- [x] **7.3.** Undecorated window with icon-only minimize / fullscreen / close chrome + drag region.
+  - [x] `decorations: false`, `data-tauri-drag-region`, `F11` fullscreen, capabilities trimmed to used commands.
+  - [x] Awaiting draft + session flush on close, armed for Alt+F4 / taskbar quit.
+- [x] **7.4.** Quality gate: `tsc --noEmit` clean, Vitest 15 files / 63 tests, `bun run build` OK, `cargo test` 20, `cargo clippy -D warnings` clean.
+- [x] **7.5.** Independent cross-model audit (5 MAJOR findings) remediated.
+- [ ] **7.6.** Boot the real undecorated desktop window and verify chrome, drop, and rename by hand — blocked locally: `target\debug\docuopsy.exe` was locked by a running instance (a leftover Docuopsy process; closing it is the user's call).
+- [ ] **7.7.** Symlink type-swap guard is untested on this machine (Windows without developer mode skips symlink creation); needs a Linux/developer-mode run.
+
+---
+
+## 🎛️ UI polish batch II — 2026-11-07 (`/efx-lead`)
+
+- [x] **8.1.** Window grip box (dotted icon) left of the app menu, draggable via `data-tauri-drag-region`.
+- [x] **8.2.** Tab strip hold-and-move horizontal panning, scrollbar hidden; a pan suppresses the click/dbl-click that follows.
+- [x] **8.3.** AI chrome cleanup: toolbar toggle shows a filled icon and no border when active, New Session drops its focus ring, send control is an icon-only arrow-right.
+- [x] **8.4.** Recent sessions bubble (≤ 5 titles + Show all sessions) replacing the left drawer; outside click dismisses it.
+- [x] **8.5.** Empty state drops the decorative icon, quick prompts cut to 3 and fill the input instead of submitting.
+- [x] **8.6.** Syntax coloring via `@codemirror/language-data` (~50 lazy grammars) + fenced-code highlighting inside Markdown, applied through a CodeMirror compartment.
+- [x] **8.7.** Quality gate: `tsc --noEmit` clean, Vitest 16 files / 72 tests, `cargo test` 20, clippy `-D warnings` clean, `bun run build` OK, live browser verification of grip, panning, bubble, quick-prompt fill and Python/Markdown coloring.
+- [x] **8.9.** Adversarial audit remediation: pointer-capture panning with listener teardown (leak), focus ring restored on New Session, grammar keyed to `filePath` instead of the display title, per-filename grammar cache with identity guard, single-apply wheel handling, `aria-expanded`/`aria-haspopup`/`aria-label` and `role="img"` on the grip, `.pan-scroller` scoped class.
+- [x] **8.10.** Credential hygiene: OmniRoute key removed from `src/api/ipc.ts` (the Vite `/api/omniroute` proxy now injects `OMNIROUTE_API_KEY` Node-side), KIE debug key removed from `src-tauri/src/services/ai.rs` (`KIE_AI_API_KEY_DEV` env or gitignored `src-tauri/.env.dev`), literals scrubbed from AGENTS/GEMINI/INFRA/superpowers docs, redaction test re-keyed to a synthetic value. **Rotation still owed: both keys remain in git history.**
+- [ ] **8.8.** Native window drag through the new grip still unverified in a real decorated-free Tauri window — the running `docuopsy.exe` instance holds the debug binary; browser-side checks only prove the drag-region attribute is wired.
 
 ---
 

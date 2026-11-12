@@ -25,7 +25,10 @@ mod persistence_test;
 mod ai_stream_test;
 
 use commands::ai::ai_generate_stream;
-use commands::fs::{pick_file_to_open, pick_file_to_save, read_document, save_document};
+use commands::fs::{
+    allow_paths, pick_file_to_open, pick_file_to_save, read_document, read_document_bytes,
+    save_document,
+};
 use commands::logging::log_event;
 use commands::state::{load_draft, load_session, remove_draft, save_draft, save_session};
 use tauri::Manager;
@@ -59,7 +62,9 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             read_document,
+            read_document_bytes,
             save_document,
+            allow_paths,
             pick_file_to_open,
             pick_file_to_save,
             save_session,
